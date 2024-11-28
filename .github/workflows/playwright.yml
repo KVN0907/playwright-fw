@@ -43,10 +43,9 @@ jobs:
         with:
           allure_results: ./out/allure-results
           allure_history: ./gh-pages/allure-history
-      - name: Publish Allure Report
+      - name: Push to GitHub Pages branch
         if: always()
-        uses: peaceiris/actions-gh-pages@v4.0.0
+        uses: ftnext/action-push-ghpages@v1.0.0
         with:
+          build_dir: ./gh-pages/allure-history
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./gh-pages/allure-history
