@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test:dev": "cross-env NODE_ENV=dev npx playwright test --headed",
-    "test:currents": "cross-env npx pwc --pwc-debug=full --key 86CygT0blrunOUXm --project-id VKVIEo"
+    "test:currents": "cross-env NODE_TLS_REJECT_UNAUTHORIZED='0' npx pwc --pwc-debug=full --key 86CygT0blrunOUXm --project-id VKVIEo"
   },
   "keywords": [],
   "author": "",
