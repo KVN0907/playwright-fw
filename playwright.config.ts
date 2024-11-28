@@ -3,6 +3,9 @@ import { defineConfig, devices } from '@playwright/test';
 import { CurrentsConfig, currentsReporter } from "@currents/playwright";
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import type { PlaywrightTestConfig } from "@playwright/test";
+import { Status } from "allure-js-commons";
+import * as os from "node:os";
 
 // Load environment variables from the .env file
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -25,7 +28,7 @@ const currentsConfig: CurrentsConfig = {
   debug: "remote"
 };
 
-export default defineConfig({
+const config: PlaywrightTestConfig = defineConfig({
   globalSetup: require.resolve('./testConfig/globalSetup.ts'), 
   testDir: './tests',
   fullyParallel: true,
@@ -40,6 +43,41 @@ export default defineConfig({
       "allure-playwright", // Allure reporter
       {
         resultsDir: "allure-results", // Custom results directory for Allure reports
+      },
+    ],
+    [
+      "allure-playwright",
+      {
+        resultsDir: "./out/allure-results",
+        detail: true,
+        suiteTitle: true,
+        links: {
+          issue: {
+            nameTemplate: "Issue #%s",
+            urlTemplate: "https://issues.example.com/%s",
+          },
+          tms: {
+            nameTemplate: "TMS #%s",
+            urlTemplate: "https://tms.example.com/%s",
+          },
+          jira: {
+            urlTemplate: (v) => `https://jira.example.com/browse/${v}`,
+          },
+        },
+        categories: [
+          {
+            name: "foo",
+            messageRegex: "bar",
+            traceRegex: "baz",
+            matchedStatuses: [Status.FAILED, Status.BROKEN],
+          },
+        ],
+        environmentInfo: {
+          os_platform: os.platform(),
+          os_release: os.release(),
+          os_version: os.version(),
+          node_version: process.version,
+        },
       },
     ],
   ],
@@ -67,3 +105,5 @@ export default defineConfig({
   ],
   // ... other configuration options
 });
+
+export default config;
