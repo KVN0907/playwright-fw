@@ -1,0 +1,8 @@
+{
+    "getAccountDetails":"api/admin/account",
+    "getOrganizationDetails":"api/ey-groups/organization",
+    "createOrganization":"api/admin/api/ey-groups/organization",
+    "createCompany":"api/admin/api/ey-groups/company",
+    "csrfTokenGateWay":"api/csrf-token-gateway",
+    "getOrganizationById":"api/admin/api/ey-groups/organization/{id}"
+}
