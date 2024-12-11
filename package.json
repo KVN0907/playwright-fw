@@ -11,19 +11,25 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@cucumber/cucumber": "^10.9.0",
-    "@currents/playwright": "^1.6.2",
-    "@playwright/test": "^1.48.2",
-    "@types/node": "^22.4.1",
-    "allure-playwright": "^3.0.6",
+    "@cucumber/cucumber": "^11.1.0",
+    "@currents/playwright": "^1.8.0",
+    "@playwright/test": "^1.49.1",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.2",
+    "allure-js-commons": "^3.0.7",
+    "allure-playwright": "^3.0.7",
     "cross-env": "^7.0.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
-    "allure-js-commons": "^3.0.6"
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
+    "@types/cucumber-html-reporter": "^5.0.4",
+    "@types/winston": "^2.4.4",
+    "cucumber-html-reporter": "^6.0.0",
+    "dotenv": "^16.4.7",
+    "fs-extra": "^11.2.0",
     "playwrightfw": "file:",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.3",
+    "winston": "^3.17.0"
   }
 }

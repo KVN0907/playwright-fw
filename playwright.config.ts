@@ -27,7 +27,7 @@ const ENV = process.env.NODE_ENV || 'development';
 Log.info(`Environment: ${ENV}`);
 
 // Retrieve the baseURL from the environment variables based on the environment
-const BASE_URL = process.env[`${ENV.toUpperCase()}_BASE_URL`] || 'https://eyhive-dev.ey.com/';
+const BASE_URL = process.env[`${ENV.toUpperCase()}_BASE_URL`] || 'https://saasifier-dev.ey.com/';
 Log.info(`baseURL: ${BASE_URL}`);
 
 // Currents Config
