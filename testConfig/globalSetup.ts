@@ -33,7 +33,7 @@ async function globalSetup(config: FullConfig) {
   await page.goto(baseURL!); 
   await ssoLoginPage.login(username, password);
 
-  await page.waitForURL("https://saasifier-dev.ey.com/");
+  await page.waitForURL("https://eyhive-dev.ey.com/");
   // Save signed-in state to 'storageState.json'
   await page.context().storageState({ path: 'storageState.json' });
 

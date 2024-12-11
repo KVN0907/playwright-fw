@@ -1,25 +1,36 @@
-// playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
 import { CurrentsConfig, currentsReporter } from "@currents/playwright";
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as fs from 'fs-extra';
 import type { PlaywrightTestConfig } from "@playwright/test";
-import { Status } from "allure-js-commons";
-import * as os from "node:os";
+import Log from './tests/utils/Log'; // Adjust the path as necessary
 
-// Load environment variables from the .env file
-dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
+// Load environment variables from the .env file based on TEST_ENV
+dotenv.config({
+  path: process.env.TEST_ENV ? `.env.${process.env.TEST_ENV}` : '.env',
+  override: Boolean(process.env.TEST_ENV),
+});
+
+// Paths for directories
+const reportsDir = path.join('.', 'test-results', 'reports');
+const screenshotsDir = path.join('.', 'test-results', 'screenshots');
+const videosDir = path.join('.', 'test-results', 'videos');
+
+// Ensure directories and clean up old test results
+fs.ensureDirSync(reportsDir);
+fs.removeSync(screenshotsDir);
+fs.removeSync(videosDir);
 
 // Define the environment (default to 'development' if not set)
 const ENV = process.env.NODE_ENV || 'development';
-console.log(`Environment: ${ENV}`);
+Log.info(`Environment: ${ENV}`);
 
 // Retrieve the baseURL from the environment variables based on the environment
-const BASE_URL = process.env[`${ENV.toUpperCase()}_BASE_URL`] || 'https://saasifier-dev.ey.com/';
-console.log(`baseURL: ${BASE_URL}`);
+const BASE_URL = process.env[`${ENV.toUpperCase()}_BASE_URL`] || 'https://eyhive-dev.ey.com/';
+Log.info(`baseURL: ${BASE_URL}`);
 
-//Curents Config
-
+// Currents Config
 const currentsConfig: CurrentsConfig = {
   recordKey: "86CygT0blrunOUXm", 
   projectId: "VKVIEo", 
@@ -32,52 +43,17 @@ const config: PlaywrightTestConfig = defineConfig({
   globalSetup: require.resolve('./testConfig/globalSetup.ts'), 
   testDir: './tests',
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  forbidOnly: Boolean(process.env.CI),
+  retries: process.env.RETRIES ? parseInt(process.env.RETRIES, 10) : 0,
+  workers: process.env.PARALLEL_THREAD ? parseInt(process.env.PARALLEL_THREAD, 10) : undefined,
   reporter: [
     ["html"], // Default HTML reporter
     ["line"], // Default CLI reporter
     currentsReporter(currentsConfig), // Currents reporter
     [
-      "allure-playwright", // Allure reporter
+      "json",
       {
-        resultsDir: "allure-results", // Custom results directory for Allure reports
-      },
-    ],
-    [
-      "allure-playwright",
-      {
-        resultsDir: "./out/allure-results",
-        detail: true,
-        suiteTitle: true,
-        links: {
-          issue: {
-            nameTemplate: "Issue #%s",
-            urlTemplate: "https://issues.example.com/%s",
-          },
-          tms: {
-            nameTemplate: "TMS #%s",
-            urlTemplate: "https://tms.example.com/%s",
-          },
-          jira: {
-            urlTemplate: (v) => `https://jira.example.com/browse/${v}`,
-          },
-        },
-        categories: [
-          {
-            name: "foo",
-            messageRegex: "bar",
-            traceRegex: "baz",
-            matchedStatuses: [Status.FAILED, Status.BROKEN],
-          },
-        ],
-        environmentInfo: {
-          os_platform: os.platform(),
-          os_release: os.release(),
-          os_version: os.version(),
-          node_version: process.version,
-        },
+        outputFile: path.join(reportsDir, 'cucumber.json'), // Use path.join for file paths
       },
     ],
   ],
@@ -85,25 +61,7 @@ const config: PlaywrightTestConfig = defineConfig({
     baseURL: BASE_URL, // Use the environment-specific baseURL
     trace: 'on',
     storageState: 'storageState.json',
-    video: "on",
-    screenshot: "on",
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    // ... other projects
-  ],
-  // ... other configuration options
 });
 
 export default config;
