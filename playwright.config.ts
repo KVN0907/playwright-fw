@@ -22,15 +22,26 @@ try {
   config = configManager.getConfig();
 } catch (error) {
   console.warn('ConfigManager not available, using default configuration');
+  
+  // Get environment-specific URL
+  const ENV = process.env.NODE_ENV || 'development';
+  let baseURL = process.env[`${ENV.toUpperCase()}_APP_URL`];
+  if (!baseURL) {
+    baseURL = process.env.APP_URL;
+  }
+  if (!baseURL) {
+    throw new Error(`No base URL found for environment ${ENV}. Please set ${ENV.toUpperCase()}_APP_URL or APP_URL in your environment variables.`);
+  }
+  
   config = {
-    baseURL: process.env.DEV_BASE_URL || 'https://saasifier-dev.ey.com/',
+    baseURL: baseURL,
     headless: process.env.HEADLESS !== 'false',
     retries: parseInt(process.env.RETRIES || '1'),
-    workers: parseInt(process.env.PARALLEL_THREAD || '4'),
+    workers: parseInt(process.env.WORKERS || '4'),
     timeout: parseInt(process.env.TIMEOUT || '30000'),
-    trace: true,
-    video: true,
-    screenshot: true
+    trace: process.env.TRACE === 'true',
+    video: process.env.VIDEO === 'true',
+    screenshot: process.env.SCREENSHOT === 'true'
   };
 }
 
@@ -74,16 +85,16 @@ const currentsConfig: CurrentsConfig = {
 const playwrightConfig: PlaywrightTestConfig = defineConfig({
   globalSetup: require.resolve('./testConfig/globalSetup.ts'), 
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false, // Changed to false for sequential execution
   forbidOnly: Boolean(process.env.CI),
   retries: config.retries,
-  workers: config.workers,
+  workers: 1, // Set to 1 worker for sequential execution
   timeout: config.timeout,
   expect: {
     timeout: 10000, // Expect timeout
   },
   reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }], // Disable auto-open
     ['line'],
     ['json', { outputFile: path.join(reportsDir, 'results.json') }],
     ['junit', { outputFile: path.join(reportsDir, 'junit.xml') }],
@@ -98,7 +109,7 @@ const playwrightConfig: PlaywrightTestConfig = defineConfig({
     trace: config.trace ? 'retain-on-failure' : 'off',
     video: config.video ? 'retain-on-failure' : 'off',
     screenshot: config.screenshot ? 'only-on-failure' : 'off',
-    storageState: 'storageState.json',
+    storageState: 'auth.json', // Changed from storageState.json to auth.json
     actionTimeout: 30000,
     navigationTimeout: 30000,
   },
@@ -107,22 +118,23 @@ const playwrightConfig: PlaywrightTestConfig = defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    {
-      name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'mobile-safari',
-      use: { ...devices['iPhone 12'] },
-    },
+    // Commented out other browsers to run only chromium
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
+    // {
+    //   name: 'mobile-chrome',
+    //   use: { ...devices['Pixel 5'] },
+    // },
+    // {
+    //   name: 'mobile-safari',
+    //   use: { ...devices['iPhone 12'] },
+    // },
   ],
   outputDir: 'test-results/',
 });

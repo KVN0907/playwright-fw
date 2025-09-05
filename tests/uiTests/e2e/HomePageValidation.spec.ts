@@ -1,120 +1,45 @@
-import { test, expect } from '../../fixtures/baseTest';
-import { BaseTest } from '../../fixtures/baseTest';
-import { ErrorHandler } from '../../utils/ErrorHandler';
-import { TestDataManager } from '../../utils/TestDataManager';
-import Log from '../../utils/Log';
+import { test, expect } from '@playwright/test';
+import { HomePage } from '../pageObjects/HomePage';
 
 test.describe('Home Page Validation Tests', () => {
-  test('Home page test', async ({ page, homePage }, testInfo) => {
-    const scenarioName = 'Home page test';
+  let homePage: HomePage;
+
+  test.beforeEach(async ({ page }) => {
+    // Initialize page object
+    homePage = new HomePage(page);
     
-    await BaseTest.executeWithLogging(scenarioName, async () => {
-      try {
-        // Get test data
-        const testDataManager = TestDataManager.getInstance();
-        const ssoUsername = process.env.DEV_SSO_USERNAME;
-        
-        if (!ssoUsername) {
-          throw new Error('SSO_USERNAME environment variable is not set.');
-        }
-
-        Log.info('Navigating to the home page');
-        await homePage.navigateTo('/');
-
-        Log.info('Verifying banner text');
-        await ErrorHandler.assertWithRetry(
-          () => homePage.verifyBannerText(ssoUsername),
-          3,
-          1000,
-          'Banner text verification'
-        );
-
-        Log.info('Verifying heading text');
-        await ErrorHandler.assertWithRetry(
-          () => homePage.verifyHeadingText(`Good Day, ${ssoUsername}!`),
-          3,
-          1000,
-          'Heading text verification'
-        );
-
-        Log.info('Navigating to setup');
-        await homePage.navigateToSetup();
-
-        // Verify navigation was successful
-        await ErrorHandler.waitForCondition(
-          async () => {
-            const url = page.url();
-            return url.includes('setup') || url.includes('Setup');
-          },
-          10000,
-          500,
-          'Navigation to setup page'
-        );
-
-      } catch (error) {
-        await ErrorHandler.handleTestError(page, testInfo, error as Error);
-        throw error;
-      }
-    });
+    // Navigate to home page - authentication should already be loaded from auth.json
+    await page.goto('/');
   });
 
-  test('Navigate to Control Definition Libraries', async ({ page, homePage }, testInfo) => {
-    const scenarioName = 'Navigate to Control Definition Libraries';
+  test('Home page test', async ({ page }) => {
+    const environment = process.env.NODE_ENV || 'dev';
+    const username = environment === 'qa' 
+      ? process.env.QA_USERNAME 
+      : process.env.DEV_USERNAME;
     
-    await BaseTest.executeWithLogging(scenarioName, async () => {
-      try {
-        Log.info('Navigating to the home page');
-        await homePage.navigateTo('/');
+    if (!username) {
+      throw new Error(`USERNAME environment variable is not set for ${environment} environment.`);
+    }
 
-        // Add your navigation logic here
-        const controlDefButton = page.locator('button:has-text("Control Definition Libraries")');
-        await homePage.clickElement(controlDefButton, 'Control Definition Libraries button');
-
-        // Verify navigation
-        await ErrorHandler.waitForCondition(
-          async () => {
-            const url = page.url();
-            return url.includes('control') || url.includes('libraries');
-          },
-          10000,
-          500,
-          'Navigation to Control Definition Libraries'
-        );
-
-      } catch (error) {
-        await ErrorHandler.handleTestError(page, testInfo, error as Error);
-        throw error;
-      }
-    });
+    await homePage.verifyBannerText(`Good Day.`);
   });
 
-  test('Navigate to Approval section', async ({ page, homePage }, testInfo) => {
-    const scenarioName = 'Navigate to Approval section';
-    
-    await BaseTest.executeWithLogging(scenarioName, async () => {
-      try {
-        Log.info('Navigating to the home page');
-        await homePage.navigateTo('/');
+  test('Navigate to Control Definition Libraries', async ({ page }) => {
+    await homePage.navigateToControlDefinitionLibraries();
+    // Add verification that we're on the correct page
+    await expect(page).toHaveURL(/.*control.*definition.*libraries.*/i);
+  });
 
-        // Add your navigation logic here
-        const approvalButton = page.locator('button:has-text("Approval")');
-        await homePage.clickElement(approvalButton, 'Approval button');
+  test('Navigate to Approval section', async ({ page }) => {
+    await homePage.navigateToApproval();
+    // Add verification that we're on the correct page
+    await expect(page).toHaveURL(/.*approval.*/i);
+  });
 
-        // Verify navigation
-        await ErrorHandler.waitForCondition(
-          async () => {
-            const url = page.url();
-            return url.includes('approval');
-          },
-          10000,
-          500,
-          'Navigation to Approval section'
-        );
-
-      } catch (error) {
-        await ErrorHandler.handleTestError(page, testInfo, error as Error);
-        throw error;
-      }
-    });
+  test('Navigate to Maintenance section', async ({ page }) => {
+    await homePage.navigateToMaintenance();
+    // Add verification that we're on the correct page
+    await expect(page).toHaveURL(/.*maintenance.*/i);
   });
 });

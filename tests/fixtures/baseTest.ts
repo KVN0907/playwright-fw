@@ -1,13 +1,13 @@
 import { test as base, Page, APIRequestContext } from '@playwright/test';
 import { HomePage } from '../uiTests/pageObjects/HomePage';
-import { SsoLoginPage } from '../uiTests/pageObjects/SsoLoginPage';
+import { LoginPage } from '../uiTests/pageObjects/LoginPage';
 import { APITestHelper } from '../utils/APITestHelper';
 import Log from '../utils/Log';
 
 // Define the types for your fixtures
 type MyFixtures = {
   homePage: HomePage;
-  ssoLoginPage: SsoLoginPage;
+  loginPage: LoginPage;
   loggedInPage: Page;
   apiHelper: APITestHelper;
 };
@@ -19,9 +19,9 @@ export const test = base.extend<MyFixtures>({
     await use(homePage);
   },
 
-  ssoLoginPage: async ({ page }, use) => {
-    const ssoLoginPage = new SsoLoginPage(page);
-    await use(ssoLoginPage);
+  loginPage: async ({ page }, use) => {
+    const loginPage = new LoginPage(page);
+    await use(loginPage);
   },
 
   loggedInPage: async ({ page }, use) => {

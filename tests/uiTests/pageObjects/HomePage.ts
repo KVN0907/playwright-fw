@@ -6,18 +6,26 @@ dotenv.config();
 export class HomePage extends BasePage {
   readonly banner: Locator;
   readonly heading: Locator;
-  readonly menuSetup: Locator;
-  readonly setupHeading: Locator;
+  readonly controlDefinitionLibraries: Locator;
+  readonly approval: Locator;
+  readonly maintenance: Locator;
 
   constructor(page: Page) {
     super(page);
-    this.banner = page.locator('b.name');
-    this.heading = page.locator('role=heading');
-    this.menuSetup = page.locator('#menuSetup span');
-    this.setupHeading = page.locator('role=heading[name="Setup"]');
+    // Use more specific locator for the welcome banner that contains "Good Day"
+    this.banner = page.locator('h1:has-text("Good Day")'); 
+    this.heading = page.locator('role=heading'); // General heading locator
+    this.controlDefinitionLibraries = page.locator('text=Control Definition Libraries');
+    this.approval = page.locator('text=Approval');
+    this.maintenance = page.locator('text=Maintenance');
   }
 
   async verifyBannerText(expectedText: string) {
+    console.log(this.page.url());
+    // Wait for the page to load and the error state to clear
+    await this.page.waitForLoadState('networkidle');
+    // Wait for the specific banner to be visible
+    await this.banner.waitFor({ state: 'visible', timeout: 15000 });
     await this.verifyText(this.banner, expectedText, 'Banner text');
   }
 
@@ -25,8 +33,27 @@ export class HomePage extends BasePage {
     await this.verifyText(this.heading, expectedText, 'Heading text');
   }
 
-  async navigateToSetup() {
-    await this.clickElement(this.menuSetup, 'Setup menu');
-    await this.clickElement(this.setupHeading, 'Setup heading');
+  /**
+   * Navigate back using browser back button
+   */
+  async navigateBack() {
+    await this.page.goBack();
+    await this.page.waitForLoadState('networkidle');
+    console.log('Navigated back to previous page');
+  }
+
+  async navigateToControlDefinitionLibraries() {
+    await this.clickElement(this.controlDefinitionLibraries, 'Control Definition Libraries');
+    await this.navigateBack();
+  }
+
+  async navigateToApproval() {
+    await this.clickElement(this.approval, 'Approval');
+    await this.navigateBack();
+  }
+
+  async navigateToMaintenance() {
+    await this.clickElement(this.maintenance, 'Maintenance');
+    await this.navigateBack();
   }
 }

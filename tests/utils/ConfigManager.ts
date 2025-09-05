@@ -17,7 +17,7 @@ export class ConfigManager {
   private environment: string;
 
   private constructor() {
-    this.environment = process.env.NODE_ENV || 'dev';
+    this.environment = process.env.NODE_ENV || 'development';
     this.config = this.loadConfig();
   }
 
@@ -29,9 +29,29 @@ export class ConfigManager {
   }
 
   private loadConfig(): EnvironmentConfig {
+    // Get environment-specific URL
+    const ENV = this.environment.toUpperCase();
+    let baseURL = process.env[`${ENV}_APP_URL`];
+    if (!baseURL) {
+      baseURL = process.env.APP_URL;
+    }
+    if (!baseURL) {
+      throw new Error(`No base URL found for environment ${this.environment}. Please set ${ENV}_APP_URL or APP_URL in your environment variables.`);
+    }
+    
+    // Get environment-specific API URL
+    let apiURL = process.env[`${ENV}_API_URL`];
+    if (!apiURL) {
+      apiURL = process.env.API_URL;
+    }
+    if (!apiURL) {
+      // Default to base URL + /api if no API URL is specified
+      apiURL = `${baseURL.replace(/\/$/, '')}/api`;
+    }
+    
     const baseConfig: EnvironmentConfig = {
-      baseURL: this.getEnvVar('BASE_URL', 'https://saasifier-dev.ey.com/'),
-      apiURL: this.getEnvVar('API_URL', 'https://saasifier-dev.ey.com/api'),
+      baseURL: baseURL,
+      apiURL: apiURL,
       timeout: parseInt(this.getEnvVar('TIMEOUT', '30000')),
       retries: parseInt(this.getEnvVar('RETRIES', '1')),
       workers: parseInt(this.getEnvVar('PARALLEL_THREAD', '4')),
@@ -45,9 +65,15 @@ export class ConfigManager {
     return baseConfig;
   }
 
-  private getEnvVar(key: string, defaultValue: string): string {
+  private getEnvVar(key: string, defaultValue?: string): string {
     const envSpecificKey = `${this.environment.toUpperCase()}_${key}`;
-    return process.env[envSpecificKey] || process.env[key] || defaultValue;
+    const value = process.env[envSpecificKey] || process.env[key];
+    
+    if (!value && !defaultValue) {
+      throw new Error(`Environment variable ${envSpecificKey} or ${key} is required but not set.`);
+    }
+    
+    return value || defaultValue!;
   }
 
   getConfig(): EnvironmentConfig {

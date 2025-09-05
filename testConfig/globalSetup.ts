@@ -1,44 +1,109 @@
 // global-setup.ts
 import { chromium, FullConfig } from '@playwright/test';
+import { LoginPage } from '../tests/uiTests/pageObjects/LoginPage';
 import * as dotenv from 'dotenv';
-import { SsoLoginPage } from '../tests/uiTests/pageObjects/ssoLoginPage'; 
+import * as path from 'path';
+import * as fs from 'fs';
 
-// Load environment variables from the .env file
-dotenv.config();
+// Load environment variables from environment-specific .env file
+function loadEnvWithDebug() {
+  // Load environment-specific .env file based on NODE_ENV
+  const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env';
+  const envPath = path.resolve(__dirname, `../${envFile}`);
+  
+  console.log(`Loading environment variables from: ${envPath}`);
+  
+  if (!fs.existsSync(envPath)) {
+    console.error(`ERROR: ${envFile} file not found at ${envPath}`);
+    // Fallback to main .env file
+    const fallbackPath = path.resolve(__dirname, '../.env');
+    if (fs.existsSync(fallbackPath)) {
+      console.log(`Falling back to: ${fallbackPath}`);
+      dotenv.config({ path: fallbackPath });
+      return true;
+    }
+    return false;
+  }
+  
+  // Load the environment-specific file
+  dotenv.config({ 
+    path: envPath,
+    override: true
+  });
+  
+  return true;
+}
 
 async function globalSetup(config: FullConfig) {
-  console.log('Starting global setup...');
+  // Load environment variables with debug info
+  const envLoaded = loadEnvWithDebug();
+  if (!envLoaded) {
+    process.exit(1);
+  }
+  
+  // Get the current environment
+  const ENV = process.env.NODE_ENV || 'qa';
+  console.log(`Using environment: ${ENV.toUpperCase()}`);
+  
+  // Debug all relevant environment variables
+  console.log('--- Environment Variables Debug ---');
+  console.log(`NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`APP_URL: ${process.env.APP_URL}`);
+  console.log(`${ENV.toUpperCase()}_APP_URL: ${process.env[`${ENV.toUpperCase()}_APP_URL`]}`);
+  console.log(`${ENV.toUpperCase()}_USERNAME: ${process.env[`${ENV.toUpperCase()}_USERNAME`]}`);
+  console.log(`${ENV.toUpperCase()}_PASSWORD: ${process.env[`${ENV.toUpperCase()}_PASSWORD`] ? '****' : 'not set'}`);
+  console.log('-----------------------------------');
+  
+  // Get the base URL for the current environment with explicit fallback
+  let baseURL = process.env[`${ENV.toUpperCase()}_APP_URL`];
+  if (!baseURL) {
+    console.log(`Warning: ${ENV.toUpperCase()}_APP_URL not found, trying APP_URL fallback`);
+    baseURL = process.env.APP_URL;
+  }
+  
+  // Log and exit if no base URL is configured
+  if (!baseURL) {
+    console.error(`ERROR: No base URL configured for environment ${ENV.toUpperCase()}`);
+    console.error('Please check your .env file and ensure APP_URL or ${ENV}_APP_URL is set');
+    process.exit(1);
+  }
+  
+  console.log(`Base URL: ${baseURL}`);
+  
+  // Get credentials for the current environment
+  const username = process.env[`${ENV.toUpperCase()}_USERNAME`];
+  const password = process.env[`${ENV.toUpperCase()}_PASSWORD`];
+  
+  // Log and exit if credentials are missing
+  if (!username || !password) {
+    console.error(`ERROR: Credentials not configured for environment ${ENV.toUpperCase()}`);
+    console.error('Please check your .env file and ensure ${ENV}_USERNAME and ${ENV}_PASSWORD are set');
+    process.exit(1);
+  }
+  
+  // Launch browser and create a new page
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  const ssoLoginPage = new SsoLoginPage(page);
-
-  // Define the environment (default to 'development' if not set)
-  const ENV = process.env.NODE_ENV || 'dev';
-
-  // Retrieve SSO credentials from environment variables based on the environment
-  const username = process.env[`${ENV.toUpperCase()}_SSO_USERNAME`];
-  const password = process.env[`${ENV.toUpperCase()}_SSO_PASSWORD`];
-
-  // Use the baseURL from the first project configuration as an example
-  // Ensure that baseURL is always a string
-  const { baseURL, storageState } = config.projects[0].use;
-  console.log(`Using baseURL: ${baseURL}`);
-
-  // Ensure that username and password are defined
-  if (typeof username !== 'string' || typeof password !== 'string') {
-    throw new Error(`${ENV.toUpperCase()}_SSO_USERNAME or ${ENV.toUpperCase()}_SSO_PASSWORD environment variable is not set or not a string.`);
+  const loginPage = new LoginPage(page);
+  
+  try {
+    console.log(`Logging in as ${username}`);
+    
+    // Navigate to the SSO login page and perform the login
+    console.log(`Navigating to: ${baseURL}`);
+    await page.goto(baseURL);
+    await loginPage.login(username, password);
+    
+    // Store authentication state
+    const authPath = path.resolve(__dirname, '../auth.json');
+    await page.context().storageState({ path: authPath });
+    console.log(`Authentication state saved to: ${authPath}`);
+  } catch (error) {
+    console.error('Error during global setup:', error);
+    throw error;
+  } finally {
+    await browser.close();
   }
-
-  // Navigate to the SSO login page and perform the login
-  await page.goto(baseURL!); 
-  await ssoLoginPage.login(username, password);
-
-  await page.waitForURL("https://saasifier-dev.ey.com/");
-  // Save signed-in state to 'storageState.json'
-  await page.context().storageState({ path: 'storageState.json' });
-
-  await browser.close();
-  console.log('Global setup completed.');
 }
 
 export default globalSetup;
