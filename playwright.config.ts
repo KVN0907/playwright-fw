@@ -4,13 +4,35 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import type { PlaywrightTestConfig } from "@playwright/test";
-import Log from './tests/utils/Log'; // Adjust the path as necessary
+import Log from './tests/utils/Log';
+import { ConfigManager } from './tests/utils/ConfigManager';
 
 // Load environment variables from the .env file based on TEST_ENV
 dotenv.config({
   path: process.env.TEST_ENV ? `.env.${process.env.TEST_ENV}` : '.env',
   override: Boolean(process.env.TEST_ENV),
 });
+
+// Get configuration
+let configManager: ConfigManager;
+let config: any;
+
+try {
+  configManager = ConfigManager.getInstance();
+  config = configManager.getConfig();
+} catch (error) {
+  console.warn('ConfigManager not available, using default configuration');
+  config = {
+    baseURL: process.env.DEV_BASE_URL || 'https://saasifier-dev.ey.com/',
+    headless: process.env.HEADLESS !== 'false',
+    retries: parseInt(process.env.RETRIES || '1'),
+    workers: parseInt(process.env.PARALLEL_THREAD || '4'),
+    timeout: parseInt(process.env.TIMEOUT || '30000'),
+    trace: true,
+    video: true,
+    screenshot: true
+  };
+}
 
 // Paths for directories
 const reportsDir = path.join('.', 'test-results', 'reports');
@@ -19,49 +41,90 @@ const videosDir = path.join('.', 'test-results', 'videos');
 
 // Ensure directories and clean up old test results
 fs.ensureDirSync(reportsDir);
-fs.removeSync(screenshotsDir);
-fs.removeSync(videosDir);
+fs.ensureDirSync(screenshotsDir);
+fs.ensureDirSync(videosDir);
+
+// Clean up old files with proper glob patterns
+if (fs.existsSync(reportsDir)) {
+  const reportFiles = fs.readdirSync(reportsDir).filter(file => file.endsWith('.json'));
+  reportFiles.forEach(file => fs.removeSync(path.join(reportsDir, file)));
+}
+if (fs.existsSync(screenshotsDir)) {
+  const screenshotFiles = fs.readdirSync(screenshotsDir).filter(file => file.endsWith('.png'));
+  screenshotFiles.forEach(file => fs.removeSync(path.join(screenshotsDir, file)));
+}
+if (fs.existsSync(videosDir)) {
+  const videoFiles = fs.readdirSync(videosDir).filter(file => file.endsWith('.webm'));
+  videoFiles.forEach(file => fs.removeSync(path.join(videosDir, file)));
+}
 
 // Define the environment (default to 'development' if not set)
 const ENV = process.env.NODE_ENV || 'development';
 Log.info(`Environment: ${ENV}`);
-
-// Retrieve the baseURL from the environment variables based on the environment
-const BASE_URL = process.env[`${ENV.toUpperCase()}_BASE_URL`] || 'https://saasifier-dev.ey.com/';
-Log.info(`baseURL: ${BASE_URL}`);
+Log.info(`baseURL: ${config.baseURL}`);
 
 // Currents Config
 const currentsConfig: CurrentsConfig = {
   recordKey: "86CygT0blrunOUXm", 
   projectId: "VKVIEo", 
   ciBuildId: Date.now().toString(),
-  tag: ["playwright", "test"],
-  debug: "remote"
+  tag: ["playwright", "test", ENV]
 };
 
-const config: PlaywrightTestConfig = defineConfig({
+const playwrightConfig: PlaywrightTestConfig = defineConfig({
   globalSetup: require.resolve('./testConfig/globalSetup.ts'), 
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
-  retries: process.env.RETRIES ? parseInt(process.env.RETRIES, 10) : 0,
-  workers: process.env.PARALLEL_THREAD ? parseInt(process.env.PARALLEL_THREAD, 10) : undefined,
+  retries: config.retries,
+  workers: config.workers,
+  timeout: config.timeout,
+  expect: {
+    timeout: 10000, // Expect timeout
+  },
   reporter: [
-    ["html"], // Default HTML reporter
-    ["line"], // Default CLI reporter
-    currentsReporter(currentsConfig), // Currents reporter
-    [
-      "json",
-      {
-        outputFile: path.join(reportsDir, 'cucumber.json'), // Use path.join for file paths
-      },
-    ],
+    ['html', { outputFolder: 'playwright-report' }],
+    ['line'],
+    ['json', { outputFile: path.join(reportsDir, 'results.json') }],
+    ['junit', { outputFile: path.join(reportsDir, 'junit.xml') }],
+    ['./tests/reporter/CustomReporter.ts'],
+    currentsReporter(currentsConfig),
   ],
   use: {
-    baseURL: BASE_URL, // Use the environment-specific baseURL
-    trace: 'on',
+    baseURL: config.baseURL,
+    headless: config.headless,
+    viewport: { width: 1280, height: 720 },
+    ignoreHTTPSErrors: true,
+    trace: config.trace ? 'retain-on-failure' : 'off',
+    video: config.video ? 'retain-on-failure' : 'off',
+    screenshot: config.screenshot ? 'only-on-failure' : 'off',
     storageState: 'storageState.json',
+    actionTimeout: 30000,
+    navigationTimeout: 30000,
   },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 12'] },
+    },
+  ],
+  outputDir: 'test-results/',
 });
 
-export default config;
+export default playwrightConfig;

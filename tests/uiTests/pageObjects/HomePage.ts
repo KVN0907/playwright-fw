@@ -1,17 +1,16 @@
 import { expect, Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 import dotenv from 'dotenv';
 dotenv.config();
 
-
-export class HomePage {
-  readonly page: Page;
+export class HomePage extends BasePage {
   readonly banner: Locator;
   readonly heading: Locator;
   readonly menuSetup: Locator;
   readonly setupHeading: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.banner = page.locator('b.name');
     this.heading = page.locator('role=heading');
     this.menuSetup = page.locator('#menuSetup span');
@@ -19,17 +18,15 @@ export class HomePage {
   }
 
   async verifyBannerText(expectedText: string) {
-    await expect(this.banner).toContainText(expectedText);
-    console.log('Banner text verified');
+    await this.verifyText(this.banner, expectedText, 'Banner text');
   }
 
   async verifyHeadingText(expectedText: string) {
-    await expect(this.heading).toContainText(expectedText);
-    console.log('Heading text verified');
+    await this.verifyText(this.heading, expectedText, 'Heading text');
   }
 
   async navigateToSetup() {
-    await this.menuSetup.click();
-    await this.setupHeading.click();
+    await this.clickElement(this.menuSetup, 'Setup menu');
+    await this.clickElement(this.setupHeading, 'Setup heading');
   }
 }
