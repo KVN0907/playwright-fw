@@ -189,7 +189,7 @@ export class EnhancedHTMLGenerator {
                 <span class="section-toggle">▼</span>
             </div>
             <div class="section-content">
-                ${Object.entries(metrics.browserMetrics).map(([browser, browserMetrics]) => `
+                ${Object.entries(metrics.browserMetrics).map(([browser, browserMetrics]: [string, any]) => `
                     <div class="browser-metric">
                         <span><strong>${browser}</strong></span>
                         <span>✅ ${browserMetrics.passed} | ❌ ${browserMetrics.failed} | ⏱️ ${(browserMetrics.duration / 1000).toFixed(1)}s</span>
@@ -206,7 +206,7 @@ export class EnhancedHTMLGenerator {
             </div>
             <div class="section-content">
                 <h4 style="margin-bottom: 1rem; color: #4a5568;">Severity Distribution</h4>
-                ${Object.entries(metrics.severityMetrics).map(([severity, severityMetrics]) => `
+                ${Object.entries(metrics.severityMetrics).map(([severity, severityMetrics]: [string, any]) => `
                     <div class="browser-metric">
                         <span><strong>${severity.toUpperCase()}</strong></span>
                         <span>Total: ${severityMetrics.total} | ✅ ${severityMetrics.passed} | ❌ ${severityMetrics.failed} | Pass Rate: ${((severityMetrics.passed / severityMetrics.total) * 100).toFixed(1)}%</span>
@@ -214,7 +214,7 @@ export class EnhancedHTMLGenerator {
                 `).join('')}
                 
                 <h4 style="margin: 2rem 0 1rem 0; color: #4a5568;">Epic Coverage</h4>
-                ${Object.entries(metrics.epicMetrics).map(([epic, epicMetrics]) => `
+                ${Object.entries(metrics.epicMetrics).map(([epic, epicMetrics]: [string, any]) => `
                     <div class="browser-metric">
                         <span><strong>${epic}</strong></span>
                         <span>Total: ${epicMetrics.total} | ✅ ${epicMetrics.passed} | ❌ ${epicMetrics.failed} | Pass Rate: ${((epicMetrics.passed / epicMetrics.total) * 100).toFixed(1)}%</span>
@@ -324,14 +324,14 @@ export class EnhancedHTMLGenerator {
                     new Chart(browserCtx.getContext('2d'), {
                         type: 'bar',
                         data: {
-                            labels: [${Object.keys(metrics.browserMetrics).map(b => `'${b}'`).join(',')}],
+                            labels: [${Object.keys(metrics.browserMetrics).map((b: string) => `'${b}'`).join(',')}],
                             datasets: [{
                                 label: 'Passed',
-                                data: [${Object.values(metrics.browserMetrics).map(m => m.passed).join(',')}],
+                                data: [${Object.values(metrics.browserMetrics).map((m: any) => m.passed).join(',')}],
                                 backgroundColor: '#48bb78'
                             }, {
                                 label: 'Failed',
-                                data: [${Object.values(metrics.browserMetrics).map(m => m.failed).join(',')}],
+                                data: [${Object.values(metrics.browserMetrics).map((m: any) => m.failed).join(',')}],
                                 backgroundColor: '#f56565'
                             }]
                         },
@@ -345,7 +345,7 @@ export class EnhancedHTMLGenerator {
                     new Chart(errorCtx.getContext('2d'), {
                         type: 'doughnut',
                         data: {
-                            labels: [${Object.keys(metrics.errorCategories).map(c => `'${c}'`).join(',')}],
+                            labels: [${Object.keys(metrics.errorCategories).map((c: string) => `'${c}'`).join(',')}],
                             datasets: [{
                                 data: [${Object.values(metrics.errorCategories).join(',')}],
                                 backgroundColor: ['#f56565', '#ed8936', '#ecc94b', '#48bb78', '#38b2ac', '#4299e1']
@@ -361,9 +361,9 @@ export class EnhancedHTMLGenerator {
                     new Chart(severityCtx.getContext('2d'), {
                         type: 'pie',
                         data: {
-                            labels: [${Object.keys(metrics.severityMetrics).map(s => `'${s.toUpperCase()}'`).join(',')}],
+                            labels: [${Object.keys(metrics.severityMetrics).map((s: string) => `'${s.toUpperCase()}'`).join(',')}],
                             datasets: [{
-                                data: [${Object.values(metrics.severityMetrics).map(m => m.total).join(',')}],
+                                data: [${Object.values(metrics.severityMetrics).map((m: any) => m.total).join(',')}],
                                 backgroundColor: ['#f56565', '#ed8936', '#ecc94b', '#48bb78']
                             }]
                         },
@@ -377,10 +377,10 @@ export class EnhancedHTMLGenerator {
                     new Chart(featureCtx.getContext('2d'), {
                         type: 'bar',
                         data: {
-                            labels: [${Object.keys(metrics.featureMetrics).map(f => `'${f}'`).join(',')}],
+                            labels: [${Object.keys(metrics.featureMetrics).map((f: string) => `'${f}'`).join(',')}],
                             datasets: [{
                                 label: 'Tests',
-                                data: [${Object.values(metrics.featureMetrics).map(m => m.total).join(',')}],
+                                data: [${Object.values(metrics.featureMetrics).map((m: any) => m.total).join(',')}],
                                 backgroundColor: '#667eea'
                             }]
                         },

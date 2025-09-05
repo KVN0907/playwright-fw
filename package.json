@@ -24,6 +24,7 @@
     "show:trace": "npx playwright show-trace",
     "show:enhanced": "start test-results/reports/enhanced-report.html",
     "show:detailed": "start test-results/reports/detailed-report.json",
+    "show:reports": "explorer test-results\\reports",
     "allure:generate": "npx allure generate allure-results --clean -o allure-report",
     "allure:serve": "npx allure serve allure-results",
     "allure:open": "npx allure open allure-report",
