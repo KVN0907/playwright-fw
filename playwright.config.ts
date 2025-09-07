@@ -1,9 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
-import { CurrentsConfig, currentsReporter } from "@currents/playwright";
+import { CurrentsConfig, currentsReporter } from '@currents/playwright';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import type { PlaywrightTestConfig } from "@playwright/test";
+import type { PlaywrightTestConfig } from '@playwright/test';
 import Log from './tests/utils/Log';
 import { ConfigManager } from './tests/utils/ConfigManager';
 
@@ -22,7 +22,7 @@ try {
   config = configManager.getConfig();
 } catch (error) {
   console.warn('ConfigManager not available, using default configuration');
-  
+
   // Get environment-specific URL
   const ENV = process.env.NODE_ENV || 'development';
   let baseURL = process.env[`${ENV.toUpperCase()}_APP_URL`];
@@ -30,9 +30,11 @@ try {
     baseURL = process.env.APP_URL;
   }
   if (!baseURL) {
-    throw new Error(`No base URL found for environment ${ENV}. Please set ${ENV.toUpperCase()}_APP_URL or APP_URL in your environment variables.`);
+    throw new Error(
+      `No base URL found for environment ${ENV}. Please set ${ENV.toUpperCase()}_APP_URL or APP_URL in your environment variables.`
+    );
   }
-  
+
   config = {
     baseURL: baseURL,
     headless: process.env.HEADLESS !== 'false',
@@ -41,7 +43,7 @@ try {
     timeout: parseInt(process.env.TIMEOUT || '30000'),
     trace: process.env.TRACE === 'true',
     video: process.env.VIDEO === 'true',
-    screenshot: process.env.SCREENSHOT === 'true'
+    screenshot: process.env.SCREENSHOT === 'true',
   };
 }
 
@@ -76,14 +78,14 @@ Log.info(`baseURL: ${config.baseURL}`);
 
 // Currents Config
 const currentsConfig: CurrentsConfig = {
-  recordKey: "86CygT0blrunOUXm", 
-  projectId: "VKVIEo", 
+  recordKey: '86CygT0blrunOUXm',
+  projectId: 'VKVIEo',
   ciBuildId: Date.now().toString(),
-  tag: ["playwright", "test", ENV]
+  tag: ['playwright', 'test', ENV],
 };
 
 const playwrightConfig: PlaywrightTestConfig = defineConfig({
-  globalSetup: require.resolve('./testConfig/globalSetup.ts'), 
+  globalSetup: require.resolve('./testConfig/globalSetup.ts'),
   testDir: './tests',
   fullyParallel: false, // Changed to false for sequential execution
   forbidOnly: Boolean(process.env.CI),
@@ -99,15 +101,18 @@ const playwrightConfig: PlaywrightTestConfig = defineConfig({
     ['json', { outputFile: path.join(reportsDir, 'results.json') }],
     ['junit', { outputFile: path.join(reportsDir, 'junit.xml') }],
     currentsReporter(currentsConfig),
-    ['playwright-enhanced-reporter', {
-      outputDir: './test-results/reports',
-      outputFile: 'enhanced-report.html',
-      title: 'Automation Results',
-      includeCharts: true,
-      includeTrends: true,
-      openReport: false,
-      theme: 'auto' // 'light', 'dark', or 'auto'
-    }]
+    [
+      'playwright-enhanced-reporter',
+      {
+        outputDir: './test-results/reports',
+        outputFile: 'enhanced-report.html',
+        title: 'Automation Results',
+        includeCharts: true,
+        includeTrends: true,
+        openReport: false,
+        theme: 'auto', // 'light', 'dark', or 'auto'
+      },
+    ],
   ],
   use: {
     baseURL: config.baseURL,
@@ -117,15 +122,19 @@ const playwrightConfig: PlaywrightTestConfig = defineConfig({
     trace: config.trace ? 'retain-on-failure' : 'off',
     video: config.video ? 'retain-on-failure' : 'off',
     screenshot: config.screenshot ? 'only-on-failure' : 'off',
-     // Changed from storageState.json to auth.json
-      actionTimeout: 30000,
-      navigationTimeout: 30000,
-      },
-      projects: [
-      {
-        name: 'chromium',
-        use: { ...devices['Desktop Chrome'] },
-      },
+    // Only use storageState for browser_session authentication
+    ...((process.env[`${ENV.toUpperCase()}_AUTH_TYPE`] || process.env.AUTH_TYPE) ===
+      'browser_session' || !(process.env[`${ENV.toUpperCase()}_AUTH_TYPE`] || process.env.AUTH_TYPE)
+      ? { storageState: './auth.json' }
+      : {}),
+    actionTimeout: 30000,
+    navigationTimeout: 30000,
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Commented out other browsers to run only chromium
     // {
     //   name: 'firefox',

@@ -50,9 +50,9 @@ export abstract class BasePage {
   async takeScreenshot(name?: string) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const screenshotName = name || `screenshot-${timestamp}`;
-    await this.page.screenshot({ 
+    await this.page.screenshot({
       path: `test-results/screenshots/${screenshotName}.png`,
-      fullPage: true 
+      fullPage: true,
     });
     Log.info(`Screenshot taken: ${screenshotName}.png`);
   }

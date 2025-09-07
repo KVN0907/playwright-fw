@@ -1,4 +1,4 @@
-import { test as base, Page, APIRequestContext } from '@playwright/test';
+import { test as base, Page } from '@playwright/test';
 import { HomePage } from '../uiTests/pageObjects/HomePage';
 import { LoginPage } from '../uiTests/pageObjects/LoginPage';
 import { APITestHelper } from '../utils/APITestHelper';
@@ -36,7 +36,7 @@ export const test = base.extend<MyFixtures>({
     const apiHelper = new APITestHelper(apiContext);
     await use(apiHelper);
     await apiContext.dispose();
-  }
+  },
 });
 
 export { expect } from '@playwright/test';
@@ -44,7 +44,7 @@ export { expect } from '@playwright/test';
 // Base test class for common test operations
 export class BaseTest {
   static async executeWithLogging<T>(
-    scenarioName: string, 
+    scenarioName: string,
     testAction: () => Promise<T>
   ): Promise<T> {
     Log.testBegin(scenarioName);

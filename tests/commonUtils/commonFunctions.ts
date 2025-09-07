@@ -11,9 +11,7 @@ function getRandomString(characterLength: number): string {
 }
 
 function generateRandomInteger(length: number): string {
-  const randomDigits = Array.from({ length: length }, () =>
-    Math.floor(Math.random() * 10)
-  );
+  const randomDigits = Array.from({ length: length }, () => Math.floor(Math.random() * 10));
   return randomDigits.join('');
 }
 
@@ -31,7 +29,7 @@ async function fetchCSRFToken(page: Page): Promise<string> {
   }
   const response = await page.request.get(csrfGatewayURI, {
     headers: {
-      'Cookie': `SESSION=${sessionCookie.value}`,
+      Cookie: `SESSION=${sessionCookie.value}`,
     },
   });
   // Parse the response body as JSON and extract the CSRF token

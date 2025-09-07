@@ -1,7 +1,8 @@
-<!-- 
-This file is the README for the Playwright Core Framework project. 
+<!--
+This file is the README for the Playwright Core Framework project.
 It provides an overview and documentation for the playwright-core-fw repository.
 -->
+
 # Playwright Test Framework
 
 A comprehensive Playwright testing framework for end-to-end and API testing.
@@ -9,6 +10,7 @@ A comprehensive Playwright testing framework for end-to-end and API testing.
 ## 🏗️ Framework Architecture
 
 ### Directory Structure
+
 ```
 playwright-fw/
 ├── tests/
@@ -28,25 +30,31 @@ playwright-fw/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - npm or yarn
 
 ### Installation
+
 ```bash
 npm install
 npx playwright install
 ```
 
 ### Environment Setup
+
 1. Copy environment template:
+
 ```bash
 cp .env.dev .env
 ```
+
 2. Update environment variables in `.env` file with your credentials
 
 ## 🧪 Running Tests
 
 ### Basic Commands
+
 ```bash
 # Run all tests in development environment
 npm run test:dev

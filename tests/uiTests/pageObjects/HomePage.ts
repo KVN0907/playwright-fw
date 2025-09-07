@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -13,7 +13,7 @@ export class HomePage extends BasePage {
   constructor(page: Page) {
     super(page);
     // Use more specific locator for the welcome banner that contains "Good Day"
-    this.banner = page.locator('h1:has-text("Good Day")'); 
+    this.banner = page.locator('h1:has-text("Good Day .")');
     this.heading = page.locator('role=heading'); // General heading locator
     this.controlDefinitionLibraries = page.locator('text=Control Definition Libraries');
     this.approval = page.locator('text=Approval');

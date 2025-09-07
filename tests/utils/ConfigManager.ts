@@ -36,9 +36,11 @@ export class ConfigManager {
       baseURL = process.env.APP_URL;
     }
     if (!baseURL) {
-      throw new Error(`No base URL found for environment ${this.environment}. Please set ${ENV}_APP_URL or APP_URL in your environment variables.`);
+      throw new Error(
+        `No base URL found for environment ${this.environment}. Please set ${ENV}_APP_URL or APP_URL in your environment variables.`
+      );
     }
-    
+
     // Get environment-specific API URL
     let apiURL = process.env[`${ENV}_API_URL`];
     if (!apiURL) {
@@ -48,7 +50,7 @@ export class ConfigManager {
       // Default to base URL + /api if no API URL is specified
       apiURL = `${baseURL.replace(/\/$/, '')}/api`;
     }
-    
+
     const baseConfig: EnvironmentConfig = {
       baseURL: baseURL,
       apiURL: apiURL,
@@ -59,7 +61,7 @@ export class ConfigManager {
       slowMo: parseInt(this.getEnvVar('SLOW_MO', '0')),
       video: this.getEnvVar('VIDEO', 'retain-on-failure') !== 'off',
       screenshot: this.getEnvVar('SCREENSHOT', 'only-on-failure') !== 'off',
-      trace: this.getEnvVar('TRACE', 'retain-on-failure') !== 'off'
+      trace: this.getEnvVar('TRACE', 'retain-on-failure') !== 'off',
     };
 
     return baseConfig;
@@ -68,11 +70,11 @@ export class ConfigManager {
   private getEnvVar(key: string, defaultValue?: string): string {
     const envSpecificKey = `${this.environment.toUpperCase()}_${key}`;
     const value = process.env[envSpecificKey] || process.env[key];
-    
+
     if (!value && !defaultValue) {
       throw new Error(`Environment variable ${envSpecificKey} or ${key} is required but not set.`);
     }
-    
+
     return value || defaultValue!;
   }
 

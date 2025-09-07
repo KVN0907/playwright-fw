@@ -69,7 +69,7 @@ export class TestDataManager {
       username: `testuser_${timestamp}`,
       password: 'Test@123',
       email: `testuser_${timestamp}@test.com`,
-      role: 'user'
+      role: 'user',
     };
   }
 
@@ -78,7 +78,7 @@ export class TestDataManager {
     return {
       name: `TestOrg_${timestamp}`,
       description: `Test Organization created at ${new Date().toISOString()}`,
-      domain: `testorg${timestamp}.com`
+      domain: `testorg${timestamp}.com`,
     };
   }
 }

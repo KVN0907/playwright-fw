@@ -20,7 +20,7 @@ export class TestSetup {
     this.page = page;
     this.context = context;
     this.environment = config.environment || process.env.NODE_ENV || 'qa';
-    
+
     // Load environment variables
     this.loadEnvironmentVariables();
   }
@@ -38,14 +38,14 @@ export class TestSetup {
    */
   private getBaseUrl(): string {
     const ENV = this.environment.toUpperCase();
-    
+
     // Get base URL from environment variables, with fallback chain
-    this.baseUrl = process.env.APP_URL || 
-                   process.env[`${ENV}_APP_URL`] || 
-                   '';
-                   
+    this.baseUrl = process.env.APP_URL || process.env[`${ENV}_APP_URL`] || '';
+
     if (!this.baseUrl) {
-      throw new Error(`No base URL found for environment ${this.environment}. Please set APP_URL or ${ENV}_APP_URL in your environment variables.`);
+      throw new Error(
+        `No base URL found for environment ${this.environment}. Please set APP_URL or ${ENV}_APP_URL in your environment variables.`
+      );
     }
 
     return this.baseUrl;
@@ -56,9 +56,9 @@ export class TestSetup {
    */
   private async navigateToHomePage(waitForNetworkIdle: boolean = true): Promise<void> {
     const baseUrl = this.getBaseUrl();
-    
+
     await this.page.goto(baseUrl);
-    
+
     if (waitForNetworkIdle) {
       await this.page.waitForLoadState('networkidle');
     }
@@ -77,7 +77,7 @@ export class TestSetup {
             const localStorageKeys = Object.keys(localStorage);
             // Get all sessionStorage keys
             const sessionStorageKeys = Object.keys(sessionStorage);
-            
+
             // Define authentication-related keys to preserve
             const authKeys = [
               'auth',
@@ -90,22 +90,22 @@ export class TestSetup {
               'refresh_token',
               'authState',
               'userSession',
-              'auth-token'
+              'auth-token',
             ];
-            
+
             // Clear localStorage except auth-related keys
             localStorageKeys.forEach(key => {
-              const isAuthKey = authKeys.some(authKey => 
+              const isAuthKey = authKeys.some(authKey =>
                 key.toLowerCase().includes(authKey.toLowerCase())
               );
               if (!isAuthKey) {
                 localStorage.removeItem(key);
               }
             });
-            
+
             // Clear sessionStorage except auth-related keys
             sessionStorageKeys.forEach(key => {
-              const isAuthKey = authKeys.some(authKey => 
+              const isAuthKey = authKeys.some(authKey =>
                 key.toLowerCase().includes(authKey.toLowerCase())
               );
               if (!isAuthKey) {
@@ -152,7 +152,7 @@ export class TestSetup {
       clearStorage = true,
       waitForNetworkIdle = true,
       logNavigation = true,
-      preserveAuth = true
+      preserveAuth = true,
     } = config;
 
     // Navigate to home page first (authentication state from globalSetup will be preserved)
@@ -174,10 +174,10 @@ export class TestSetup {
    */
   async setupForPageGeneration(): Promise<void> {
     await this.setup({
-      clearStorage: false,  // Don't clear storage for page generation
+      clearStorage: false, // Don't clear storage for page generation
       waitForNetworkIdle: true,
       logNavigation: true,
-      preserveAuth: true
+      preserveAuth: true,
     });
   }
 

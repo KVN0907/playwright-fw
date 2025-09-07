@@ -41,53 +41,53 @@ export class LoginPage {
    * @param email The email address
    * @param password The password
    */
-/**
- * Logs in using either SSO or form-based authentication based on the current URL
- * @param email The email address
- * @param password The password
- */
-async login(email: string, password: string) {
+  /**
+   * Logs in using either SSO or form-based authentication based on the current URL
+   * @param email The email address
+   * @param password The password
+   */
+  async login(email: string, password: string) {
     await this.loginButton.click();
-    
+
     // Wait for navigation and check the current URL
     await this.page.waitForLoadState('networkidle');
     const currentUrl = this.page.url();
-    
-    // Use ternary to determine if it's SSO or form-based login
-    currentUrl.includes('https://login.microsoftonline.com/') 
-        ? await this.performSsoLogin(email, password)
-        : await this.performFormLogin(email, password);
-}
 
-/**
- * Performs SSO login flow
- * @param email The email address
- * @param password The password
- */
-private async performSsoLogin(email: string, password: string) {
+    // Use ternary to determine if it's SSO or form-based login
+    currentUrl.includes('https://login.microsoftonline.com/')
+      ? await this.performSsoLogin(email, password)
+      : await this.performFormLogin(email, password);
+  }
+
+  /**
+   * Performs SSO login flow
+   * @param email The email address
+   * @param password The password
+   */
+  private async performSsoLogin(email: string, password: string) {
     await this.emailInput.fill(email);
     await this.nextButton.click();
     await this.passwordInput.fill(password);
     await this.signInButton.click();
-}
+  }
 
-/**
- * Performs form-based login flow
- * @param email The email address
- * @param password The password
- */
-private async performFormLogin(email: string, password: string) {
+  /**
+   * Performs form-based login flow
+   * @param email The email address
+   * @param password The password
+   */
+  private async performFormLogin(email: string, password: string) {
     await this.usernameOrEmailInput.fill(email);
     await this.passwordInputField.fill(password);
     await this.signInButtonSubmit.click();
-}
+  }
 
-/**
- * Checks if login was successful
- * @param successElement A locator that should be visible after successful login
- */
-async verifyLoginSuccess(successElement: Locator) {
+  /**
+   * Checks if login was successful
+   * @param successElement A locator that should be visible after successful login
+   */
+  async verifyLoginSuccess(successElement: Locator) {
     await expect(successElement).toBeVisible({ timeout: 10000 });
     assert(true, 'Login successful');
-}
+  }
 }

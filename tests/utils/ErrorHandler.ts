@@ -13,8 +13,8 @@ export interface ErrorContext {
 
 export class ErrorHandler {
   static async handleTestError(
-    page: Page, 
-    testInfo: TestInfo, 
+    page: Page,
+    testInfo: TestInfo,
     error: Error
   ): Promise<ErrorContext> {
     const timestamp = new Date();
@@ -23,7 +23,7 @@ export class ErrorHandler {
       error,
       timestamp,
       pageUrl: page.url(),
-      browserInfo: await this.getBrowserInfo(page)
+      browserInfo: await this.getBrowserInfo(page),
     };
 
     // Take screenshot on failure
@@ -63,7 +63,7 @@ export class ErrorHandler {
     operationName?: string
   ): Promise<T> {
     let lastError: Error;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         if (operationName && attempt > 1) {
@@ -79,8 +79,10 @@ export class ErrorHandler {
         await this.delay(delayMs);
       }
     }
-    
-    throw new Error(`Operation failed after ${maxRetries} attempts. Last error: ${lastError!.message}`);
+
+    throw new Error(
+      `Operation failed after ${maxRetries} attempts. Last error: ${lastError!.message}`
+    );
   }
 
   static async waitForCondition(
@@ -90,7 +92,7 @@ export class ErrorHandler {
     description?: string
   ): Promise<void> {
     const startTime = Date.now();
-    
+
     while (Date.now() - startTime < timeoutMs) {
       try {
         if (await condition()) {
@@ -101,8 +103,10 @@ export class ErrorHandler {
       }
       await this.delay(intervalMs);
     }
-    
-    throw new Error(`Condition not met within ${timeoutMs}ms${description ? `: ${description}` : ''}`);
+
+    throw new Error(
+      `Condition not met within ${timeoutMs}ms${description ? `: ${description}` : ''}`
+    );
   }
 
   private static async getBrowserInfo(page: Page): Promise<string> {
