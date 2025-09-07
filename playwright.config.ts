@@ -98,8 +98,16 @@ const playwrightConfig: PlaywrightTestConfig = defineConfig({
     ['line'],
     ['json', { outputFile: path.join(reportsDir, 'results.json') }],
     ['junit', { outputFile: path.join(reportsDir, 'junit.xml') }],
-    ['./tests/reporter/CustomReporter.ts'],
     currentsReporter(currentsConfig),
+    ['playwright-enhanced-reporter', {
+      outputDir: './test-results/reports',
+      outputFile: 'enhanced-report.html',
+      title: 'Automation Results',
+      includeCharts: true,
+      includeTrends: true,
+      openReport: false,
+      theme: 'auto' // 'light', 'dark', or 'auto'
+    }]
   ],
   use: {
     baseURL: config.baseURL,
@@ -109,15 +117,15 @@ const playwrightConfig: PlaywrightTestConfig = defineConfig({
     trace: config.trace ? 'retain-on-failure' : 'off',
     video: config.video ? 'retain-on-failure' : 'off',
     screenshot: config.screenshot ? 'only-on-failure' : 'off',
-    storageState: 'auth.json', // Changed from storageState.json to auth.json
-    actionTimeout: 30000,
-    navigationTimeout: 30000,
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
+     // Changed from storageState.json to auth.json
+      actionTimeout: 30000,
+      navigationTimeout: 30000,
+      },
+      projects: [
+      {
+        name: 'chromium',
+        use: { ...devices['Desktop Chrome'] },
+      },
     // Commented out other browsers to run only chromium
     // {
     //   name: 'firefox',
