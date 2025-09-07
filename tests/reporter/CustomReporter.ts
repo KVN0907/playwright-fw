@@ -31,6 +31,7 @@ export interface TestResultDetail {
   status: string;
   duration: number;
   browser: string;
+  specFile: string;
   retry: number;
   error?: string;
   allureProperties?: {
@@ -132,6 +133,7 @@ export default class CustomReporter implements Reporter {
       status: result.status,
       duration: result.duration,
       browser: browserName,
+      specFile: this.extractSpecFilePath(test),
       retry: result.retry,
       error: result.error?.message,
       allureProperties
@@ -206,12 +208,46 @@ export default class CustomReporter implements Reporter {
   }
 
   private extractBrowserName(test: TestCase): string {
-    // Extract browser name from project name or test title
-    const projectName = test.parent?.parent?.title || 'unknown';
-    if (projectName.includes('chromium')) return 'Chromium';
-    if (projectName.includes('firefox')) return 'Firefox';
-    if (projectName.includes('webkit')) return 'WebKit';
-    return projectName || 'Unknown';
+    // Extract browser name from test configuration
+    // First try to get it from the test's project
+    const projectName = test.parent?.project()?.name;
+    
+    if (projectName) {
+      // Map project names to display names
+      if (projectName === 'chromium' || projectName.includes('chrome')) return 'Chromium';
+      if (projectName === 'firefox') return 'Firefox';
+      if (projectName === 'webkit' || projectName.includes('safari')) return 'WebKit';
+      if (projectName === 'mobile-chrome') return 'Mobile Chrome';
+      if (projectName === 'mobile-safari') return 'Mobile Safari';
+      return projectName.charAt(0).toUpperCase() + projectName.slice(1);
+    }
+    
+    // Fallback to checking the test location or title
+    const testFile = test.location?.file || '';
+    const testTitle = test.title || '';
+    
+    if (testFile.includes('chromium') || testTitle.includes('chromium')) return 'Chromium';
+    if (testFile.includes('firefox') || testTitle.includes('firefox')) return 'Firefox';
+    if (testFile.includes('webkit') || testTitle.includes('webkit')) return 'WebKit';
+    
+    // Default browser name
+    return 'Chromium';
+  }
+
+  private extractSpecFilePath(test: TestCase): string {
+    // Extract the spec file path relative to the project root
+    const filePath = test.location?.file || '';
+    
+    if (filePath) {
+      // Convert absolute path to relative path for cleaner display
+      const projectRoot = process.cwd();
+      const relativePath = filePath.replace(projectRoot, '').replace(/\\/g, '/');
+      
+      // Remove leading slash if present
+      return relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+    }
+    
+    return 'Unknown';
   }
 
   async onEnd(result: FullResult) {
