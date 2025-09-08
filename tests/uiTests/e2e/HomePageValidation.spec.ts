@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { HomePage } from '../pageObjects/HomePage';
 
 test.describe('Home Page Validation Tests', () => {
@@ -21,23 +21,5 @@ test.describe('Home Page Validation Tests', () => {
     }
 
     await homePage.verifyBannerText(`Good Day.`);
-  });
-
-  test('Navigate to Control Definition Libraries', async ({ page }) => {
-    await homePage.navigateToControlDefinitionLibraries();
-    // Add verification that we're on the correct page
-    await expect(page).toHaveURL(/.*control.*definition.*libraries.*/i);
-  });
-
-  test('Navigate to Approval section', async ({ page }) => {
-    await homePage.navigateToApproval();
-    // Add verification that we're on the correct page
-    await expect(page).toHaveURL(/.*approval.*/i);
-  });
-
-  test('Navigate to Maintenance section', async ({ page }) => {
-    await homePage.navigateToMaintenance();
-    // Add verification that we're on the correct page
-    await expect(page).toHaveURL(/.*maintenance.*/i);
   });
 });

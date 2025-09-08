@@ -4,7 +4,7 @@
   "description": "Infinity Automation.",
   "main": "index.js",
   "scripts": {
-    "test:dev": "cross-env NODE_ENV=dev npx playwright test --headed",
+    "test:qa": "cross-env NODE_ENV=qa npx playwright test --headed",
     "test:dev:headless": "cross-env NODE_ENV=dev npx playwright test",
     "test:staging": "cross-env NODE_ENV=staging npx playwright test",
     "test:prod": "cross-env NODE_ENV=prod npx playwright test",

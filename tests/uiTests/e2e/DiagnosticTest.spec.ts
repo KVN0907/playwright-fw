@@ -21,8 +21,8 @@ test.describe('Diagnostic Tests', () => {
     Log.info(`Page title: ${title}`);
     Log.info(`Page URL: ${url}`);
 
-    // Check for error messages
-    const errorHeading = page.locator('h1');
+    // Check for error messages - use first() to handle multiple h1 elements
+    const errorHeading = page.locator('h1').first();
     const errorExists = await errorHeading.isVisible();
     if (errorExists) {
       const errorText = await errorHeading.textContent();

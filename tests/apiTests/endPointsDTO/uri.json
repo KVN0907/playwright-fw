@@ -1,4 +1,4 @@
 {
-    "getAccountDetails":"api/admin/account",
-    "csrfTokenGateWay":"/api/csrf-token-gateway"
+    "getAccountDetails":"/admin/account",
+    "csrfTokenGateWay":"/csrf-token-gateway"
 }

@@ -1,4 +1,4 @@
-import { Page, APIRequestContext } from '@playwright/test';
+import { Page, APIRequestContext, Cookie } from '@playwright/test';
 import Log from './Log';
 import { ConfigManager } from './ConfigManager';
 import { LoginPage } from '../uiTests/pageObjects/LoginPage';
@@ -31,11 +31,54 @@ export interface AuthConfig {
   tokenField?: string;
 }
 
+// Validation helper to ensure required credentials are present for each auth type
+export function validateAuthConfig(config: AuthConfig): void {
+  const { type, credentials } = config;
+
+  switch (type) {
+    case 'bearer_token':
+    case 'jwt_token':
+      if (!credentials?.token) {
+        throw new Error(`Authentication type '${type}' requires a token in credentials`);
+      }
+      break;
+    case 'api_key':
+      if (!credentials?.apiKey) {
+        throw new Error(`Authentication type '${type}' requires an apiKey in credentials`);
+      }
+      break;
+    case 'basic_auth':
+      if (!credentials?.username || !credentials?.password) {
+        throw new Error(
+          `Authentication type '${type}' requires username and password in credentials`
+        );
+      }
+      break;
+    case 'oauth2':
+      if (!credentials?.clientId || !credentials?.clientSecret) {
+        throw new Error(
+          `Authentication type '${type}' requires clientId and clientSecret in credentials`
+        );
+      }
+      break;
+    case 'custom_headers':
+      if (!credentials?.customHeaders || Object.keys(credentials.customHeaders).length === 0) {
+        throw new Error(`Authentication type '${type}' requires customHeaders in credentials`);
+      }
+      break;
+    case 'browser_session':
+      // Browser session might not require explicit credentials as they could come from environment
+      break;
+    default:
+      throw new Error(`Unsupported authentication type: ${type}`);
+  }
+}
+
 export interface AuthResult {
   success: boolean;
   token?: string;
   headers?: Record<string, string>;
-  cookies?: any[];
+  cookies?: Cookie[];
   error?: string;
 }
 
@@ -87,7 +130,16 @@ export class AuthenticationManager {
       tokenField: getEnvVar('TOKEN_FIELD') || 'access_token',
     };
 
-    Log.info(`Loaded auth configuration: ${this.authConfig.type}`);
+    // Validate the configuration
+    try {
+      validateAuthConfig(this.authConfig);
+      Log.info(`Loaded auth configuration: ${this.authConfig.type}`);
+    } catch (error) {
+      Log.error(`Auth configuration validation failed: ${error}`);
+      // For now, just log the error but continue - this allows browser_session to work
+      // without requiring explicit credentials in environment variables
+      Log.info(`Loaded auth configuration: ${this.authConfig.type} (with validation warnings)`);
+    }
   }
 
   private parseCustomHeaders(): Record<string, string> | undefined {
