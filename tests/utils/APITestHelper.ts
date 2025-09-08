@@ -13,12 +13,12 @@ export class APITestHelper {
   private baseURL: string;
   private defaultHeaders: Record<string, string>;
 
-  constructor(apiContext: APIRequestContext, _page?: Page) {
+  constructor(apiContext: APIRequestContext, page?: Page) {
     this.apiContext = apiContext;
     this.baseURL = ConfigManager.getInstance().getApiURL();
     this.defaultHeaders = {
       'Content-Type': 'application/json',
-      Accept: 'application/json',
+      'Accept': 'application/json'
     };
   }
 
@@ -33,11 +33,11 @@ export class APITestHelper {
   async get(endpoint: string, options?: APITestOptions): Promise<APIResponse> {
     const url = this.getFullURL(endpoint);
     Log.info(`API GET: ${url}`);
-
+    
     const response = await this.apiContext.get(url, {
       headers: this.mergeHeaders(options?.headers),
       timeout: options?.timeout || ConfigManager.getInstance().getTimeout(),
-      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true,
+      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true
     });
 
     Log.info(`API GET Response: ${response.status()} ${response.statusText()}`);
@@ -47,12 +47,12 @@ export class APITestHelper {
   async post(endpoint: string, data?: any, options?: APITestOptions): Promise<APIResponse> {
     const url = this.getFullURL(endpoint);
     Log.info(`API POST: ${url}`);
-
+    
     const response = await this.apiContext.post(url, {
       data: data,
       headers: this.mergeHeaders(options?.headers),
       timeout: options?.timeout || ConfigManager.getInstance().getTimeout(),
-      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true,
+      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true
     });
 
     Log.info(`API POST Response: ${response.status()} ${response.statusText()}`);
@@ -62,12 +62,12 @@ export class APITestHelper {
   async put(endpoint: string, data?: any, options?: APITestOptions): Promise<APIResponse> {
     const url = this.getFullURL(endpoint);
     Log.info(`API PUT: ${url}`);
-
+    
     const response = await this.apiContext.put(url, {
       data: data,
       headers: this.mergeHeaders(options?.headers),
       timeout: options?.timeout || ConfigManager.getInstance().getTimeout(),
-      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true,
+      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true
     });
 
     Log.info(`API PUT Response: ${response.status()} ${response.statusText()}`);
@@ -77,11 +77,11 @@ export class APITestHelper {
   async delete(endpoint: string, options?: APITestOptions): Promise<APIResponse> {
     const url = this.getFullURL(endpoint);
     Log.info(`API DELETE: ${url}`);
-
+    
     const response = await this.apiContext.delete(url, {
       headers: this.mergeHeaders(options?.headers),
       timeout: options?.timeout || ConfigManager.getInstance().getTimeout(),
-      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true,
+      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true
     });
 
     Log.info(`API DELETE Response: ${response.status()} ${response.statusText()}`);
@@ -92,14 +92,12 @@ export class APITestHelper {
   async validateResponse(response: APIResponse, expectedStatus: number): Promise<void> {
     if (response.status() !== expectedStatus) {
       const responseText = await response.text();
-      throw new Error(
-        `Expected status ${expectedStatus} but got ${response.status()}. Response: ${responseText}`
-      );
+      throw new Error(`Expected status ${expectedStatus} but got ${response.status()}. Response: ${responseText}`);
     }
   }
 
   async getResponseBody<T>(response: APIResponse): Promise<T> {
-    return (await response.json()) as T;
+    return await response.json() as T;
   }
 
   async logResponse(response: APIResponse): Promise<void> {
