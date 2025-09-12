@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { CurrentsConfig, currentsReporter } from '@currents/playwright';
+// import { CurrentsConfig, currentsReporter } from '@currents/playwright'; // Commented out for future use
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as fs from 'fs-extra';
@@ -76,13 +76,13 @@ const ENV = process.env.NODE_ENV || 'development';
 Log.info(`Environment: ${ENV}`);
 Log.info(`baseURL: ${config.baseURL}`);
 
-// Currents Config
-const currentsConfig: CurrentsConfig = {
-  recordKey: '86CygT0blrunOUXm',
-  projectId: 'VKVIEo',
-  ciBuildId: Date.now().toString(),
-  tag: ['playwright', 'test', ENV],
-};
+// Currents Config - Commented out for future use
+// const currentsConfig: CurrentsConfig = {
+//   recordKey: '86CygT0blrunOUXm',
+//   projectId: 'VKVIEo',
+//   ciBuildId: Date.now().toString(),
+//   tag: ['playwright', 'test', ENV],
+// };
 
 const playwrightConfig: PlaywrightTestConfig = defineConfig({
   globalSetup: require.resolve('./testConfig/globalSetup.ts'),
@@ -100,7 +100,7 @@ const playwrightConfig: PlaywrightTestConfig = defineConfig({
     ['line'],
     ['json', { outputFile: path.join(reportsDir, 'results.json') }],
     ['junit', { outputFile: path.join(reportsDir, 'junit.xml') }],
-    currentsReporter(currentsConfig),
+    // currentsReporter(currentsConfig), // Commented out for future use
     [
       'playwright-enhanced-reporter',
       {

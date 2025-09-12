@@ -136,3 +136,5 @@ node_modules/
 /playwright/.cache/
 .vscode/
 /allure-results/
+.playwright-mcp
+auth.json

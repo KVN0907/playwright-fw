@@ -16,7 +16,7 @@ export class APIValidator {
     expectedStatus: number = 200
   ): Promise<T> {
     const schema = API_SCHEMAS[endpointKey];
-    return BaseValidator.validateResponse<T>(response, schema, expectedStatus, endpointKey);
+    return BaseValidator.validateResponse<T>(response, schema as any, expectedStatus, endpointKey);
   }
 
   /**
