@@ -1,0 +1,36 @@
+{
+  "users": {
+    "superAdmin": {
+      "username": "superadmin@test.com",
+      "password": "SuperAdmin@123",
+      "email": "superadmin@test.com",
+      "role": "superadmin"
+    },
+    "admin": {
+      "username": "admin@test.com", 
+      "password": "Admin@123",
+      "email": "admin@test.com",
+      "role": "admin"
+    },
+    "user": {
+      "username": "user@test.com",
+      "password": "User@123", 
+      "email": "user@test.com",
+      "role": "user"
+    }
+  },
+  "organizations": {
+    "testOrg": {
+      "name": "Test Organization Dev",
+      "description": "Test organization for development environment",
+      "domain": "testorg-dev.com"
+    }
+  },
+  "apiEndpoints": {
+    "createCompany": "/api/companies",
+    "getAccount": "/api/accounts",
+    "csrfTokenGateWay": "/api/csrf-token",
+    "login": "/auth/login",
+    "logout": "/auth/logout"
+  }
+}
