@@ -84,8 +84,6 @@ playwright-fw/
 │   │   ├── getAccount.spec.ts      # ✅ Refactored with session auth
 │   │   └── endPointsDTO/
 │   │       └── uri.json            # ✅ Cleaned endpoint definitions
-│   ├── commonUtils/
-│   │   └── commonFunctions.ts      # ✅ Enhanced utilities
 │   ├── reporter/
 │   │   ├── CustomReporter.ts       # ✅ Playwright-compatible reporter
 │   │   └── EnhancedHTMLReporter.ts # ✅ NEW: BDD-inspired HTML generator
@@ -95,6 +93,9 @@ playwright-fw/
 │   └── utils/
 │       ├── DateUtil.ts             # ✅ Date utilities
 │       ├── EnvUtil.ts              # ✅ Environment management
+│       ├── SelectorHelper.ts       # ✅ NEW: Priority-based element selection
+│       ├── TestDataGenerator.ts    # ✅ Enhanced with random data utilities
+│       ├── APITestHelper.ts        # ✅ Enhanced with CSRF token support
 │       └── Log.ts                  # ✅ Structured logging
 ├── playwright.config.ts            # ✅ Enhanced configuration
 ├── package.json                    # ✅ Updated scripts

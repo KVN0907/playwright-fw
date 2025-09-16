@@ -1,43 +1,8 @@
-import { test as base, Page } from '@playwright/test';
-import { HomePage } from '../uiTests/pageObjects/HomePage';
-import { LoginPage } from '../uiTests/pageObjects/LoginPage';
-import { APITestHelper } from '../utils/APITestHelper';
+import { test as base } from '@playwright/test';
 import Log from '../utils/Log';
 
-// Define the types for your fixtures
-type MyFixtures = {
-  homePage: HomePage;
-  loginPage: LoginPage;
-  loggedInPage: Page;
-  apiHelper: APITestHelper;
-};
-
-// Extend the base test with your fixtures
-export const test = base.extend<MyFixtures>({
-  homePage: async ({ page }, use) => {
-    const homePage = new HomePage(page);
-    await use(homePage);
-  },
-
-  loginPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page);
-    await use(loginPage);
-  },
-
-  loggedInPage: async ({ page }, use) => {
-    // Use the existing storage state for authenticated tests
-    await use(page);
-  },
-
-  apiHelper: async ({ playwright }, use) => {
-    const apiContext = await playwright.request.newContext({
-      ignoreHTTPSErrors: true,
-    });
-    const apiHelper = new APITestHelper(apiContext);
-    await use(apiHelper);
-    await apiContext.dispose();
-  },
-});
+// For now, just export the base test without custom fixtures
+export const test = base;
 
 export { expect } from '@playwright/test';
 

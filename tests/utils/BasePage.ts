@@ -1,5 +1,5 @@
 import { Locator, Page, expect } from '@playwright/test';
-import Log from '../../utils/Log';
+import Log from './Log';
 
 export abstract class BasePage {
   protected readonly page: Page;
@@ -8,6 +8,23 @@ export abstract class BasePage {
   constructor(page: Page) {
     this.page = page;
     this.baseURL = process.env.BASE_URL || '';
+  }
+
+  // Public method to get current URL
+  async getCurrentUrl(): Promise<string> {
+    return this.page.url();
+  }
+
+  // Public method to reload page
+  async reloadPage(): Promise<void> {
+    await this.page.reload();
+  }
+
+  // Public method to wait for load state
+  async waitForPageLoadState(
+    state: 'load' | 'domcontentloaded' | 'networkidle' = 'networkidle'
+  ): Promise<void> {
+    await this.page.waitForLoadState(state);
   }
 
   // Common page operations

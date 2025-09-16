@@ -1,53 +1,42 @@
-<!--
-This file is the README for the Playwright Core Framework project.
-It provides an overview and documentation for the playwright-core-fw repository.
--->
+# Document360 API Documentation Test Framework
 
-# Playwright Test Framework
+![Playwright Tests](https://github.com/KVN0907/playwright-fw/actions/workflows/playwright.yml/badge.svg)
 
-A comprehensive Playwright testing framework for end-to-end and API testing.
+## 🎭 Automated Testing for Document360 API Documentation
 
-## 🏗️ Framework Architecture
+This repository contains a comprehensive Playwright test framework specifically designed for testing Document360's API Documentation module workflows.
 
-### Directory Structure
+### 🚀 Features
 
-```
-playwright-fw/
-├── tests/
-│   ├── apiTests/           # API test specifications
-│   ├── uiTests/           # UI test specifications
-│   │   ├── e2e/           # End-to-end tests
-│   │   └── pageObjects/   # Page Object Model classes
-│   ├── fixtures/          # Test fixtures and base classes
-│   ├── utils/             # Utility classes and helpers
-│   ├── data/              # Test data files
-│   └── reporter/          # Custom reporters
-├── testConfig/            # Test configuration files
-├── test-results/          # Test execution results
-└── playwright-report/     # HTML reports
-```
+- **Multi-Browser Support**: Tests run on Chromium, Firefox, and WebKit
+- **Robust Authentication**: Handles both new and existing user scenarios
+- **Smart Navigation**: Adapts to different dashboard layouts and project states
+- **Enhanced Reporting**: Detailed HTML reports with screenshots and traces
+- **CI/CD Integration**: Automated testing via GitHub Actions
+- **Smart Element Selection**: Priority-based selector helper following Playwright best practices
 
-## 🚀 Getting Started
+### 🎯 Test Coverage
 
-### Prerequisites
+#### 1. User Authentication & Project Access
 
-- Node.js (v18 or higher)
-- npm or yarn
+- ✅ Login with valid credentials
+- ✅ Login error handling
+- ✅ Project dashboard navigation
+- ✅ Session persistence across browser refresh
 
-### Installation
+#### 2. API Documentation Content Management
 
-```bash
-npm install
-npx playwright install
-```
+- ✅ Content creation workflows
+- ✅ Editor functionality
+- ✅ Quick insert features
+- ✅ Endpoint documentation
 
-### Environment Setup
+#### 3. API Documentation Publishing
 
-1. Copy environment template:
-
-```bash
-cp .env.dev .env
-```
+- ✅ Published site access
+- ✅ Content verification
+- ✅ Navigation structure validation
+- ✅ Code examples verification
 
 2. Update environment variables in `.env` file with your credentials
 
@@ -71,3 +60,45 @@ npm run test:api
 # Run tests in debug mode
 npm run test:debug
 ```
+
+### 🛠️ Test Utilities
+
+#### SelectorHelper
+
+A comprehensive utility for element selection using Playwright's recommended priority order:
+
+1. **getByRole()** - Most accessible, recommended for interactive elements
+2. **getByLabel()** - Good for form controls with labels
+3. **getByPlaceholder()** - Useful for input fields
+4. **getByText()** - Good for text content
+5. **getByAltText()** - For images with alt text
+6. **getByTitle()** - For elements with title attributes
+7. **getByTestId()** - Last resort, but very reliable for testing
+
+**Key Features:**
+
+- Smart selector with automatic fallback strategies
+- Built-in retry logic for flaky elements
+- Pre-defined common UI patterns (CommonSelectors)
+- Debug mode for selector resolution tracing
+- Type-safe with full TypeScript support
+
+**Usage Example:**
+
+```typescript
+import { createSelectorHelper, CommonSelectors } from '../utils/SelectorHelper';
+
+const selectorHelper = createSelectorHelper(page, 30000, true);
+
+// Smart selector with multiple fallback strategies
+await selectorHelper.clickElement({
+  role: { role: 'button', name: /login/i },
+  text: /login/i,
+  testId: 'login-button',
+});
+
+// Use pre-defined common selectors
+await selectorHelper.fillElement(CommonSelectors.emailInput, 'user@example.com');
+```
+
+See [SelectorHelper Usage Guide](./docs/SelectorHelper_Usage.md) for comprehensive examples.

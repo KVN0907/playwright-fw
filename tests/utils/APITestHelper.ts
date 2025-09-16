@@ -12,9 +12,11 @@ export class APITestHelper {
   private apiContext: APIRequestContext;
   private baseURL: string;
   private defaultHeaders: Record<string, string>;
+  private page?: Page;
 
-  constructor(apiContext: APIRequestContext, _page?: Page) {
+  constructor(apiContext: APIRequestContext, page?: Page) {
     this.apiContext = apiContext;
+    this.page = page;
     this.baseURL = ConfigManager.getInstance().getApiURL();
     this.defaultHeaders = {
       'Content-Type': 'application/json',
@@ -115,5 +117,52 @@ export class APITestHelper {
     Log.info(`Response Status: ${response.status()}`);
     Log.info(`Response Headers: ${JSON.stringify(response.headers(), null, 2)}`);
     Log.info(`Response Body: ${body}`);
+  }
+
+  /**
+   * Fetch CSRF token using session cookie
+   * Note: Requires urls.json to have csrfTokenGateWay endpoint defined
+   * @param csrfEndpoint - The CSRF token endpoint path
+   * @returns Promise<string> - The CSRF token
+   */
+  async fetchCSRFToken(csrfEndpoint: string = '/api/csrf'): Promise<string> {
+    if (!this.page) {
+      throw new Error(
+        'Page instance is required for CSRF token fetching. Please pass page to APITestHelper constructor.'
+      );
+    }
+
+    const baseUrl = this.baseURL || process.env.APP_URL || 'https://default-url.com/';
+    const csrfGatewayURI = `${baseUrl}${csrfEndpoint}`;
+
+    // Get session cookie from page context
+    const cookies = await this.page.context().cookies();
+    const sessionCookie = cookies.find(c => c.name === 'SESSION');
+
+    if (!sessionCookie) {
+      throw new Error('Session cookie not found. Make sure user is logged in.');
+    }
+
+    Log.info(`Fetching CSRF token from: ${csrfGatewayURI}`);
+
+    const response = await this.page.request.get(csrfGatewayURI, {
+      headers: {
+        Cookie: `SESSION=${sessionCookie.value}`,
+      },
+    });
+
+    if (!response.ok()) {
+      throw new Error(`Failed to fetch CSRF token: ${response.status()} ${response.statusText()}`);
+    }
+
+    // Parse the response body as JSON and extract the CSRF token
+    const responseBody = await response.json();
+
+    if (!responseBody.csrfToken) {
+      throw new Error('CSRF token not found in response. Check the endpoint response structure.');
+    }
+
+    Log.info('CSRF token fetched successfully');
+    return responseBody.csrfToken;
   }
 }

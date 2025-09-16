@@ -15,124 +15,32 @@ export class TestDataGenerator {
   }
 
   /**
-   * Generate address data
+   * Generate random string with specified character length
+   * @param characterLength - Length of the string to generate
+   * @returns Random string with custom prefix
    */
-  static generateAddress(): string {
-    const addresses = [
-      '123 Test Street, Suite 100',
-      '456 Sample Avenue, Floor 5',
-      '789 Demo Boulevard, Unit A',
-      '321 Mock Lane, Building B',
-      '654 Trial Road, Office 200',
-    ];
-    return addresses[Math.floor(Math.random() * addresses.length)];
+  static generateRandomString(characterLength: number): string {
+    const possible = 'AutoQAABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-';
+    return Array.from({ length: characterLength }, () =>
+      possible.charAt(Math.floor(Math.random() * possible.length))
+    ).join('');
   }
 
   /**
-   * Generate random attributes for testing
+   * Generate random integer as string with specified length
+   * @param length - Length of the integer string
+   * @returns Random integer as string
    */
-  static generateAttribute(): string {
-    const attributes = [
-      'High Priority',
-      'Standard Access',
-      'Restricted',
-      'Public',
-      'Internal Use',
-      'Confidential',
-      'Test Environment',
-      'Production Ready',
-    ];
-    return attributes[Math.floor(Math.random() * attributes.length)];
+  static generateRandomInteger(length: number): string {
+    const randomDigits = Array.from({ length: length }, () => Math.floor(Math.random() * 10));
+    return randomDigits.join('');
   }
 
   /**
-   * Generate entity names
+   * Generate random email address for testing
+   * @returns Random email with gmail.com domain
    */
-  static generateEntity(): string {
-    const entities = [
-      'EY_LLP',
-      'EY_GLOBAL',
-      'EY_INDIA',
-      'EY_US',
-      'EY_UK',
-      'EY_CANADA',
-      'EY_AUSTRALIA',
-    ];
-    return entities[Math.floor(Math.random() * entities.length)];
-  }
-
-  /**
-   * Generate region names
-   */
-  static generateRegion(): string {
-    const regions = ['ASIA', 'EUROPE', 'AMERICAS', 'OCEANIA', 'AFRICA'];
-    return regions[Math.floor(Math.random() * regions.length)];
-  }
-
-  /**
-   * Generate country and state IDs (realistic ranges)
-   */
-  static generateCountryId(): number {
-    return Math.floor(Math.random() * 200) + 1;
-  }
-
-  static generateStateId(): number {
-    return Math.floor(Math.random() * 9000) + 1000;
-  }
-
-  /**
-   * Generate library-specific test data with dynamic values
-   * Only name and email are kept static as per requirement
-   */
-  static generateLibraryData(overrides: Partial<any> = {}): any {
-    const defaultData = {
-      address: this.generateAddress(),
-      attribute1: this.generateAttribute(),
-      attribute2: this.generateAttribute(),
-      countryId: this.generateCountryId(),
-      entity: this.generateEntity(),
-      locationOwnerEmailId: overrides.locationOwnerEmailId || 'puspalata.biswal@in.ey.com',
-      locationOwnerName: overrides.locationOwnerName || 'puspalata biswal',
-      regionName: this.generateRegion(),
-      stateId: this.generateStateId(),
-    };
-
-    // Merge with any provided overrides
-    return { ...defaultData, ...overrides };
-  }
-
-  /**
-   * Generate test timestamp
-   */
-  static generateTimestamp(): string {
-    return new Date().toISOString();
-  }
-
-  /**
-   * Generate test data with unique suffix for easy identification
-   */
-  static generateUniqueTestData(baseName: string): string {
-    const timestamp = Date.now();
-    const randomSuffix = Math.random().toString(36).substr(2, 4);
-    return `${baseName}_${timestamp}_${randomSuffix}`;
-  }
-
-  /**
-   * Load and merge with base request JSON
-   */
-  static async loadRequestTemplate(templatePath: string, dynamicOverrides: any = {}): Promise<any> {
-    try {
-      const fs = await import('fs-extra');
-      const baseRequest = await fs.readJson(templatePath);
-
-      // Generate dynamic data for library
-      const dynamicData = this.generateLibraryData(dynamicOverrides);
-
-      // Merge base template with dynamic data
-      return { ...baseRequest, ...dynamicData };
-    } catch (error) {
-      console.warn(`Could not load template from ${templatePath}, using dynamic data only`);
-      return this.generateLibraryData(dynamicOverrides);
-    }
+  static generateRandomEmail(): string {
+    return Math.random().toString(36).substring(2, 8) + '@gmail.com';
   }
 }

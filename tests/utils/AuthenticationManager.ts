@@ -1,7 +1,7 @@
 import { Page, APIRequestContext, Cookie } from '@playwright/test';
 import Log from './Log';
 import { ConfigManager } from './ConfigManager';
-import { LoginPage } from '../uiTests/pageObjects/LoginPage';
+import { Document360LoginPage } from '../uiTests/document360/pageObjects/Document360LoginPage';
 
 export interface AuthConfig {
   type:
@@ -218,13 +218,13 @@ export class AuthenticationManager {
       return { success: false, error: 'Page context required for browser session authentication' };
     }
 
-    const loginPage = new LoginPage(page);
+    const loginPage = new Document360LoginPage(page);
     const baseUrl = this.configManager.getBaseURL();
 
     Log.info('Performing browser session authentication');
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
 
-    await loginPage.login(
+    await loginPage.document360Login(
       this.authConfig.credentials?.username || '',
       this.authConfig.credentials?.password || ''
     );

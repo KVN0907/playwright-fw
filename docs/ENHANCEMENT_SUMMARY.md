@@ -109,7 +109,7 @@ playwright-fw/
 ├── 🧪 Tests
 │   ├── tests/apiTests/ (API tests with multi-auth)
 │   ├── tests/uiTests/ (UI tests)
-│   └── tests/commonUtils/
+│   └── tests/utils/ (Enhanced utilities with SelectorHelper)
 └── ⚙️ Configuration
     ├── playwright.config.ts
     ├── .env.qa, .env.staging, .env.prod
