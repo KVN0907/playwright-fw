@@ -332,4 +332,88 @@ export class Document360ApiDocumentationPage extends BasePage {
 
     Log.info('Successfully navigated back to API Documentation list');
   }
+
+  /**
+   * Navigate to API Documentation category from the document interface
+   */
+  async navigateToApiDocumentationCategory(): Promise<void> {
+    Log.info('Navigating to API Documentation category');
+    await this.navigateToApiDocumentationSection();
+  }
+
+  /**
+   * Expand API Documentation category to show articles
+   */
+  async expandApiDocumentationCategory(): Promise<void> {
+    Log.info('Expanding API Documentation category');
+    
+    // Click on category expansion arrow or the category itself
+    const categoryExpander = this.page.locator('.ca-icon-arrow.far.fa-angle-right').first();
+    if (await categoryExpander.isVisible()) {
+      await categoryExpander.click();
+      Log.info('API Documentation category expanded');
+    }
+  }
+
+  /**
+   * Select a specific API Documentation article
+   * @param articleTitle - The title of the article to select
+   */
+  async selectApiDocumentationArticle(articleTitle: string): Promise<void> {
+    Log.info(`Selecting API Documentation article: ${articleTitle}`);
+    
+    // Wait for and click on the specific article link
+    const articleLink = this.page.getByRole('link', { name: articleTitle });
+    await articleLink.waitFor({ state: 'visible', timeout: 10000 });
+    await articleLink.click();
+    
+    Log.info(`Successfully selected article: ${articleTitle}`);
+  }
+
+  /**
+   * Publish API Documentation with optional comment
+   * @param comment - Optional comment for publishing
+   */
+  async publishApiDocumentation(comment?: string): Promise<void> {
+    Log.info('Publishing API Documentation');
+    
+    // Click publish button
+    await this.publishButton.click();
+    
+    // Wait for publish confirmation modal
+    await this.page.waitForSelector('text=Publish confirmation', { timeout: 10000 });
+    
+    // Add comment if provided
+    if (comment) {
+      const commentField = this.page.getByRole('textbox', { name: 'Enter your comment (Optional)' });
+      await commentField.fill(comment);
+      Log.info(`Added publish comment: ${comment}`);
+    }
+    
+    // Configure article settings if needed
+    const configButton = this.page.getByRole('button', { name: 'Configure article settings' });
+    if (await configButton.isVisible()) {
+      await configButton.click();
+      // Close the config panel
+      await configButton.click();
+    }
+    
+    // Confirm publication
+    await this.page.getByRole('button', { name: 'Yes' }).click();
+    
+    Log.info('API Documentation published successfully');
+  }
+
+  /**
+   * Verify that publication was successful
+   */
+  async verifyPublicationSuccess(): Promise<void> {
+    Log.info('Verifying publication success');
+    
+    // Check for published status badge
+    const statusBadge = this.page.locator('#article_status_badge');
+    await expect(statusBadge).toContainText('PUBLISHED');
+    
+    Log.info('✅ Publication success verified');
+  }
 }
