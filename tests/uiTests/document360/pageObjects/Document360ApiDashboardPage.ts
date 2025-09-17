@@ -103,10 +103,10 @@ export class Document360ApiDashboardPage extends BasePage {
 
     // First ensure we're on the project dashboard and it's ready
     await projectDashboard.navigateToProjectDashboard();
-    await projectDashboard.waitForDashboardReady();
+    await projectDashboard.waitForDashboardToLoad();
 
-    // Then navigate to API documentation through the project dashboard
-    await projectDashboard.navigateToApiDocumentation();
+    // Then navigate to API documentation through menu navigation
+    await this.navigateToApiDashboard();
 
     // Verify we've successfully navigated to the API dashboard
     await this.verifyApiDashboardLoaded();

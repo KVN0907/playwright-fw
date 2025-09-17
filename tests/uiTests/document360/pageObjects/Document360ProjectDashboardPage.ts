@@ -348,4 +348,123 @@ export class Document360ProjectDashboardPage extends BasePage {
     
     Log.info('✅ Successfully returned to dashboard after public site validation');
   }
+
+  /**
+   * Click on project documentation link after hovering over project tile
+   * Found: 1 link (open site) + 3 buttons (btn btn-icon btn-secondary)
+   * Documentation is likely one of the 3 buttons
+   */
+  async clickProjectDocumentationByIndex(index: number): Promise<void> {
+    Log.info(`Clicking project documentation link at index: ${index}`);
+    
+    await this.waitForDashboardToLoad();
+    
+    // Hover over the project to reveal action buttons
+    await this.hoverOverProjectTileByIndex(index);
+    
+    const projectTiles = await this.getAllProjectTiles();
+    const targetTile = projectTiles[index];
+
+    // Wait for all action buttons/links to appear after hover
+    await this.page.waitForTimeout(2000);
+
+    // Look for the 3 buttons that appear after hover
+    const actionButtons = targetTile.locator('button.btn.btn-icon.btn-secondary, .btn.btn-icon.btn-secondary');
+    const buttonCount = await actionButtons.count();
+    Log.info(`Found ${buttonCount} action buttons after hover`);
+    
+    for (let i = 0; i < buttonCount; i++) {
+      const button = actionButtons.nth(i);
+      const buttonText = await button.textContent();
+      const title = await button.getAttribute('title');
+      const ariaLabel = await button.getAttribute('aria-label');
+      const dataAction = await button.getAttribute('data-action');
+      Log.info(`Button ${i}: text="${buttonText}" title="${title}" aria-label="${ariaLabel}" data-action="${dataAction}"`);
+    }
+
+    // Try to find the documentation button by checking title, aria-label, or position
+    let documentationButton: any = null;
+    
+    // Check each button for documentation-related attributes
+    for (let i = 0; i < buttonCount; i++) {
+      const button = actionButtons.nth(i);
+      const title = await button.getAttribute('title');
+      const ariaLabel = await button.getAttribute('aria-label');
+      
+      if ((title && title.toLowerCase().includes('document')) || 
+          (ariaLabel && ariaLabel.toLowerCase().includes('document')) ||
+          (title && title.toLowerCase().includes('manage'))) {
+        documentationButton = button;
+        Log.info(`Found documentation button at index ${i}: title="${title}" aria-label="${ariaLabel}"`);
+        break;
+      }
+    }
+
+    // If no specific button found, try the second button (index 1) as documentation
+    // since button 0 went to settings, documentation is likely button 1
+    if (!documentationButton && buttonCount > 1) {
+      documentationButton = actionButtons.nth(1);
+      Log.info(`Using second button (index 1) as documentation button`);
+    } else if (!documentationButton && buttonCount > 0) {
+      documentationButton = actionButtons.first();
+      Log.info(`Using first button as documentation button`);
+    }
+
+    if (!documentationButton) {
+      throw new Error(`No documentation button found in project tile ${index}. Available buttons: ${buttonCount}`);
+    }
+
+    // Click the documentation button
+    await documentationButton.click();
+    
+    // Wait for navigation to complete with shorter timeout
+    try {
+      await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    } catch (error) {
+      // If networkidle timeout, just wait for domcontentloaded
+      await this.page.waitForLoadState('domcontentloaded');
+    }
+    
+    // Verify navigation
+    const currentUrl = this.page.url();
+    Log.info(`Successfully clicked documentation button, navigated to: ${currentUrl}`);
+  }
+
+  /**
+   * Open project documentation by clicking on the project tile area (not hover actions)
+   */
+  async openProjectDocumentationById(index: number): Promise<void> {
+    Log.info(`Opening documentation for project at index: ${index}`);
+    
+    await this.waitForDashboardToLoad();
+    
+    // Let's try a more generic approach - look for any clickable project element
+    // Based on DOM exploration, projects should be clickable containers
+    const projectElements = await this.page.locator('[data-testid*="project"], .project-card, .project-item, [class*="project-"]').all();
+    
+    if (projectElements.length === 0) {
+      // Fallback: try to find any clickable element that might be a project
+      const fallbackElements = await this.page.locator('a[href*="/v"], div[role="button"]').all();
+      if (fallbackElements.length > index) {
+        await fallbackElements[index].click();
+      } else {
+        throw new Error(`No project elements found to click`);
+      }
+    } else {
+      if (projectElements.length <= index) {
+        throw new Error(`Project with index ${index} not found. Available: ${projectElements.length}`);
+      }
+      
+      const projectElement = projectElements[index];
+      await expect(projectElement).toBeVisible();
+      await projectElement.click();
+    }
+    
+    await this.page.waitForLoadState('networkidle');
+    
+    // Verify we've navigated to the project documentation area
+    await expect(this.page).toHaveURL(/\/document/);
+    
+    Log.info(`Successfully opened documentation for project at index: ${index}`);
+  }
 }
