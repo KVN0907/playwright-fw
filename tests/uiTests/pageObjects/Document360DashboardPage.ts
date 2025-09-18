@@ -74,7 +74,7 @@ export class Document360DashboardPage extends BasePage {
     Log.info('Dashboard page verification completed');
   }
 
- async verifyProjectsExist(): Promise<boolean> {
+  async verifyProjectsExist(): Promise<boolean> {
     Log.info('Verifying if projects exist');
     await this.projectList.waitFor({ state: 'visible' });
     await this.projectItems.waitFor({ state: 'attached' });

@@ -6,21 +6,22 @@ import Log from '../../utils/Log';
 import * as testData from '../../data/projectCreationTestData.json';
 
 test.describe('Document360 API Documentation Project Creation', () => {
-  
-  test('Create new API documentation project with pet store template @smoke @project-creation', async ({ page }) => {
+  test('Create new API documentation project with pet store template @smoke @project-creation', async ({
+    page,
+  }) => {
     Log.info('🚀 Starting API Documentation Project Creation Test');
-    
- test.info().annotations.push({ type: 'severity', description: 'Critical' });
-  
-  // Add feature annotation
-  test.info().annotations.push({ type: 'feature', description: 'Project Creation Via UPI' });
-  
-  // Add epic annotation
-  test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
+
+    test.info().annotations.push({ type: 'severity', description: 'Critical' });
+
+    // Add feature annotation
+    test.info().annotations.push({ type: 'feature', description: 'Project Creation Via UPI' });
+
+    // Add epic annotation
+    test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
     // Initialize page objects
     const dashboardPage = new Document360DashboardPage(page);
     const projectCreationPage = new Document360ProjectCreationPage(page);
-    
+
     // Test data
     const projectConfig = testData.projectCreation.defaultProject;
     const projectName = projectConfig.projectName;
@@ -37,7 +38,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     if (hasExistingProjects) {
       Log.info('Existing project found in trial mode - project deletion required');
       const projectSettingsPage = new Document360ProjectSettingsPage(page);
-      
+
       // Navigate to settings and delete existing project
       await dashboardPage.navigateToProjectSettings();
       await projectSettingsPage.verifySettingsPageLoaded();
@@ -53,7 +54,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
 
     // AND: Selects API documentation option
     await projectCreationPage.selectApiDocumentation();
-    
+
     // THEN: Step 2 - API method selection should be visible
     await projectCreationPage.verifyStepTitle('Select a method to create an API reference');
 
@@ -61,7 +62,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     const apiUrl = apiSetup === 'url' ? testData.projectCreation.urlBasedProject.apiUrl : undefined;
     await projectCreationPage.selectApiSetupMethod(apiSetup, apiUrl);
     await projectCreationPage.proceedToNextStep('Step 2 - Template selection');
-    
+
     // THEN: Step 3 should show personalize knowledge base
     await projectCreationPage.verifyStepTitle('Personalize your Knowledge Base');
 
@@ -90,7 +91,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     // THEN: Project should be created successfully
     Log.info('THEN: API documentation project should be created with all components');
     await projectCreationPage.waitForProjectCreationComplete();
-    
+
     // Verify project creation
     await projectCreationPage.verifyProjectCreated(projectName);
     await projectCreationPage.verifyTrialBanner();
@@ -98,10 +99,10 @@ test.describe('Document360 API Documentation Project Creation', () => {
 
     // Verify project structure
     await projectCreationPage.verifyApiDocumentationStructure();
-    
+
     // Verify project URL contains expected pattern
     await projectCreationPage.verifyProjectUrl('api-documentation');
-    
+
     // Verify API template content is created
     await projectCreationPage.verifyApiTemplateContent();
 
@@ -111,24 +112,26 @@ test.describe('Document360 API Documentation Project Creation', () => {
     Log.info(`Project Name: ${projectName}`);
     Log.info(`Website URL: ${websiteUrl}`);
     Log.info(`Project URL: ${page.url()}`);
-    
+
     Log.info('🎉 API Documentation Project Creation Test Completed Successfully');
   });
 
-  test('Verify API documentation project components and structure @component-verification', async ({ page }) => {
+  test('Verify API documentation project components and structure @component-verification', async ({
+    page,
+  }) => {
     Log.info('🔍 Starting API Documentation Project Components Verification');
-    
+
     const dashboardPage = new Document360DashboardPage(page);
     const projectCreationPage = new Document360ProjectCreationPage(page);
 
     // GIVEN: User navigates to existing API documentation project
     Log.info('GIVEN: User navigates to API documentation dashboard');
     await dashboardPage.navigateToDashboard();
-    
+
     // Find and access the API documentation project
     const apiProject = page.locator('text=API Test Documentation').first();
-    if (await apiProject.count() > 0) {
-      await apiProject.click(); 
+    if ((await apiProject.count()) > 0) {
+      await apiProject.click();
       Log.info('Found existing API Test Documentation project');
     } else {
       // If no existing project, skip this test
@@ -142,36 +145,40 @@ test.describe('Document360 API Documentation Project Creation', () => {
 
     // THEN: All project components should be present
     Log.info('THEN: All API documentation components should be verified');
-    
+
     // Verify main project elements
     await projectCreationPage.verifyTrialBanner();
     await projectCreationPage.verifyOpenSiteLink();
-    
+
     // Verify documentation structure
     await projectCreationPage.verifyApiDocumentationStructure();
-    
+
     // Verify content template
     await projectCreationPage.verifyApiTemplateContent();
-    
+
     // Verify URL structure
     await projectCreationPage.verifyProjectUrl('api-documentation');
 
     Log.info('✅ API Documentation Project Components Verified Successfully');
   });
-  
-  test('Create new API documentation project - Sample Radio Button @smoke @project-creation', async ({ page }) => {
+
+  test('Create new API documentation project - Sample Radio Button @smoke @project-creation', async ({
+    page,
+  }) => {
     Log.info('🚀 Starting API Documentation Project Creation Test');
     test.info().annotations.push({ type: 'severity', description: 'Critical' });
-  
-  // Add feature annotation
-  test.info().annotations.push({ type: 'feature', description: 'Project Creation Sample Project' });
-  
-  // Add epic annotation
-  test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
+
+    // Add feature annotation
+    test
+      .info()
+      .annotations.push({ type: 'feature', description: 'Project Creation Sample Project' });
+
+    // Add epic annotation
+    test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
     // Initialize page objects
     const dashboardPage = new Document360DashboardPage(page);
     const projectCreationPage = new Document360ProjectCreationPage(page);
-    
+
     // Test data
     const projectConfig = testData.projectCreation.defaultProject;
     const projectName = projectConfig.projectName;
@@ -188,7 +195,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     if (hasExistingProjects) {
       Log.info('Existing project found in trial mode - project deletion required');
       const projectSettingsPage = new Document360ProjectSettingsPage(page);
-      
+
       // Navigate to settings and delete existing project
       await dashboardPage.navigateToProjectSettings();
       await projectSettingsPage.verifySettingsPageLoaded();
@@ -204,15 +211,16 @@ test.describe('Document360 API Documentation Project Creation', () => {
 
     // AND: Selects API documentation option
     await projectCreationPage.selectApiDocumentation();
-    
+
     // THEN: Step 2 - API method selection should be visible
     await projectCreationPage.verifyStepTitle('Select a method to create an API reference');
 
     // WHEN: User selects API setup method from test data
-    const apiUrl = apiSetup === 'sample' ? testData.projectCreation.defaultProject.apiSetup : undefined;
+    const apiUrl =
+      apiSetup === 'sample' ? testData.projectCreation.defaultProject.apiSetup : undefined;
     await projectCreationPage.selectApiSetupMethod(apiSetup, apiUrl);
     await projectCreationPage.proceedToNextStep('Step 2 - Template selection');
-    
+
     // THEN: Step 3 should show personalize knowledge base
     await projectCreationPage.verifyStepTitle('Personalize your Knowledge Base');
 
@@ -241,7 +249,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     // THEN: Project should be created successfully
     Log.info('THEN: API documentation project should be created with all components');
     await projectCreationPage.waitForProjectCreationComplete();
-    
+
     // Verify project creation
     await projectCreationPage.verifyProjectCreated(projectName);
     await projectCreationPage.verifyTrialBanner();
@@ -249,10 +257,10 @@ test.describe('Document360 API Documentation Project Creation', () => {
 
     // Verify project structure
     await projectCreationPage.verifyApiDocumentationStructure();
-    
+
     // Verify project URL contains expected pattern
     await projectCreationPage.verifyProjectUrl('api-documentation');
-    
+
     // Verify API template content is created
     await projectCreationPage.verifyApiTemplateContent();
 
@@ -262,8 +270,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     Log.info(`Project Name: ${projectName}`);
     Log.info(`Website URL: ${websiteUrl}`);
     Log.info(`Project URL: ${page.url()}`);
-    
+
     Log.info('🎉 API Documentation Project Creation Test Completed Successfully');
   });
-
 });

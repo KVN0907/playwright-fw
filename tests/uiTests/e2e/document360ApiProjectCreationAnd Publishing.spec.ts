@@ -10,28 +10,29 @@ import Log from '../../utils/Log';
 import * as testData from '../../data/projectCreationTestData.json';
 
 test.describe('Document360 API Documentation Project Creation', () => {
-   let documentationPage: Document360DocumentationPage;
-      let swaggerPetStorePage: Document360SwaggerPetStorePage;
-      let publishedSitePage: Document360PublishedSitePage;
+  let swaggerPetStorePage: Document360SwaggerPetStorePage;
+  let publishedSitePage: Document360PublishedSitePage;
 
-      test.beforeEach(async () => {
-          swaggerPetStorePage = new Document360SwaggerPetStorePage(page);
-          publishedSitePage = new Document360PublishedSitePage(page);
-      });
-  test('Create new API documentation project with pet store template @smoke @project-creation', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
+    swaggerPetStorePage = new Document360SwaggerPetStorePage(page);
+    publishedSitePage = new Document360PublishedSitePage(page);
+  });
+  test('Create new API documentation project with pet store template @smoke @project-creation', async ({
+    page,
+  }) => {
     Log.info('🚀 Starting API Documentation Project Creation Test');
-    
- test.info().annotations.push({ type: 'severity', description: 'Critical' });
-  
-  // Add feature annotation
-  test.info().annotations.push({ type: 'feature', description: 'Project Creation Via UPI' });
-  
-  // Add epic annotation
-  test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
+
+    test.info().annotations.push({ type: 'severity', description: 'Critical' });
+
+    // Add feature annotation
+    test.info().annotations.push({ type: 'feature', description: 'Project Creation Via UPI' });
+
+    // Add epic annotation
+    test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
     // Initialize page objects
     const dashboardPage = new Document360DashboardPage(page);
     const projectCreationPage = new Document360ProjectCreationPage(page);
-    
+
     // Test data
     const projectConfig = testData.projectCreation.defaultProject;
     const projectName = projectConfig.projectName;
@@ -48,7 +49,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     if (hasExistingProjects) {
       Log.info('Existing project found in trial mode - project deletion required');
       const projectSettingsPage = new Document360ProjectSettingsPage(page);
-      
+
       // Navigate to settings and delete existing project
       await dashboardPage.navigateToProjectSettings();
       await projectSettingsPage.verifySettingsPageLoaded();
@@ -64,7 +65,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
 
     // AND: Selects API documentation option
     await projectCreationPage.selectApiDocumentation();
-    
+
     // THEN: Step 2 - API method selection should be visible
     await projectCreationPage.verifyStepTitle('Select a method to create an API reference');
 
@@ -72,7 +73,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     const apiUrl = apiSetup === 'url' ? testData.projectCreation.urlBasedProject.apiUrl : undefined;
     await projectCreationPage.selectApiSetupMethod(apiSetup, apiUrl);
     await projectCreationPage.proceedToNextStep('Step 2 - Template selection');
-    
+
     // THEN: Step 3 should show personalize knowledge base
     await projectCreationPage.verifyStepTitle('Personalize your Knowledge Base');
 
@@ -101,7 +102,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
     // THEN: Project should be created successfully
     Log.info('THEN: API documentation project should be created with all components');
     await projectCreationPage.waitForProjectCreationComplete();
-    
+
     // Verify project creation
     await projectCreationPage.verifyProjectCreated(projectName);
     await projectCreationPage.verifyTrialBanner();
@@ -109,10 +110,10 @@ test.describe('Document360 API Documentation Project Creation', () => {
 
     // Verify project structure
     await projectCreationPage.verifyApiDocumentationStructure();
-    
+
     // Verify project URL contains expected pattern
     await projectCreationPage.verifyProjectUrl('api-documentation');
-    
+
     // Verify API template content is created
     await projectCreationPage.verifyApiTemplateContent();
 
@@ -122,73 +123,78 @@ test.describe('Document360 API Documentation Project Creation', () => {
     Log.info(`Project Name: ${projectName}`);
     Log.info(`Website URL: ${websiteUrl}`);
     Log.info(`Project URL: ${page.url()}`);
-    
+
     Log.info('🎉 API Documentation Project Creation Test Completed Successfully');
-  });
 
-  test('Publish API documentation project(Bluk Operation) @create-project @publish', async ({ page }) => {
-    Log.info('🔍 Starting API Documentation Project Publishing Test');
+    await swaggerPetStorePage.navigateToSwaggerPetstore();
+    await swaggerPetStorePage.navigateToPetCategory();
+    await swaggerPetStorePage.verifySwaggerPetstorePageLoaded();
 
-    const dashboardPage = new Document360DashboardPage(page);
-    const projectCreationPage = new Document360ProjectCreationPage(page);
-await swaggerPetStorePage.navigateToSwaggerPetstore();
-        await swaggerPetStorePage.navigateToPetCategory();
-        await swaggerPetStorePage.verifySwaggerPetstorePageLoaded();
+    // When user captures the available API endpoints
+    const availableEndpoints = await swaggerPetStorePage.captureEndpointsList();
+    await swaggerPetStorePage.verifyPetEndpointsDisplayed();
 
-        // When user captures the available API endpoints
-        const availableEndpoints = await swaggerPetStorePage.captureEndpointsList();
-        await swaggerPetStorePage.verifyPetEndpointsDisplayed();
+    // And user selects Find pet by ID endpoint for publishing
+    await swaggerPetStorePage.selectFindPetByIdEndpoint();
+    await swaggerPetStorePage.verifyBulkActionToolbarVisible();
 
-        // And user selects Find pet by ID endpoint for publishing
-        await swaggerPetStorePage.selectFindPetByIdEndpoint();
-        await swaggerPetStorePage.verifyBulkActionToolbarVisible();
+    // And user publishes the selected endpoint
+    await swaggerPetStorePage.publishSelectedEndpoint(
+      'Publishing Find pet by ID endpoint for testing'
+    );
 
-        // And user publishes the selected endpoint
-        await swaggerPetStorePage.publishSelectedEndpoint('Publishing Find pet by ID endpoint for testing');
+    // Then endpoint should be published successfully
+    await swaggerPetStorePage.verifyEndpointPublished('Find pet by ID');
+    await swaggerPetStorePage.verifyEndpointStatus('Find pet by ID', 'Published');
 
-        // Then endpoint should be published successfully
-        await swaggerPetStorePage.verifyEndpointPublished('Find pet by ID');
-        await swaggerPetStorePage.verifyEndpointStatus('Find pet by ID', 'Published');
+    // When user opens the published documentation site
+    const publishedPage = await swaggerPetStorePage.openPublishedSite();
+    publishedSitePage = new Document360PublishedSitePage(publishedPage);
 
-        // When user opens the published documentation site
-        const publishedPage = await swaggerPetStorePage.openPublishedSite();
-        publishedSitePage = new Document360PublishedSitePage(publishedPage);
+    // Then published site should load with proper landing page
+    await publishedSitePage.verifyLandingPageLoaded();
 
-        // Then published site should load with proper landing page
-        await publishedSitePage.verifyLandingPageLoaded();
+    // When user navigates to API documentation section
+    await publishedSitePage.navigateToApiDocumentation();
 
-        // When user navigates to API documentation section
-        await publishedSitePage.navigateToApiDocumentation();
+    // Then API documentation page should load with proper navigation structure
+    await publishedSitePage.verifyApiDocumentationPageLoaded();
 
-        // Then API documentation page should load with proper navigation structure
-        await publishedSitePage.verifyApiDocumentationPageLoaded();
+    // When user navigates to the published Find pet by ID endpoint
+    await publishedSitePage.navigateToFindPetByIdEndpoint();
 
-        // When user navigates to the published Find pet by ID endpoint
-        await publishedSitePage.navigateToFindPetByIdEndpoint();
+    // Then endpoint documentation should be complete and functional
+    await publishedSitePage.verifyFindPetByIdEndpointDocumentation();
+    await publishedSitePage.verifyTryItFunctionality();
+    await publishedSitePage.verifyResponseDocumentation();
+    await publishedSitePage.verifyPublishedEndpointQuality();
 
-        // Then endpoint documentation should be complete and functional
-        await publishedSitePage.verifyFindPetByIdEndpointDocumentation();
-        await publishedSitePage.verifyTryItFunctionality();
-        await publishedSitePage.verifyResponseDocumentation();
-        await publishedSitePage.verifyEndpointInNavigation();
-        await publishedSitePage.verifyPublishedEndpointQuality();
+    await publishedSitePage.fillTryItForm('test-api-key', '123');
+
+    // Then interactive elements should be functional and properly configured
+    await publishedSitePage.verifyResponseDocumentation();
+    await publishedSitePage.testInteractiveElements();
 
     Log.info('✅ API Documentation Project Components Verified Successfully');
   });
-  
-  test('Create new API documentation project - Sample Radio Button @smoke @project-creation', async ({ page }) => {
+
+  test('Create new API documentation project - Sample Radio Button @smoke @project-creation', async ({
+    page,
+  }) => {
     Log.info('🚀 Starting API Documentation Project Creation Test');
     test.info().annotations.push({ type: 'severity', description: 'Critical' });
-  
-  // Add feature annotation
-  test.info().annotations.push({ type: 'feature', description: 'Project Creation Sample Project' });
-  
-  // Add epic annotation
-  test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
+
+    // Add feature annotation
+    test
+      .info()
+      .annotations.push({ type: 'feature', description: 'Project Creation Sample Project' });
+
+    // Add epic annotation
+    test.info().annotations.push({ type: 'epic', description: 'API Documentation' });
     // Initialize page objects
     const dashboardPage = new Document360DashboardPage(page);
     const projectCreationPage = new Document360ProjectCreationPage(page);
-    
+
     // Test data
     const projectConfig = testData.projectCreation.defaultProject;
     const projectName = projectConfig.projectName;
@@ -205,7 +211,7 @@ await swaggerPetStorePage.navigateToSwaggerPetstore();
     if (hasExistingProjects) {
       Log.info('Existing project found in trial mode - project deletion required');
       const projectSettingsPage = new Document360ProjectSettingsPage(page);
-      
+
       // Navigate to settings and delete existing project
       await dashboardPage.navigateToProjectSettings();
       await projectSettingsPage.verifySettingsPageLoaded();
@@ -221,15 +227,16 @@ await swaggerPetStorePage.navigateToSwaggerPetstore();
 
     // AND: Selects API documentation option
     await projectCreationPage.selectApiDocumentation();
-    
+
     // THEN: Step 2 - API method selection should be visible
     await projectCreationPage.verifyStepTitle('Select a method to create an API reference');
 
     // WHEN: User selects API setup method from test data
-    const apiUrl = apiSetup === 'sample' ? testData.projectCreation.defaultProject.apiSetup : undefined;
+    const apiUrl =
+      apiSetup === 'sample' ? testData.projectCreation.defaultProject.apiSetup : undefined;
     await projectCreationPage.selectApiSetupMethod(apiSetup, apiUrl);
     await projectCreationPage.proceedToNextStep('Step 2 - Template selection');
-    
+
     // THEN: Step 3 should show personalize knowledge base
     await projectCreationPage.verifyStepTitle('Personalize your Knowledge Base');
 
@@ -258,7 +265,7 @@ await swaggerPetStorePage.navigateToSwaggerPetstore();
     // THEN: Project should be created successfully
     Log.info('THEN: API documentation project should be created with all components');
     await projectCreationPage.waitForProjectCreationComplete();
-    
+
     // Verify project creation
     await projectCreationPage.verifyProjectCreated(projectName);
     await projectCreationPage.verifyTrialBanner();
@@ -266,10 +273,10 @@ await swaggerPetStorePage.navigateToSwaggerPetstore();
 
     // Verify project structure
     await projectCreationPage.verifyApiDocumentationStructure();
-    
+
     // Verify project URL contains expected pattern
     await projectCreationPage.verifyProjectUrl('api-documentation');
-    
+
     // Verify API template content is created
     await projectCreationPage.verifyApiTemplateContent();
 
@@ -279,8 +286,7 @@ await swaggerPetStorePage.navigateToSwaggerPetstore();
     Log.info(`Project Name: ${projectName}`);
     Log.info(`Website URL: ${websiteUrl}`);
     Log.info(`Project URL: ${page.url()}`);
-    
+
     Log.info('🎉 API Documentation Project Creation Test Completed Successfully');
   });
-
 });

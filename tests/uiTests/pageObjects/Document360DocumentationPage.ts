@@ -9,7 +9,9 @@ export class Document360DocumentationPage extends BasePage {
 
   constructor(page: Page) {
     super(page);
-    this.documentationContainer = page.locator('.documentation-container, [data-testid="documentation-container"]').first();
+    this.documentationContainer = page
+      .locator('.documentation-container, [data-testid="documentation-container"]')
+      .first();
     this.apiMenuItem = page.getByRole('link', { name: /api/i }).first();
     this.frame = page.frameLocator('iframe, [data-testid="doc-frame"]');
   }
