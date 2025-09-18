@@ -1,27 +1,41 @@
 import { test as base, Page } from '@playwright/test';
-import { HomePage } from '../uiTests/pageObjects/HomePage';
 import { LoginPage } from '../uiTests/pageObjects/LoginPage';
+import { Document360DashboardPage } from '../uiTests/pageObjects/Document360DashboardPage';
+import { Document360ProjectCreationPage } from '../uiTests/pageObjects/Document360ProjectCreationPage';
+import { Document360ProjectSettingsPage } from '../uiTests/pageObjects/Document360ProjectSettingsPage';
 import { APITestHelper } from '../utils/APITestHelper';
 import Log from '../utils/Log';
 
 // Define the types for your fixtures
 type MyFixtures = {
-  homePage: HomePage;
   loginPage: LoginPage;
+  document360DashboardPage: Document360DashboardPage;
+  document360ProjectCreationPage: Document360ProjectCreationPage;
+  document360ProjectSettingsPage: Document360ProjectSettingsPage;
   loggedInPage: Page;
   apiHelper: APITestHelper;
 };
 
 // Extend the base test with your fixtures
 export const test = base.extend<MyFixtures>({
-  homePage: async ({ page }, use) => {
-    const homePage = new HomePage(page);
-    await use(homePage);
-  },
-
   loginPage: async ({ page }, use) => {
     const loginPage = new LoginPage(page);
     await use(loginPage);
+  },
+
+  document360DashboardPage: async ({ page }, use) => {
+    const document360DashboardPage = new Document360DashboardPage(page);
+    await use(document360DashboardPage);
+  },
+
+  document360ProjectCreationPage: async ({ page }, use) => {
+    const document360ProjectCreationPage = new Document360ProjectCreationPage(page);
+    await use(document360ProjectCreationPage);
+  },
+
+  document360ProjectSettingsPage: async ({ page }, use) => {
+    const document360ProjectSettingsPage = new Document360ProjectSettingsPage(page);
+    await use(document360ProjectSettingsPage);
   },
 
   loggedInPage: async ({ page }, use) => {

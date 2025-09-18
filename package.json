@@ -8,7 +8,7 @@
     "test:dev:headless": "cross-env NODE_ENV=dev npx playwright test",
     "test:staging": "cross-env NODE_ENV=staging npx playwright test",
     "test:prod": "cross-env NODE_ENV=prod npx playwright test",
-    "test:ui": "cross-env NODE_ENV=qa npx playwright test tests/uiTests --headed",
+    "test:ui": "cross-env NODE_ENV=qa npx playwright test tests/uiTests/e2e --headed",
     "test:api": "cross-env NODE_ENV=qa npx playwright test tests/apiTests",
     "test:smoke": "cross-env NODE_ENV=qa npx playwright test --grep \"@smoke\"",
     "test:regression": "cross-env NODE_ENV=qa npx playwright test --grep \"@regression\"",

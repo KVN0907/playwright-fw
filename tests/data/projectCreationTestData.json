@@ -1,0 +1,93 @@
+{
+  "useCaseOptions": {
+    "api": {
+      "title": "API Documentation",
+      "description": "Create beautiful API documentation",
+      "setupOptions": ["sample", "upload", "url"]
+    },
+    "knowledge-base": {
+      "title": "Knowledge Base",
+      "description": "Create comprehensive documentation",
+      "setupOptions": ["template", "custom"]
+    }
+  },
+  "projectCreation": {
+    "defaultProject": {
+      "useCase": "api",
+      "projectName": "API Test Documentation",
+      "apiSetup": "sample",
+      "websiteUrl": "https://api.example.com",
+      "privacy": "private"
+    },
+    "customProject": {
+      "useCase": "api", 
+      "projectName": "Custom API Project",
+      "apiSetup": "upload",
+      "websiteUrl": "https://custom-api.example.com",
+      "privacy": "public"
+    },
+    "urlBasedProject": {
+      "useCase": "api",
+      "projectName": "URL Based API Project", 
+      "apiSetup": "url",
+      "apiUrl": "https://petstore.swagger.io/v2/swagger.json",
+      "websiteUrl": "https://petstore.swagger.io",
+      "privacy": "mixed"
+    },
+    "knowledgeBaseProject": {
+      "useCase": "knowledge-base",
+      "projectName": "Knowledge Base Test",
+      "websiteUrl": "https://docs.example.com",
+      "privacy": "private"
+    }
+  },
+  "apiDocumentationOptions": {
+    "setupType": "sample",
+    "sample": {
+      "type": "sample",
+      "description": "Try sample pet store API file",
+      "expectedContent": ["Pet", "Store", "User", "Swagger Petstore"]
+    },
+    "upload": {
+      "type": "upload", 
+      "description": "Upload API definition",
+      "supportedFormats": ["JSON", "YAML", "YML"],
+      "expectedContent": ["API specification", "Upload successful"]
+    },
+    "url": {
+      "type": "url",
+      "description": "Create from URL",
+      "testUrls": {
+        "valid": "https://petstore.swagger.io/v2/swagger.json",
+        "invalid": "https://invalid-url-example.com/api.json"
+      },
+      "apiUrl": "https://petstore.swagger.io/v2/swagger.json",
+      "expectedContent": ["API loaded from URL", "Specification imported"]
+    }
+  },
+  "expectedResults": {
+    "projectCreation": {
+      "successIndicators": ["Project created successfully", "API documentation", "Categories & Articles"],
+      "failureIndicators": ["Error", "Failed to create", "Invalid"]
+    },
+    "apiDocumentation": {
+      "interface": ["Preview", "Publish", "Settings", "Categories & Articles"],
+      "content": ["Swagger Petstore", "API documentation", "Endpoints", "Methods"],
+      "navigation": ["Dashboard", "Documents", "API Documentation", "Analytics"]
+    },
+    "projectInfo": {
+      "trialIndicators": ["Trial", "days", "Ends in"],
+      "privacyIndicators": ["Private", "Public", "Mixed"],
+      "versionPattern": "v\\d+-api"
+    }
+  },
+  "testConfiguration": {
+    "timeouts": {
+      "pageLoad": 30000,
+      "elementWait": 10000,
+      "apiRequest": 15000
+    },
+    "retryAttempts": 3,
+    "parallelProjects": 2
+  }
+}
