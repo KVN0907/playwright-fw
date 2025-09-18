@@ -44,12 +44,12 @@ export class Document360ProjectSettingsPage extends BasePage {
     
     // Navigation locators
     this.settingsNavigation = page.locator('.nav-tabs, .nav-pills').first();
-    this.generalTab = page.getByRole('tab', { name: /general/i });
+    this.generalTab = page.locator('.text-truncate'); 
     this.teamAuditingTab = page.getByRole('tab', { name: /team.*auditing/i });
     this.localizationTab = page.getByRole('tab', { name: /localization/i });
     
     // General settings form locators
-    this.projectNameInput = page.getByRole('textbox', { name: /project name/i });
+    this.projectNameInput = page.locator('#inputsm'); ;
     this.projectDescriptionInput = page.getByRole('textbox', { name: /description/i });
     this.projectLogoUpload = page.locator('input[type="file"]').first();
     this.brandColorPicker = page.locator('[type="color"], .color-picker').first();

@@ -2,11 +2,22 @@ import { test } from '@playwright/test';
 import { Document360DashboardPage } from '../pageObjects/Document360DashboardPage';
 import { Document360ProjectCreationPage } from '../pageObjects/Document360ProjectCreationPage';
 import { Document360ProjectSettingsPage } from '../pageObjects/Document360ProjectSettingsPage';
+import { Document360DocumentationPage } from '../pageObjects/Document360DocumentationPage';
+import { Document360SwaggerPetStorePage } from '../pageObjects/Document360SwaggerPetStorePage';
+import { Document360PublishedSitePage } from '../pageObjects/Document360PublishedSitePage';
+
 import Log from '../../utils/Log';
 import * as testData from '../../data/projectCreationTestData.json';
 
 test.describe('Document360 API Documentation Project Creation', () => {
-  
+   let documentationPage: Document360DocumentationPage;
+      let swaggerPetStorePage: Document360SwaggerPetStorePage;
+      let publishedSitePage: Document360PublishedSitePage;
+
+      test.beforeEach(async () => {
+          swaggerPetStorePage = new Document360SwaggerPetStorePage(page);
+          publishedSitePage = new Document360PublishedSitePage(page);
+      });
   test('Create new API documentation project with pet store template @smoke @project-creation', async ({ page }) => {
     Log.info('🚀 Starting API Documentation Project Creation Test');
     
@@ -115,46 +126,52 @@ test.describe('Document360 API Documentation Project Creation', () => {
     Log.info('🎉 API Documentation Project Creation Test Completed Successfully');
   });
 
-  test('Verify API documentation project components and structure @component-verification', async ({ page }) => {
-    Log.info('🔍 Starting API Documentation Project Components Verification');
-    
+  test('Publish API documentation project(Bluk Operation) @create-project @publish', async ({ page }) => {
+    Log.info('🔍 Starting API Documentation Project Publishing Test');
+
     const dashboardPage = new Document360DashboardPage(page);
     const projectCreationPage = new Document360ProjectCreationPage(page);
+await swaggerPetStorePage.navigateToSwaggerPetstore();
+        await swaggerPetStorePage.navigateToPetCategory();
+        await swaggerPetStorePage.verifySwaggerPetstorePageLoaded();
 
-    // GIVEN: User navigates to existing API documentation project
-    Log.info('GIVEN: User navigates to API documentation dashboard');
-    await dashboardPage.navigateToDashboard();
-    
-    // Find and access the API documentation project
-    const apiProject = page.locator('text=API Test Documentation').first();
-    if (await apiProject.count() > 0) {
-      await apiProject.click(); 
-      Log.info('Found existing API Test Documentation project');
-    } else {
-      // If no existing project, skip this test
-      Log.info('No existing API documentation project found - skipping component verification');
-      return;
-    }
+        // When user captures the available API endpoints
+        const availableEndpoints = await swaggerPetStorePage.captureEndpointsList();
+        await swaggerPetStorePage.verifyPetEndpointsDisplayed();
 
-    // WHEN: User examines project structure
-    Log.info('WHEN: User examines API documentation project structure');
-    await projectCreationPage.waitForLoadState('domcontentloaded');
+        // And user selects Find pet by ID endpoint for publishing
+        await swaggerPetStorePage.selectFindPetByIdEndpoint();
+        await swaggerPetStorePage.verifyBulkActionToolbarVisible();
 
-    // THEN: All project components should be present
-    Log.info('THEN: All API documentation components should be verified');
-    
-    // Verify main project elements
-    await projectCreationPage.verifyTrialBanner();
-    await projectCreationPage.verifyOpenSiteLink();
-    
-    // Verify documentation structure
-    await projectCreationPage.verifyApiDocumentationStructure();
-    
-    // Verify content template
-    await projectCreationPage.verifyApiTemplateContent();
-    
-    // Verify URL structure
-    await projectCreationPage.verifyProjectUrl('api-documentation');
+        // And user publishes the selected endpoint
+        await swaggerPetStorePage.publishSelectedEndpoint('Publishing Find pet by ID endpoint for testing');
+
+        // Then endpoint should be published successfully
+        await swaggerPetStorePage.verifyEndpointPublished('Find pet by ID');
+        await swaggerPetStorePage.verifyEndpointStatus('Find pet by ID', 'Published');
+
+        // When user opens the published documentation site
+        const publishedPage = await swaggerPetStorePage.openPublishedSite();
+        publishedSitePage = new Document360PublishedSitePage(publishedPage);
+
+        // Then published site should load with proper landing page
+        await publishedSitePage.verifyLandingPageLoaded();
+
+        // When user navigates to API documentation section
+        await publishedSitePage.navigateToApiDocumentation();
+
+        // Then API documentation page should load with proper navigation structure
+        await publishedSitePage.verifyApiDocumentationPageLoaded();
+
+        // When user navigates to the published Find pet by ID endpoint
+        await publishedSitePage.navigateToFindPetByIdEndpoint();
+
+        // Then endpoint documentation should be complete and functional
+        await publishedSitePage.verifyFindPetByIdEndpointDocumentation();
+        await publishedSitePage.verifyTryItFunctionality();
+        await publishedSitePage.verifyResponseDocumentation();
+        await publishedSitePage.verifyEndpointInNavigation();
+        await publishedSitePage.verifyPublishedEndpointQuality();
 
     Log.info('✅ API Documentation Project Components Verified Successfully');
   });
