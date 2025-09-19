@@ -143,7 +143,7 @@ export class Document360ProjectSettingsPage extends BasePage {
   /**
    * Delete the current project
    */
-  async deleteProject(): Promise<void> {
+  async deleteProject(projectName?: string): Promise<void> {
     Log.info('Starting project deletion process');
 
     // First verify we can see the delete section
@@ -160,11 +160,12 @@ export class Document360ProjectSettingsPage extends BasePage {
     await expect(confirmationDialog).toBeVisible({ timeout: 10000 });
     Log.info('Delete confirmation dialog appeared');
 
-    // Get the project subdomain from the dialog text
-    const projectSubdomainElement = confirmationDialog.locator('text=api-test-documentation');
-    const projectSubdomain = await projectSubdomainElement.textContent();
-    const subdomainToType = projectSubdomain?.trim() || 'api-test-documentation';
-
+    // Use provided project name or get it from settings page
+    let subdomainToType = projectName || await this.getProjectName() || 'api-test-documentation';
+    
+    // Convert project name to subdomain format (lowercase with hyphens)
+    subdomainToType = subdomainToType.toLowerCase().replace(/\s+/g, '-');
+    
     Log.info(`Typing project subdomain: ${subdomainToType}`);
 
     // Type the project subdomain in the confirmation textbox

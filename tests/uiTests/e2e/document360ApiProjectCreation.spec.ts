@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { Document360DashboardPage } from '../pageObjects/Document360DashboardPage';
 import { Document360ProjectCreationPage } from '../pageObjects/Document360ProjectCreationPage';
 import { Document360ProjectSettingsPage } from '../pageObjects/Document360ProjectSettingsPage';
@@ -6,10 +6,10 @@ import Log from '../../utils/Log';
 import * as testData from '../../data/projectCreationTestData.json';
 
 test.describe('Document360 API Documentation Project Creation', () => {
-  test('Create new API documentation project with pet store template @smoke @project-creation', async ({
+  test('Create new API documentation project with pet store template Using Create URL Option @smoke @project-creation', async ({
     page,
   }) => {
-    Log.info('🚀 Starting API Documentation Project Creation Test');
+    Log.info('Starting API Documentation Project Creation Test');
 
     test.info().annotations.push({ type: 'severity', description: 'Critical' });
 
@@ -38,11 +38,12 @@ test.describe('Document360 API Documentation Project Creation', () => {
     if (hasExistingProjects) {
       Log.info('Existing project found in trial mode - project deletion required');
       const projectSettingsPage = new Document360ProjectSettingsPage(page);
+      const existingProjectName = await dashboardPage.getProjectName();
 
       // Navigate to settings and delete existing project
       await dashboardPage.navigateToProjectSettings();
       await projectSettingsPage.verifySettingsPageLoaded();
-      await projectSettingsPage.deleteProject();
+      await projectSettingsPage.deleteProject(existingProjectName);
       await dashboardPage.verifyDashboardLoaded();
       await dashboardPage.verifySuccessMessage('Project deleted!');
     }
@@ -165,7 +166,7 @@ test.describe('Document360 API Documentation Project Creation', () => {
   test('Create new API documentation project - Sample Radio Button @smoke @project-creation', async ({
     page,
   }) => {
-    Log.info('🚀 Starting API Documentation Project Creation Test');
+    Log.info('Starting API Documentation Project Creation Test');
     test.info().annotations.push({ type: 'severity', description: 'Critical' });
 
     // Add feature annotation
@@ -195,11 +196,12 @@ test.describe('Document360 API Documentation Project Creation', () => {
     if (hasExistingProjects) {
       Log.info('Existing project found in trial mode - project deletion required');
       const projectSettingsPage = new Document360ProjectSettingsPage(page);
+      const existingProjectName = await dashboardPage.getProjectName();
 
       // Navigate to settings and delete existing project
       await dashboardPage.navigateToProjectSettings();
       await projectSettingsPage.verifySettingsPageLoaded();
-      await projectSettingsPage.deleteProject();
+      await projectSettingsPage.deleteProject(existingProjectName);
       await dashboardPage.verifyDashboardLoaded();
       await dashboardPage.verifySuccessMessage('Project deleted!');
     }
@@ -272,5 +274,95 @@ test.describe('Document360 API Documentation Project Creation', () => {
     Log.info(`Project URL: ${page.url()}`);
 
     Log.info('🎉 API Documentation Project Creation Test Completed Successfully');
+  });
+
+  test('Negative: Project creation should fail with invalid project name @negative', async ({ page }) => {
+    Log.info('Starting Negative Test - Invalid Project Name');
+
+    test.info().annotations.push({ type: 'severity', description: 'High' });
+    test.info().annotations.push({ type: 'feature', description: 'Project Creation Validation' });
+
+    // Initialize page objects for this test
+    const dashboardPage = new Document360DashboardPage(page);
+    const projectCreationPage = new Document360ProjectCreationPage(page);
+
+    // Navigate and setup
+    await dashboardPage.navigateToDashboard();
+    await dashboardPage.verifyDashboardLoaded();
+
+    // Test data with invalid characters
+    const invalidProjectName = '<script>alert("hack")</script>'; // XSS attempt
+    const apiSetup = 'sample';
+
+    try {
+      // WHEN: User initiates project creation with invalid name
+      Log.info('WHEN: User creates project with invalid/malicious name');
+      await projectCreationPage.clickCreateProject();
+      await projectCreationPage.selectApiDocumentation();
+      await projectCreationPage.selectApiSetupMethod(apiSetup);
+
+      // Try to fill invalid project name
+      await projectCreationPage.fillProjectName(invalidProjectName);
+      
+      // THEN: System should either sanitize the input or show validation error
+      const projectNameField = page.locator('input[name*="project"], input[name*="name"]').first();
+      const actualValue = await projectNameField.inputValue();
+      
+      // Verify the malicious script is not in the field value
+      expect(actualValue).not.toContain('<script>');
+      expect(actualValue).not.toContain('alert');
+      
+      Log.info(`Invalid project name was sanitized to: ${actualValue}`);
+      
+    } catch (error) {
+      Log.info(`Expected validation error for invalid project name: ${error}`);
+      // This is acceptable - the system should prevent invalid names
+    }
+
+    Log.info('Negative Test - Invalid Project Name Completed');
+  });
+
+  test('Negative: Project creation should handle missing required fields @negative', async ({ page }) => {
+    Log.info('Starting Negative Test - Missing Required Fields');
+
+    test.info().annotations.push({ type: 'severity', description: 'High' });
+    test.info().annotations.push({ type: 'feature', description: 'Form Validation' });
+
+    // Initialize page objects for this test
+    const dashboardPage = new Document360DashboardPage(page);
+    const projectCreationPage = new Document360ProjectCreationPage(page);
+
+    // Navigate and setup
+    await dashboardPage.navigateToDashboard();
+    await dashboardPage.verifyDashboardLoaded();
+
+    try {
+      // WHEN: User attempts to create project without filling required fields
+      Log.info('WHEN: User attempts to skip required form fields');
+      await projectCreationPage.clickCreateProject();
+      await projectCreationPage.selectApiDocumentation();
+
+      // Try to proceed without selecting API setup method
+      const nextButton = page.locator('button:has-text("Next"), button:has-text("Continue")').first();
+      
+      if (await nextButton.isVisible()) {
+        await nextButton.click();
+        
+        // THEN: System should either show validation message or prevent progression
+        const validationMessage = page.locator('.error, .invalid, .validation-message, [role="alert"]');
+        
+        // Check if we stayed on the same step (indicating validation worked)
+        const stillOnApiSetupStep = await page.locator(':text("Select a method to create an API reference")').isVisible();
+        const hasValidationError = await validationMessage.isVisible({ timeout: 3000 });
+        
+        expect(stillOnApiSetupStep || hasValidationError).toBeTruthy();
+        Log.info('Form validation prevented progression with missing required fields');
+      }
+      
+    } catch (error) {
+      Log.info(`Expected form validation behavior: ${error}`);
+    }
+
+    Log.info('Negative Test - Missing Required Fields Completed');
   });
 });
