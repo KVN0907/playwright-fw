@@ -75,8 +75,8 @@ export class Document360PublishedSitePage extends BasePage {
   private initializeLocators(): void {
     // Landing page locators
     this.projectLogo = this.page.getByRole('button', { name: 'Project logo' });
-    this.welcomeHeading = this.page.getByRole('heading', {
-      name: 'Welcome to API Test Documentation project landing page',
+    this.welcomeHeading = this.page.getByRole('heading', { 
+      name: /Welcome to .* project landing page/ 
     });
     this.apiDocumentationButton = this.page
       .getByRole('link', { name: 'API Documentation' })
@@ -188,7 +188,7 @@ export class Document360PublishedSitePage extends BasePage {
   /**
    * Verifies that the published site landing page is loaded correctly
    */
-  async verifyLandingPageLoaded(): Promise<void> {
+  async verifyLandingPageLoaded(projectName: string): Promise<void> {
     Log.info('Verifying published site landing page is loaded');
     await this.verifyElementVisible(this.projectLogo, 'Project logo');
     await this.verifyElementVisible(this.welcomeHeading, 'Welcome heading');
@@ -196,8 +196,8 @@ export class Document360PublishedSitePage extends BasePage {
     await this.verifyElementVisible(this.modulesSection, 'Modules section');
 
     const title = await this.getTitle();
-    expect(title).toContain('API Test Documentation');
-    Log.info('Published site landing page verified successfully');
+    expect(title).toContain(projectName);
+    Log.info(`Published site landing page verified successfully with project name: ${projectName}`);
   }
 
   /**

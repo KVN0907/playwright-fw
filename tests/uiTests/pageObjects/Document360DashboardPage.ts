@@ -76,12 +76,19 @@ export class Document360DashboardPage extends BasePage {
 
   async verifyProjectsExist(): Promise<boolean> {
     Log.info('Verifying if projects exist');
-    await this.projectList.waitFor({ state: 'visible' });
-    await this.projectItems.waitFor({ state: 'attached' });
-    const count = await this.projectItems.count();
-    const exists = count > 0;
-    Log.info(`Projects exist: ${exists}`);
-    return exists;
+    
+    try {
+      // Wait for project list with a reasonable timeout
+      await this.projectList.waitFor({ state: 'visible', timeout: 10000 });
+      await this.projectItems.waitFor({ state: 'attached', timeout: 5000 });
+      const count = await this.projectItems.count();
+      const exists = count > 0;
+      Log.info(`Projects exist: ${exists}, count: ${count}`);
+      return exists;
+    } catch (error) {
+      Log.info('Project list not found - no projects exist');
+      return false;
+    }
   }
 
   async getProjectCount(): Promise<number> {
