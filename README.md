@@ -20,6 +20,7 @@
 - [📈 Scalability](#-scalability)
 - [🔮 Enhancement Roadmap](#-enhancement-roadmap)
 - [🚀 Getting Started](#-getting-started)
+- [⚙️ GitHub Actions Integration](#️-github-actions-integration)
 - [📖 Usage Examples](#-usage-examples)
 
 ---
@@ -102,6 +103,7 @@ playwright-fw/
 | **AI-Assisted Development** | Intelligent test generation and maintenance | ✅ Implemented |
 | **Visual Testing** | Screenshot comparison and visual regression | ✅ Implemented |
 | **Parallel Execution** | Multi-worker test execution | ✅ Implemented |
+| **Enhanced Reporting** | Advanced analytics via `playwright-enhanced-reporter` | ✅ Implemented |
 | **Real-time Reporting** | Live test results and analytics | ✅ Implemented |
 | **Auto-healing** | Self-repairing test locators | 🔄 In Progress |
 | **Cloud Integration** | CI/CD pipeline integration | ✅ Implemented |
@@ -354,15 +356,80 @@ export class EnhancedReporter {
 }
 ```
 
+#### 4. **Playwright Enhanced Reporter**
+This framework leverages the custom [`playwright-enhanced-reporter`](https://www.npmjs.com/package/playwright-enhanced-reporter) package, specifically designed to provide advanced reporting capabilities:
+
+```bash
+# Install the enhanced reporter
+npm install playwright-enhanced-reporter
+```
+
+**Key Features:**
+- **📊 Rich Visual Reports**: Enhanced HTML reports with interactive charts and graphs
+- **🎯 Test Analytics**: Advanced metrics and performance analysis
+- **🚀 CI/CD Integration**: Seamless integration with GitHub Actions and other CI/CD platforms
+- **📱 Multi-format Output**: HTML, JSON, and custom formats
+- **🔍 Deep Insights**: Detailed test execution analysis with actionable recommendations
+- **📈 Trend Analysis**: Historical performance tracking and regression detection
+
+**Configuration Example:**
+```typescript
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+import { EnhancedReporter } from 'playwright-enhanced-reporter';
+
+export default defineConfig({
+  reporter: [
+    ['html'],
+    ['junit', { outputFile: 'test-results/junit.xml' }],
+    [EnhancedReporter, {
+      outputDir: 'enhanced-reports',
+      openReport: process.env.CI ? false : true,
+      includeMetrics: true,
+      generateCharts: true,
+      aiInsights: true
+    }]
+  ],
+  // ... other config
+});
+```
+
+**Sample Enhanced Report Output:**
+```json
+{
+  "summary": {
+    "total": 47,
+    "passed": 45,
+    "failed": 2,
+    "duration": "2m 34s",
+    "efficiency": "95.7%"
+  },
+  "insights": {
+    "performanceScore": 8.5,
+    "reliability": "High",
+    "recommendations": [
+      "Consider optimizing login flow - avg 3.2s",
+      "API response validation could be enhanced"
+    ]
+  },
+  "trends": {
+    "improvement": "+12% from last run",
+    "regressions": ["Dashboard load time increased by 500ms"]
+  }
+}
+```
+
 ### 📊 Reporting Features
 
-| Feature | Description | Format |
-|---------|-------------|--------|
-| **Execution Summary** | High-level test results overview | HTML, JSON |
-| **Failure Analysis** | Detailed error breakdown | HTML, Screenshots |
-| **Performance Metrics** | Test execution timing | Charts, Graphs |
-| **Trend Analysis** | Historical test performance | Dashboard |
-| **AI Insights** | Intelligent failure analysis | Natural Language |
+| Feature | Description | Format | Source |
+|---------|-------------|--------|--------|
+| **Execution Summary** | High-level test results overview | HTML, JSON | Playwright + Enhanced Reporter |
+| **Failure Analysis** | Detailed error breakdown | HTML, Screenshots | Playwright + Enhanced Reporter |
+| **Performance Metrics** | Test execution timing | Charts, Graphs | Enhanced Reporter |
+| **Trend Analysis** | Historical test performance | Dashboard | Enhanced Reporter |
+| **AI Insights** | Intelligent failure analysis | Natural Language | Enhanced Reporter |
+| **Custom Analytics** | Advanced test metrics and KPIs | Interactive Charts | Enhanced Reporter |
+| **Regression Detection** | Automated performance regression alerts | JSON, Notifications | Enhanced Reporter |
 
 ### 📱 Report Integrations
 
@@ -430,25 +497,25 @@ export default {
 
 ### 🚀 Upcoming Features
 
-#### Q1 2025
+
 - [ ] **Advanced AI Integration**
   - GPT-4 powered test generation
   - Natural language test creation
   - Intelligent test maintenance
 
-#### Q2 2025  
+
 - [ ] **Enhanced MCP Features**
   - Advanced browser automation
   - Smart element discovery
   - Predictive testing
 
-#### Q3 2025
+
 - [ ] **Cloud-Native Features**
   - Kubernetes-native execution
   - Serverless test runners
   - Global test distribution
 
-#### Q4 2025
+
 - [ ] **Advanced Analytics**
   - ML-powered test insights
   - Predictive failure analysis
@@ -537,6 +604,382 @@ npm run test:debug
 # Specific test file
 npx playwright test tests/uiTests/e2e/projectManagement.spec.ts
 ```
+
+---
+
+## ⚙️ GitHub Actions Integration
+
+### 🚀 CI/CD Pipeline Overview
+
+Our framework includes a robust GitHub Actions workflow that provides comprehensive automated testing across multiple environments, browsers, and test suites. The workflow is designed for enterprise-grade reliability with advanced features including manual triggers, dynamic matrix builds, and comprehensive reporting.
+
+### 📋 Workflow Features
+
+| Feature | Description | Status |
+|---------|-------------|---------|
+| **Multi-Environment Support** | QA, Staging, Production environments | ✅ Implemented |
+| **Cross-Browser Testing** | Chrome, Firefox, Safari, Edge | ✅ Implemented |
+| **Dynamic Test Suites** | Smoke, Regression, E2E, API tests | ✅ Implemented |
+| **Manual Triggers** | On-demand test execution | ✅ Implemented |
+| **Scheduled Runs** | Daily automated testing | ✅ Implemented |
+| **Artifact Management** | Screenshots, videos, reports | ✅ Implemented |
+| **Slack Notifications** | Real-time status updates | ✅ Implemented |
+| **Parallel Execution** | Optimized test performance | ✅ Implemented |
+
+### 🔧 Workflow Configuration
+
+The main workflow file is located at `.github/workflows/playwright-tests.yml`:
+
+```yaml
+name: 🎭 Playwright Test Suite
+
+on:
+  # Manual trigger with options
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'qa'
+        type: choice
+        options:
+          - qa
+          - staging
+          - production
+      browser:
+        description: 'Browser to test'
+        required: true
+        default: 'chromium'
+        type: choice
+        options:
+          - chromium
+          - firefox
+          - webkit
+          - all
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - regression
+          - e2e
+          - api
+          - all
+      run_type:
+        description: 'Execution mode'
+        required: true
+        default: 'headless'
+        type: choice
+        options:
+          - headless
+          - headed
+
+  # Automated triggers
+  push:
+    branches: [main, develop, feature/*, release/*]
+    paths:
+      - 'tests/**'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - '.github/workflows/**'
+  
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'tests/**'
+      - 'playwright.config.ts'
+      - 'package.json'
+  
+  # Daily scheduled run
+  schedule:
+    - cron: '0 6 * * 1-5'  # Weekdays at 6 AM UTC
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+        environment: [qa]
+        
+    steps:
+      - name: 🚀 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📥 Install Dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: 🔧 Configure Environment
+        run: |
+          cp tests/data/${{ matrix.environment }}.json tests/data/.env.json
+          echo "Environment configured for: ${{ matrix.environment }}"
+
+      - name: 🧪 Run Playwright Tests
+        env:
+          BROWSER: ${{ matrix.browser }}
+          ENVIRONMENT: ${{ matrix.environment }}
+          TEST_SUITE: ${{ github.event.inputs.test_suite || 'smoke' }}
+          RUN_TYPE: ${{ github.event.inputs.run_type || 'headless' }}
+        run: |
+          if [ "$TEST_SUITE" = "smoke" ]; then
+            npx playwright test --grep "@smoke" --project=$BROWSER
+          elif [ "$TEST_SUITE" = "regression" ]; then
+            npx playwright test --grep "@regression" --project=$BROWSER
+          elif [ "$TEST_SUITE" = "e2e" ]; then
+            npx playwright test tests/uiTests/e2e/ --project=$BROWSER
+          elif [ "$TEST_SUITE" = "api" ]; then
+            npx playwright test tests/apiTests/ --project=$BROWSER
+          else
+            npx playwright test --project=$BROWSER
+          fi
+
+      - name: 📊 Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}-${{ matrix.environment }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+      - name: 🖼️ Upload Screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots-${{ matrix.browser }}-${{ matrix.environment }}
+          path: test-results/screenshots/
+          retention-days: 7
+
+      - name: 📹 Upload Videos
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: videos-${{ matrix.browser }}-${{ matrix.environment }}
+          path: test-results/videos/
+          retention-days: 7
+
+  # Notify on completion
+  notify:
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: 📢 Slack Notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#qa-automation'
+          text: |
+            🎭 Playwright Test Suite completed
+            Status: ${{ job.status }}
+            Environment: ${{ github.event.inputs.environment || 'qa' }}
+            Browser: ${{ github.event.inputs.browser || 'chromium' }}
+            Suite: ${{ github.event.inputs.test_suite || 'smoke' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+```
+
+### 🎯 Manual Test Execution
+
+#### Via GitHub UI
+1. Go to **Actions** tab in your repository
+2. Select **🎭 Playwright Test Suite** workflow
+3. Click **Run workflow**
+4. Configure parameters:
+   - **Environment**: qa/staging/production
+   - **Browser**: chromium/firefox/webkit/all
+   - **Test Suite**: smoke/regression/e2e/api/all
+   - **Run Type**: headless/headed
+5. Click **Run workflow**
+
+#### Via GitHub CLI
+```bash
+# Run smoke tests on QA environment
+gh workflow run "playwright-tests.yml" \
+  --field environment=qa \
+  --field browser=chromium \
+  --field test_suite=smoke \
+  --field run_type=headless
+
+# Run all tests across all browsers
+gh workflow run "playwright-tests.yml" \
+  --field environment=qa \
+  --field browser=all \
+  --field test_suite=all \
+  --field run_type=headless
+```
+
+### 📈 Advanced Configuration
+
+#### Environment-Specific Settings
+Create environment-specific configuration files:
+
+```json
+// tests/data/qa.json
+{
+  "baseURL": "https://qa-app.document360.com",
+  "credentials": {
+    "email": "qa-user@domain.com",
+    "password": "${{ secrets.QA_PASSWORD }}"
+  },
+  "timeout": 30000,
+  "retries": 2
+}
+```
+
+```json
+// tests/data/production.json
+{
+  "baseURL": "https://app.document360.com",
+  "credentials": {
+    "email": "prod-user@domain.com",
+    "password": "${{ secrets.PROD_PASSWORD }}"
+  },
+  "timeout": 45000,
+  "retries": 3
+}
+```
+
+#### Repository Secrets Configuration
+Set up the following secrets in your GitHub repository:
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `QA_PASSWORD` | QA environment password | `your-qa-password` |
+| `STAGING_PASSWORD` | Staging environment password | `your-staging-password` |
+| `PROD_PASSWORD` | Production environment password | `your-prod-password` |
+| `SLACK_WEBHOOK` | Slack webhook URL for notifications | `https://hooks.slack.com/...` |
+
+### 📊 Test Reports & Artifacts
+
+#### HTML Reports
+- **Location**: Available as workflow artifacts
+- **Retention**: 30 days
+- **Features**: Interactive reports with screenshots, videos, and logs
+
+#### Enhanced Reporter Artifacts
+The framework automatically generates advanced reports using [`playwright-enhanced-reporter`](https://www.npmjs.com/package/playwright-enhanced-reporter):
+
+- **📈 Performance Analytics**: Detailed execution metrics and trends
+- **🎯 Test Insights**: AI-powered analysis and recommendations  
+- **📊 Visual Charts**: Interactive graphs showing test performance over time
+- **🔍 Regression Detection**: Automatic identification of performance regressions
+- **📋 Executive Summary**: High-level KPIs and test health indicators
+
+```yaml
+# GitHub Actions workflow automatically uploads enhanced reports
+- name: 📊 Upload Enhanced Reports
+  uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: enhanced-report-${{ matrix.browser }}-${{ matrix.environment }}
+    path: |
+      enhanced-reports/
+      playwright-report/
+    retention-days: 30
+```
+
+#### Screenshots & Videos
+- **Failure Screenshots**: Automatically captured on test failures
+- **Test Videos**: Full test execution recordings
+- **Retention**: 7 days for debugging
+
+#### Accessing Reports
+```bash
+# Download artifacts using GitHub CLI
+gh run download <run-id> --name playwright-report-chromium-qa
+
+# Or access via GitHub UI
+# Go to Actions → Select workflow run → Download artifacts
+```
+
+### 🔄 Integration Examples
+
+#### Pull Request Integration
+```yaml
+# Add to your PR workflow
+- name: 🧪 Run Critical Path Tests
+  if: github.event_name == 'pull_request'
+  run: npx playwright test --grep "@critical"
+```
+
+#### Release Integration
+```yaml
+# Pre-release validation
+- name: 🚀 Pre-Release Validation
+  if: startsWith(github.ref, 'refs/tags/')
+  run: |
+    npx playwright test --grep "@smoke|@critical"
+    npx playwright test tests/apiTests/ --project=chromium
+```
+
+### 🛠️ Troubleshooting
+
+#### Common Issues
+
+1. **Browser Installation Failures**
+   ```yaml
+   - name: 🎭 Install Playwright Browsers
+     run: npx playwright install --with-deps chromium firefox webkit
+   ```
+
+2. **Environment Configuration**
+   ```bash
+   # Verify environment files exist
+   ls -la tests/data/
+   cat tests/data/.env.json
+   ```
+
+3. **Test Timeouts**
+   ```yaml
+   # Increase job timeout for large test suites
+   timeout-minutes: 120
+   ```
+
+#### Debug Mode
+```yaml
+# Enable debug mode
+- name: 🐛 Debug Tests
+  env:
+    DEBUG: pw:*
+  run: npx playwright test --debug
+```
+
+### 🎯 Best Practices
+
+1. **Test Organization**
+   - Use descriptive test tags (`@smoke`, `@regression`, `@critical`)
+   - Organize tests by feature and priority
+   - Maintain test data separately from test logic
+
+2. **Performance Optimization**
+   - Run tests in parallel when possible
+   - Use appropriate timeouts and retries
+   - Cache dependencies and browser installations
+
+3. **Monitoring & Alerts**
+   - Set up Slack notifications for test failures
+   - Monitor test trends and performance metrics
+   - Regularly review and update test suites
+
+4. **Security**
+   - Store sensitive data in GitHub Secrets
+   - Use environment-specific credentials
+   - Regularly rotate passwords and tokens
 
 ---
 
