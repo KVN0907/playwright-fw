@@ -21,26 +21,28 @@ export class PageContextHandler {
    * @param timeout - Timeout in milliseconds to wait for the new page
    * @returns Promise<Page> - The new page instance
    */
-  async switchToNewPage(triggerAction: () => Promise<void>, timeout: number = 30000): Promise<Page> {
+  async switchToNewPage(
+    triggerAction: () => Promise<void>,
+    timeout: number = 30000
+  ): Promise<Page> {
     try {
       Log.info('Waiting for new page to open...');
-      
+
       // Set up promise to wait for new page
       const newPagePromise = this.context.waitForEvent('page', { timeout });
-      
+
       // Execute the action that triggers the new page
       await triggerAction();
-      
+
       // Wait for the new page to load
       const newPage = await newPagePromise;
       await newPage.waitForLoadState('domcontentloaded');
-      
+
       // Update current page reference
       this.currentPage = newPage;
-      
+
       Log.info(`Successfully switched to new page: ${newPage.url()}`);
       return newPage;
-      
     } catch (error) {
       Log.error(`Failed to switch to new page: ${error}`);
       throw error;
@@ -70,16 +72,15 @@ export class PageContextHandler {
   async switchToOriginalPage(): Promise<Page> {
     try {
       Log.info('Switching back to original page...');
-      
+
       // Bring original page to front
       await this.originalPage.bringToFront();
-      
+
       // Update current page reference
       this.currentPage = this.originalPage;
-      
+
       Log.info(`Successfully switched back to original page: ${this.originalPage.url()}`);
       return this.originalPage;
-      
     } catch (error) {
       Log.error(`Failed to switch back to original page: ${error}`);
       throw error;
@@ -96,9 +97,8 @@ export class PageContextHandler {
         Log.info(`Closing current page: ${this.currentPage.url()}`);
         await this.currentPage.close();
       }
-      
+
       return await this.switchToOriginalPage();
-      
     } catch (error) {
       Log.error(`Failed to close current page and switch to original: ${error}`);
       throw error;
@@ -121,19 +121,18 @@ export class PageContextHandler {
   async switchToPageByIndex(index: number): Promise<Page> {
     try {
       const pages = this.getAllPages();
-      
+
       if (index < 0 || index >= pages.length) {
         throw new Error(`Page index ${index} is out of range. Available pages: ${pages.length}`);
       }
-      
+
       const targetPage = pages[index];
       await targetPage.bringToFront();
-      
+
       this.currentPage = targetPage;
-      
+
       Log.info(`Successfully switched to page at index ${index}: ${targetPage.url()}`);
       return targetPage;
-      
     } catch (error) {
       Log.error(`Failed to switch to page at index ${index}: ${error}`);
       throw error;
@@ -149,23 +148,24 @@ export class PageContextHandler {
   async waitForPageCount(expectedCount: number, timeout: number = 10000): Promise<Page[]> {
     try {
       Log.info(`Waiting for ${expectedCount} pages to be open...`);
-      
+
       const startTime = Date.now();
-      
+
       while (Date.now() - startTime < timeout) {
         const pages = this.getAllPages();
-        
+
         if (pages.length === expectedCount) {
           Log.info(`Successfully found ${expectedCount} pages`);
           return pages;
         }
-        
+
         // Wait a bit before checking again
         await this.currentPage.waitForTimeout(500);
       }
-      
-      throw new Error(`Timeout waiting for ${expectedCount} pages. Current count: ${this.getAllPages().length}`);
-      
+
+      throw new Error(
+        `Timeout waiting for ${expectedCount} pages. Current count: ${this.getAllPages().length}`
+      );
     } catch (error) {
       Log.error(`Failed to wait for page count: ${error}`);
       throw error;

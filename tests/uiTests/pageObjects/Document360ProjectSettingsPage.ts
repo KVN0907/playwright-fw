@@ -6,13 +6,13 @@ export class Document360ProjectSettingsPage extends BasePage {
   // Header elements
   private settingsTitle: Locator;
   private breadcrumb: Locator;
-  
+
   // Navigation elements
   private settingsNavigation: Locator;
   private generalTab: Locator;
   private teamAuditingTab: Locator;
   private localizationTab: Locator;
-  
+
   // General settings form elements
   private projectNameInput: Locator;
   private projectDescriptionInput: Locator;
@@ -21,7 +21,7 @@ export class Document360ProjectSettingsPage extends BasePage {
   private languageDropdown: Locator;
   private timezoneDropdown: Locator;
   private saveButton: Locator;
-  
+
   // Delete section elements
   private deleteSection: Locator;
   private deleteKnowledgeBaseText: Locator;
@@ -30,42 +30,48 @@ export class Document360ProjectSettingsPage extends BasePage {
   private confirmDeleteModal: Locator;
   private confirmDeleteInput: Locator;
   private finalDeleteButton: Locator;
-  
+
   // Trial elements
   private trialBadge: Locator;
   private upgradeButton: Locator;
 
   constructor(page: Page) {
     super(page);
-    
+
     // Header locators
     this.settingsTitle = page.getByText(/project settings/i);
     this.breadcrumb = page.locator('[aria-label="Breadcrumb"]');
-    
+
     // Navigation locators
     this.settingsNavigation = page.locator('.nav-tabs, .nav-pills').first();
-    this.generalTab = page.getByRole('tab', { name: /general/i });
+    this.generalTab = page.locator('.text-truncate');
     this.teamAuditingTab = page.getByRole('tab', { name: /team.*auditing/i });
     this.localizationTab = page.getByRole('tab', { name: /localization/i });
-    
+
     // General settings form locators
-    this.projectNameInput = page.getByRole('textbox', { name: /project name/i });
+    this.projectNameInput = page.locator('#inputsm');
     this.projectDescriptionInput = page.getByRole('textbox', { name: /description/i });
     this.projectLogoUpload = page.locator('input[type="file"]').first();
     this.brandColorPicker = page.locator('[type="color"], .color-picker').first();
     this.languageDropdown = page.getByRole('combobox', { name: /language/i });
     this.timezoneDropdown = page.getByRole('combobox', { name: /timezone/i });
     this.saveButton = page.getByRole('button', { name: /save/i });
-    
+
     // Delete section locators - more flexible selectors
     this.deleteSection = page.locator('.delete-section, [class*="delete"], .danger-zone').first();
     this.deleteKnowledgeBaseText = page.getByText(/delete knowledge base/i);
     this.deleteWarningText = page.getByText(/this action cannot be undone/i);
-    this.deleteButton = page.getByRole('button', { name: /^delete$/i }).or(page.getByRole('button', { name: /delete.*knowledge.*base/i }));
+    this.deleteButton = page
+      .getByRole('button', { name: /^delete$/i })
+      .or(page.getByRole('button', { name: /delete.*knowledge.*base/i }));
     this.confirmDeleteModal = page.getByRole('dialog').or(page.locator('.modal, .popup')).first();
-    this.confirmDeleteInput = page.getByRole('textbox', { name: /confirm/i }).or(page.locator('input[placeholder*="confirm"]'));
-    this.finalDeleteButton = page.getByRole('button', { name: /delete.*permanently/i }).or(page.getByRole('button', { name: /confirm.*delete/i }));
-    
+    this.confirmDeleteInput = page
+      .getByRole('textbox', { name: /confirm/i })
+      .or(page.locator('input[placeholder*="confirm"]'));
+    this.finalDeleteButton = page
+      .getByRole('button', { name: /delete.*permanently/i })
+      .or(page.getByRole('button', { name: /confirm.*delete/i }));
+
     // Trial elements
     this.trialBadge = page.getByText(/trial/i);
     this.upgradeButton = page.getByRole('button', { name: /upgrade/i });
@@ -113,20 +119,22 @@ export class Document360ProjectSettingsPage extends BasePage {
   /**
    * Navigate to different settings sections
    */
-  async navigateToSettingsSection(section: 'general' | 'team-auditing' | 'localization'): Promise<void> {
+  async navigateToSettingsSection(
+    section: 'general' | 'team-auditing' | 'localization'
+  ): Promise<void> {
     Log.info(`Navigating to ${section} settings section`);
-    
+
     const tabMap = {
-      'general': this.generalTab,
+      general: this.generalTab,
       'team-auditing': this.teamAuditingTab,
-      'localization': this.localizationTab
+      localization: this.localizationTab,
     };
-    
+
     const targetTab = tabMap[section];
     if (!targetTab) {
       throw new Error(`Unknown settings section: ${section}`);
     }
-    
+
     await targetTab.click();
     await this.page.waitForURL(new RegExp(`.*settings.*${section.replace('-', '.*')}`));
     Log.info(`Successfully navigated to ${section} section`);
@@ -137,11 +145,11 @@ export class Document360ProjectSettingsPage extends BasePage {
    */
   async deleteProject(): Promise<void> {
     Log.info('Starting project deletion process');
-    
+
     // First verify we can see the delete section
     await expect(this.deleteKnowledgeBaseText).toBeVisible({ timeout: 10000 });
     Log.info('Delete section is visible');
-    
+
     // Click the delete button
     await expect(this.deleteButton).toBeVisible();
     await this.deleteButton.click();
@@ -151,26 +159,28 @@ export class Document360ProjectSettingsPage extends BasePage {
     const confirmationDialog = this.page.locator('[role="dialog"]').filter({ hasText: 'Delete' });
     await expect(confirmationDialog).toBeVisible({ timeout: 10000 });
     Log.info('Delete confirmation dialog appeared');
-    
+
     // Get the project subdomain from the dialog text
     const projectSubdomainElement = confirmationDialog.locator('text=api-test-documentation');
     const projectSubdomain = await projectSubdomainElement.textContent();
     const subdomainToType = projectSubdomain?.trim() || 'api-test-documentation';
-    
+
     Log.info(`Typing project subdomain: ${subdomainToType}`);
-    
+
     // Type the project subdomain in the confirmation textbox
-    const subdomainInput = confirmationDialog.getByRole('textbox', { name: /type.*project.*subdomain/i });
+    const subdomainInput = confirmationDialog.getByRole('textbox', {
+      name: /type.*project.*subdomain/i,
+    });
     await expect(subdomainInput).toBeVisible();
     await subdomainInput.fill(subdomainToType);
-    
+
     // Click the Yes button (should be enabled now)
     const yesButton = confirmationDialog.getByRole('button', { name: 'Yes' });
     await expect(yesButton).toBeEnabled({ timeout: 5000 });
     await yesButton.click();
-    
-    Log.info("Confirmed project deletion");
-    
+
+    Log.info('Confirmed project deletion');
+
     // Wait for navigation back to dashboard
     await this.page.waitForURL(/.*dashboard/, { timeout: 15000 });
     Log.info('Project deletion completed, navigated back to dashboard');
@@ -182,11 +192,11 @@ export class Document360ProjectSettingsPage extends BasePage {
   async getCurrentSettingsSection(): Promise<string> {
     Log.info('Getting current settings section');
     const currentUrl = this.page.url();
-    
+
     if (currentUrl.includes('general')) return 'general';
     if (currentUrl.includes('team') || currentUrl.includes('auditing')) return 'team-auditing';
     if (currentUrl.includes('localization')) return 'localization';
-    
+
     return 'general'; // default
   }
 
@@ -200,31 +210,31 @@ export class Document360ProjectSettingsPage extends BasePage {
     timezone?: string;
   }): Promise<void> {
     Log.info('Updating project settings');
-    
+
     if (settings.name) {
       await this.projectNameInput.fill(settings.name);
       Log.info(`Updated project name to: ${settings.name}`);
     }
-    
+
     if (settings.description) {
       await this.projectDescriptionInput.fill(settings.description);
       Log.info(`Updated project description`);
     }
-    
+
     if (settings.language) {
       await this.languageDropdown.selectOption(settings.language);
       Log.info(`Updated language to: ${settings.language}`);
     }
-    
+
     if (settings.timezone) {
       await this.timezoneDropdown.selectOption(settings.timezone);
       Log.info(`Updated timezone to: ${settings.timezone}`);
     }
-    
+
     // Save the changes
     await this.saveButton.click();
     Log.info('Saved project settings');
-    
+
     // Wait for save confirmation
     await this.page.waitForTimeout(2000);
   }
@@ -245,19 +255,19 @@ export class Document360ProjectSettingsPage extends BasePage {
   async getAvailableSettingsTabs(): Promise<string[]> {
     Log.info('Getting available settings tabs');
     const tabs: string[] = [];
-    
+
     const tabElements = [
       { name: 'General', element: this.generalTab },
       { name: 'Team & Auditing', element: this.teamAuditingTab },
-      { name: 'Localization', element: this.localizationTab }
+      { name: 'Localization', element: this.localizationTab },
     ];
-    
+
     for (const tab of tabElements) {
       if (await tab.element.isVisible({ timeout: 2000 })) {
         tabs.push(tab.name);
       }
     }
-    
+
     Log.info(`Available tabs: ${tabs.join(', ')}`);
     return tabs;
   }

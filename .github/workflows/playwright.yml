@@ -1,59 +1,263 @@
-name: Playwright Tests
+name: Document360 API Documentation Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, feature/* ]
   pull_request:
     branches: [ main, master ]
+  schedule:
+    # Run tests daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test Environment'
+        required: true
+        default: 'qa'
+        type: choice
+        options:
+          - qa
+          - dev
+          - staging
+      browser:
+        description: 'Browser to run tests on'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+      test_suite:
+        description: 'Test Suite to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - authentication
+          - api-documentation
+          - dashboard
+          - project-creation
+          - swagger-petstore
+      run_type:
+        description: 'Run Type'
+        required: true
+        default: 'full-regression'
+        type: choice
+        options:
+          - full-regression
+          - smoke-tests
+          - critical-path
 
-permissions: write-all    
+permissions: write-all
+
+env:
+  NODE_ENV: qa
 
 jobs:
   test:
-    timeout-minutes: 60
-    runs-on: windows-latest
+    timeout-minutes: 90
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.browser != 'all' && fromJson(format('["{0}"]', github.event.inputs.browser)) || fromJson('["chromium", "firefox", "webkit"]') }}
+      fail-fast: false
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Display run information
+        run: |
+          echo "🎭 Document360 Test Run Information"
+          echo "=================================="
+          echo "Trigger: ${{ github.event_name }}"
+          echo "Environment: ${{ github.event.inputs.environment || 'qa' }}"
+          echo "Browser: ${{ matrix.browser }}"
+          echo "Test Suite: ${{ github.event.inputs.test_suite || 'all' }}"
+          echo "Run Type: ${{ github.event.inputs.run_type || 'full-regression' }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "=================================="
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: 'npm'
+          
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        run: npm run test:dev
-      - uses: actions/upload-artifact@v4
+        
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+        
+      - name: Setup environment variables
+        env:
+          QA_USERNAME: ${{ secrets.QA_USERNAME }}
+          QA_PASSWORD: ${{ secrets.QA_PASSWORD }}
+        run: |
+          ENV="${{ github.event.inputs.environment || 'qa' }}"
+          echo "Environment: $ENV"
+          echo "QA_APP_URL=https://portal.document360.io/" >> $GITHUB_ENV
+          echo "NODE_ENV=$ENV" >> $GITHUB_ENV
+          
+          # Verify required secrets are available
+          if [ -z "$QA_USERNAME" ] || [ -z "$QA_PASSWORD" ]; then
+            echo "❌ Required secrets QA_USERNAME or QA_PASSWORD are not set"
+            echo "Please check repository secrets configuration"
+            exit 1
+          fi
+          
+      - name: Run Document360 Authentication Tests
+        if: github.event.inputs.test_suite == 'authentication' || github.event.inputs.test_suite == 'all' || github.event_name != 'workflow_dispatch'
+        run: npx playwright test tests/uiTests/e2e/Document360AuthenticationTest.spec.ts --project=${{ matrix.browser }}
+        continue-on-error: true
+        
+      - name: Run Dashboard Validation Tests
+        if: (github.event.inputs.test_suite == 'dashboard' || github.event.inputs.test_suite == 'all' || github.event_name != 'workflow_dispatch') && (success() || github.event.inputs.run_type == 'full-regression')
+        run: npx playwright test tests/uiTests/e2e/document360DashboardPageValidations.spec.ts --project=${{ matrix.browser }}
+        continue-on-error: true
+        
+      - name: Run API Project Creation Tests
+        if: (github.event.inputs.test_suite == 'project-creation' || github.event.inputs.test_suite == 'all' || github.event_name != 'workflow_dispatch') && (success() || github.event.inputs.run_type == 'full-regression')
+        run: npx playwright test tests/uiTests/e2e/document360ApiProjectCreation.spec.ts --project=${{ matrix.browser }}
+        continue-on-error: true
+        
+      - name: Run Swagger PetStore Endpoint Tests
+        if: (github.event.inputs.test_suite == 'swagger-petstore' || github.event.inputs.test_suite == 'all' || github.event_name != 'workflow_dispatch') && (success() || github.event.inputs.run_type == 'full-regression')
+        run: npx playwright test tests/uiTests/e2e/document360SwaggerPetStoreEndpointPublishing.spec.ts --project=${{ matrix.browser }}
+        continue-on-error: true
+        
+      - name: Run API Documentation Tests (Comprehensive)
+        if: (github.event.inputs.test_suite == 'api-documentation' || github.event.inputs.test_suite == 'all' || github.event_name != 'workflow_dispatch') && (success() || github.event.inputs.run_type == 'full-regression')
+        run: npx playwright test tests/uiTests/e2e/ --grep "API Documentation" --project=${{ matrix.browser }}
+        continue-on-error: true
+        
+      - name: Run Smoke Tests Only
+        if: github.event.inputs.run_type == 'smoke-tests' && github.event_name == 'workflow_dispatch'
+        run: npx playwright test tests/uiTests/e2e/ --grep "@smoke" --project=${{ matrix.browser }}
+        continue-on-error: true
+        
+      - name: Run Critical Path Tests Only
+        if: github.event.inputs.run_type == 'critical-path' && github.event_name == 'workflow_dispatch'
+        run: npx playwright test tests/uiTests/e2e/ --grep "@critical" --project=${{ matrix.browser }}
+        continue-on-error: true
+        
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: test-results-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 30
+          
+      - name: Upload enhanced reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: enhanced-reports-${{ matrix.browser }}
+          path: test-results/reports/
           retention-days: 30
 
-      # Allure Report steps
-      - name: Setup Allure History
-        uses: actions/checkout@v4.2.2
-        if: always()
-        continue-on-error: true
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Download enhanced reports
+        uses: actions/download-artifact@v4
         with:
-          ref: gh-pages
-          path: gh-pages
-      - name: Generate Allure Report
-        uses: simple-elf/allure-report-action@v1.11
-        if: always()
+          pattern: enhanced-reports-*
+          path: reports-to-deploy/
+          merge-multiple: true
+          
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          allure_results: ./out/allure-results
-          allure_history: ./gh-pages/allure-history
-    # Custom script to publish Allure Report to gh-pages branch
-      - name: Publish Allure Report
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports-to-deploy
+          destination_dir: test-reports
+          
+  notification:
+    if: always()
+    needs: [test, deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Download enhanced reports for notification
+        uses: actions/download-artifact@v4
+        with:
+          pattern: enhanced-reports-*
+          path: notification-reports/
+          merge-multiple: true
+          
+      - name: Send email notification with enhanced report
         if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🎭 Document360 Test Results - ${{ job.status }} (${{ github.event_name }})"
+          to: ${{ secrets.EMAIL_RECIPIENTS }}
+          from: "Document360 Automation <${{ secrets.EMAIL_USERNAME }}>"
+          body: |
+            🎭 Document360 API Documentation Test Results
+            
+            Status: ${{ job.status }}
+            Trigger: ${{ github.event_name }}
+            Environment: ${{ github.event.inputs.environment || 'qa' }}
+            Test Suite: ${{ github.event.inputs.test_suite || 'all' }}
+            Run Type: ${{ github.event.inputs.run_type || 'full-regression' }}
+            Browser(s): ${{ github.event.inputs.browser || 'chromium, firefox, webkit' }}
+            Triggered by: ${{ github.actor }}
+            Branch: ${{ github.ref_name }}
+            
+            📋 Enhanced Test Report is attached to this email.
+            🔗 View online: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/test-reports/
+            🔧 Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            ${{ github.event_name == 'workflow_dispatch' && '🎯 This was a manual test run with custom parameters.' || github.event_name == 'schedule' && '⏰ This was a scheduled daily test run.' || '🚀 This was triggered by code changes.' }}
+          attachments: notification-reports/enhanced-report.html
+            
+      - name: Create test summary
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git fetch --depth=1 origin gh-pages
-          git checkout gh-pages
-          cp -r ./gh-pages/allure-history/* .
-          git add .
-          git commit -m "Update Allure Report"
-          git push origin gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "## 🎭 Document360 API Documentation Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.event.inputs.environment || 'qa' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Suite**: ${{ github.event.inputs.test_suite || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Type**: ${{ github.event.inputs.run_type || 'full-regression' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Browser(s)**: ${{ github.event.inputs.browser || 'chromium, firefox, webkit' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target Application**: Document360 Portal" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Enhanced Reports" >> $GITHUB_STEP_SUMMARY
+          echo "Check the artifacts above for detailed test results and enhanced HTML reports." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [📋 Enhanced Test Reports](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/test-reports/)" >> $GITHUB_STEP_SUMMARY
+          echo "- [🔧 Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "### 🎯 Manual Run Details" >> $GITHUB_STEP_SUMMARY
+            echo "This workflow was triggered manually with custom parameters." >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "### ⏰ Scheduled Run Details" >> $GITHUB_STEP_SUMMARY
+            echo "This workflow was triggered by the daily scheduled cron job (6 AM UTC)." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### 🚀 Code Change Trigger" >> $GITHUB_STEP_SUMMARY
+            echo "This workflow was triggered by code changes in the repository." >> $GITHUB_STEP_SUMMARY
+          fi
