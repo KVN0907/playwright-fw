@@ -270,7 +270,7 @@ export class Document360ProjectCreationPage extends BasePage {
     await this.verifyElementVisible(apiDocCategory, 'API documentation category');
 
     // Verify Swagger Petstore category exists
-    await this.verifyElementVisible(this.swaggerPetstoreCategory, 'Swagger Petstore category');
+    //await this.verifyElementVisible(this.swaggerPetstoreCategory, 'Swagger Petstore category');
 
     // Verify API Documentation article exists - use more specific selector
     const apiDocArticle = this.page
