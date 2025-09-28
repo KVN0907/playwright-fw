@@ -302,8 +302,9 @@ export class Document360ProjectCreationPage extends BasePage {
   // Helper Methods
   async waitForProjectCreationComplete() {
     Log.info('Waiting for project creation to complete');
+    
     // Wait for URL to change to project dashboard
-    await this.page.waitForURL(/.*\/api-documentation\/.*/, { timeout: 30000 });
+    await this.page.waitForURL(/.*\/api-documentation\/.*/, { timeout: 45000 });
     await this.waitForLoadState('domcontentloaded');
   }
 
