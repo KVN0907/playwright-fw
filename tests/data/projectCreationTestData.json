@@ -14,7 +14,7 @@
   "projectCreation": {
     "defaultProject": {
       "useCase": "api",
-      "projectName": "API Test Documentation",
+      "projectName": "Upload API Test Documentation ",
       "apiSetup": "sample",
       "websiteUrl": "https://api.example.com",
       "privacy": "private"

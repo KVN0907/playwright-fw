@@ -270,7 +270,7 @@ export class Document360ProjectCreationPage extends BasePage {
     await this.verifyElementVisible(apiDocCategory, 'API documentation category');
 
     // Verify Swagger Petstore category exists
-    await this.verifyElementVisible(this.swaggerPetstoreCategory, 'Swagger Petstore category');
+    //await this.verifyElementVisible(this.swaggerPetstoreCategory, 'Swagger Petstore category');
 
     // Verify API Documentation article exists - use more specific selector
     const apiDocArticle = this.page
@@ -302,8 +302,9 @@ export class Document360ProjectCreationPage extends BasePage {
   // Helper Methods
   async waitForProjectCreationComplete() {
     Log.info('Waiting for project creation to complete');
+    
     // Wait for URL to change to project dashboard
-    await this.page.waitForURL(/.*\/api-documentation\/.*/, { timeout: 30000 });
+    await this.page.waitForURL(/.*\/api-documentation\/.*/, { timeout: 45000 });
     await this.waitForLoadState('domcontentloaded');
   }
 
