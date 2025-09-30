@@ -1,0 +1,26 @@
+{
+  "successMessages": {
+    "projectCreated": "Project created successfully",
+    "projectDeleted": "Project deleted!",
+    "endpointSaved": "Endpoint saved successfully",
+    "published": "Documentation published successfully"
+  },
+  "errorMessages": {
+    "invalidApiKey": "Invalid API key",
+    "userNotFound": "User not found",
+    "validationError": "Validation error occurred",
+    "serverError": "Internal server error"
+  },
+  "stepTitles": {
+    "selectMethod": "Select a method to create an API reference",
+    "personalizeKnowledgeBase": "Personalize your Knowledge Base",
+    "brandGuidelines": "Brand guidelines",
+    "privacySettings": "Set the privacy of your documentation"
+  },
+  "pageElements": {
+    "tryItButton": "Try it & see response",
+    "apiKeyLabel": "api_key*",
+    "petIdLabel": "petId *",
+    "responseFormat": "application/json"
+  }
+}

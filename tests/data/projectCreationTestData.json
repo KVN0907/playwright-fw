@@ -20,7 +20,7 @@
       "privacy": "private"
     },
     "customProject": {
-      "useCase": "api", 
+      "useCase": "api",
       "projectName": "Custom API Project",
       "apiSetup": "upload",
       "websiteUrl": "https://custom-api.example.com",
@@ -28,10 +28,10 @@
     },
     "urlBasedProject": {
       "useCase": "api",
-      "projectName": "URL Based API Project", 
+      "projectName": "URL Based API Project",
       "apiSetup": "url",
-      "apiUrl": "https://petstore.swagger.io/v2/swagger.json",
-      "websiteUrl": "https://petstore.swagger.io",
+      "apiUrl": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "websiteUrl": "https://petstore3.swagger.io",
       "privacy": "mixed"
     },
     "knowledgeBaseProject": {
@@ -49,7 +49,7 @@
       "expectedContent": ["Pet", "Store", "User", "Swagger Petstore"]
     },
     "upload": {
-      "type": "upload", 
+      "type": "upload",
       "description": "Upload API definition",
       "supportedFormats": ["JSON", "YAML", "YML"],
       "expectedContent": ["API specification", "Upload successful"]
@@ -58,10 +58,11 @@
       "type": "url",
       "description": "Create from URL",
       "testUrls": {
-        "valid": "https://petstore.swagger.io/v2/swagger.json",
-        "invalid": "https://invalid-url-example.com/api.json"
+        "valid": "https://petstore3.swagger.io/api/v3/openapi.json",
+        "invalid": "https://invalid-url-example.com/api.json",
+        "alternative": "https://petstore.swagger.io/v2/swagger.json"
       },
-      "apiUrl": "https://petstore.swagger.io/v2/swagger.json",
+      "apiUrl": "https://petstore3.swagger.io/api/v3/openapi.json",
       "expectedContent": ["API loaded from URL", "Specification imported"]
     }
   },
