@@ -1,0 +1,98 @@
+{
+  "petStore": {
+    "apiSpecifications": {
+      "openApiV3": {
+        "url": "https://petstore3.swagger.io/api/v3/openapi.json",
+        "version": "3.0.0",
+        "title": "Swagger Petstore - OpenAPI 3.0",
+        "navigationElements": {
+          "apiDocumentation": "API Documentation",
+          "mainSection": "Swagger Petstore - OpenAPI 3.0",
+          "petCategory": "pet",
+          "alternativeSelectors": [
+            "Swagger Petstore",
+            "OpenAPI 3.0",
+            "Petstore",
+            "pet"
+          ]
+        }
+      },
+      "swaggerV2": {
+        "url": "https://petstore.swagger.io/v2/swagger.json",
+        "version": "2.0",
+        "title": "Swagger Petstore",
+        "navigationElements": {
+          "apiDocumentation": "API Documentation",
+          "mainSection": "Swagger Petstore",
+          "petCategory": "pet",
+          "alternativeSelectors": [
+            "Swagger Petstore"
+          ]
+        }
+      }
+    },
+    "endpoints": {
+      "findPetById": {
+        "name": "Find pet by ID",
+        "method": "GET",
+        "path": "/pet/{petId}",
+        "description": "Returns a single pet",
+        "category": "pet",
+        "publishingComment": "Publishing Find pet by ID endpoint for testing",
+        "pathParameters": [
+          {
+            "name": "petId",
+            "type": "integer",
+            "required": true,
+            "description": "ID of pet to return"
+          }
+        ],
+        "security": {
+          "keyName": "api_key",
+          "location": "header"
+        },
+        "tryItData": {
+          "apiKey": "test-api-key",
+          "petId": "12"
+        },
+        "responseCodes": ["200", "400", "404"],
+        "primaryResponseCode": "200"
+      },
+      "addPet": {
+        "name": "Add a new pet to the store",
+        "method": "POST",
+        "path": "/pet",
+        "description": "Add a new pet to the store",
+        "category": "pet",
+        "responseCodes": ["200", "405"],
+        "primaryResponseCode": "200"
+      },
+      "updatePet": {
+        "name": "Update an existing pet",
+        "method": "PUT",
+        "path": "/pet",
+        "description": "Update an existing pet by Id",
+        "category": "pet",
+        "responseCodes": ["200", "400", "404", "405"],
+        "primaryResponseCode": "200"
+      }
+    },
+    "categories": {
+      "pet": {
+        "name": "pet",
+        "displayName": "Pet",
+        "description": "Everything about your Pets"
+      },
+      "store": {
+        "name": "store",
+        "displayName": "Store",
+        "description": "Access to Petstore orders"
+      },
+      "user": {
+        "name": "user",
+        "displayName": "User",
+        "description": "Operations about user"
+      }
+    }
+  }
+}

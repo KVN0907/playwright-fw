@@ -1,0 +1,20 @@
+{
+  "testConfig": {
+    "timeouts": {
+      "short": 1000,
+      "medium": 3000,
+      "long": 5000,
+      "apiResponse": 10000
+    },
+    "retries": {
+      "elementWait": 3,
+      "apiCall": 2,
+      "navigation": 2
+    },
+    "testData": {
+      "sampleApiKey": "test-api-key-12345",
+      "samplePetId": "123",
+      "sampleUserId": "456"
+    }
+  }
+}

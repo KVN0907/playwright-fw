@@ -1,0 +1,50 @@
+{
+  "publishing": {
+    "workflows": {
+      "singleEndpointPublishing": {
+        "name": "Single Endpoint Publishing",
+        "description": "Publish a single endpoint to the documentation site",
+        "steps": [
+          "navigateToSwaggerPetstore",
+          "navigateToPetCategory",
+          "verifyEndpointsDisplayed",
+          "selectEndpoint",
+          "publishEndpoint",
+          "verifyPublished"
+        ]
+      }
+    },
+    "validationSteps": {
+      "publishedSiteValidation": [
+        "verifyLandingPageLoaded",
+        "navigateToApiDocumentation",
+        "verifyApiDocumentationPageLoaded",
+        "navigateToEndpoint",
+        "verifyEndpointDocumentation",
+        "verifyTryItFunctionality",
+        "verifyResponseDocumentation",
+        "verifyPublishedEndpointQuality"
+      ],
+      "schemaValidation": [
+        "navigateToResponseSchemaSection",
+        "verifyResponseSchemaDisplayed",
+        "validateResponseSchemaStructure",
+        "verifySchemaFieldTypes",
+        "validateSchemaFieldNames",
+        "validateRequiredSchemaFields",
+        "validateNestedObjectSchema",
+        "validateArraySchema",
+        "validateNestedArraySchema",
+        "validateEnumValues",
+        "navigateToRequestParametersSection",
+        "verifyRequestParametersDisplayed",
+        "validatePathParameter",
+        "verifyParameterDescription",
+        "validateSecurityRequirements",
+        "validateSchemaComplianceWithJsonSpec",
+        "verifySchemaExamples",
+        "verifyCompleteSchemaValidation"
+      ]
+    }
+  }
+}

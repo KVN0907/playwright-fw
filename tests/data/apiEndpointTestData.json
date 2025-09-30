@@ -1,0 +1,64 @@
+{
+  "endpoints": {
+    "getUserById": {
+      "name": "Get user by ID",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "description": "Retrieve a specific user by their ID",
+      "security": {
+        "type": "HTTP",
+        "tokenType": "bearer"
+      },
+      "pathParameters": [
+        {
+          "name": "userId",
+          "type": "integer (int64)",
+          "required": true,
+          "description": "The ID of the user to retrieve"
+        }
+      ],
+      "responseCodes": ["200", "404", "500"],
+      "primaryResponseCode": "200"
+    },
+    "createUser": {
+      "name": "Create user",
+      "method": "POST",
+      "path": "/users",
+      "description": "Create a new user in the system",
+      "security": {
+        "type": "HTTP",
+        "tokenType": "bearer"
+      },
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true
+      },
+      "responseCodes": ["201", "400", "500"],
+      "primaryResponseCode": "201"
+    },
+    "updateUser": {
+      "name": "Update user",
+      "method": "PUT",
+      "path": "/users/{userId}",
+      "description": "Update an existing user",
+      "security": {
+        "type": "HTTP",
+        "tokenType": "bearer"
+      },
+      "pathParameters": [
+        {
+          "name": "userId",
+          "type": "integer (int64)",
+          "required": true,
+          "description": "The ID of the user to update"
+        }
+      ],
+      "requestBody": {
+        "contentType": "application/json",
+        "required": true
+      },
+      "responseCodes": ["200", "400", "404", "500"],
+      "primaryResponseCode": "200"
+    }
+  }
+}

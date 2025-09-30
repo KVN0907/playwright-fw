@@ -1,0 +1,26 @@
+{
+  "navigation": {
+    "categories": {
+      "users": {
+        "name": "Users",
+        "description": "User management endpoints",
+        "endpoints": ["getUserById", "createUser", "updateUser", "deleteUser"]
+      },
+      "pets": {
+        "name": "Pets",
+        "description": "Pet store endpoints",
+        "endpoints": ["findPetById", "addPet", "updatePet", "deletePet"]
+      },
+      "orders": {
+        "name": "Orders",
+        "description": "Order management endpoints",
+        "endpoints": ["getOrder", "createOrder", "updateOrder"]
+      }
+    },
+    "sections": {
+      "apiDocumentation": "API Documentation",
+      "swaggerPetstore": "Swagger Petstore",
+      "sampleApi": "Sample API Documentation"
+    }
+  }
+}

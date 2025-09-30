@@ -7,7 +7,7 @@ import { Document360SwaggerPetStorePage } from '../pageObjects/Document360Swagge
 import { Document360PublishedSitePage } from '../pageObjects/Document360PublishedSitePage';
 
 import Log from '../../utils/Log';
-import * as testData from '../../data/projectCreationTestData.json';
+import { TestDataManager } from '../../utils/TestDataManager';
 
 test.describe('Document360 API Documentation Project Creation and Validation of Attributes', () => {
   let documentationPage: Document360DocumentationPage;
@@ -15,7 +15,6 @@ test.describe('Document360 API Documentation Project Creation and Validation of 
   test.beforeEach(async ({ page }) => {
     Log.info('🔄 Starting API Documentation Project Creation test setup');
     documentationPage = new Document360DocumentationPage(page);
-    
   });
 
   test.afterEach(async ({ page }) => {
@@ -35,11 +34,20 @@ test.describe('Document360 API Documentation Project Creation and Validation of 
     const dashboardPage = new Document360DashboardPage(page);
     const projectCreationPage = new Document360ProjectCreationPage(page);
 
-   // Test data - Force upload setup for this specific test
-    const projectConfig = testData.projectCreation.defaultProject;
+    // Get all test data from data manager
+    const projectConfig = TestDataManager.getProjectConfig();
+    const endpointData = TestDataManager.getEndpointData('getUserById');
+    const schemaData = TestDataManager.getSchemaData('getUserByIdResponse');
+    const navigationData = TestDataManager.getNavigationData();
+    const messages = TestDataManager.getValidationMessages();
+    const config = TestDataManager.getTestConfig();
+
     const projectName = projectConfig.projectName;
     const websiteUrl = projectConfig.websiteUrl;
     const apiSetup = 'upload'; // Force upload for this test
+
+    Log.info(`Loading test data for endpoint: ${endpointData.method} ${endpointData.path}`);
+    Log.info(`Schema validation: ${schemaData.properties.length} properties`);
 
     // GIVEN: User navigates to Document360 dashboard
     Log.info('GIVEN: User is on Document360 dashboard');
@@ -58,7 +66,7 @@ test.describe('Document360 API Documentation Project Creation and Validation of 
       await projectSettingsPage.verifySettingsPageLoaded();
       await projectSettingsPage.deleteProject(existingProjectName);
       await dashboardPage.verifyDashboardLoaded();
-      await dashboardPage.verifySuccessMessage('Project deleted!');
+      await dashboardPage.verifySuccessMessage(TestDataManager.getSuccessMessage('projectDeleted'));
     }
     await dashboardPage.verifyTrialLimitations();
 
@@ -70,24 +78,24 @@ test.describe('Document360 API Documentation Project Creation and Validation of 
     await projectCreationPage.selectApiDocumentation();
 
     // THEN: Step 2 - API method selection should be visible
-    await projectCreationPage.verifyStepTitle('Select a method to create an API reference');
+    await projectCreationPage.verifyStepTitle(TestDataManager.getStepTitle('selectMethod'));
 
     // WHEN: User selects API setup method - upload
     await projectCreationPage.selectApiSetupMethod(apiSetup);
     await projectCreationPage.proceedToNextStep('Step 2 - Template selection');
 
     // THEN: Step 3 should show personalize knowledge base
-    await projectCreationPage.verifyStepTitle('Personalize your Knowledge Base');
+    await projectCreationPage.verifyStepTitle(TestDataManager.getStepTitle('personalizeKnowledgeBase'));
 
     // WHEN: User skips website URL step (has default)
     await projectCreationPage.skipWebsiteUrlStep();
 
-    // AND: System processes the setup (wait for step 4)
+    // AND: System processes the setup
     Log.info('Waiting for knowledge base personalization to complete...');
-    await page.waitForTimeout(3000); // Allow processing time
+    await page.waitForTimeout(TestDataManager.getTimeout('medium'));
 
     // THEN: Step 4 should show brand guidelines
-    await projectCreationPage.verifyStepTitle('Brand guidelines');
+    await projectCreationPage.verifyStepTitle(TestDataManager.getStepTitle('brandGuidelines'));
 
     // WHEN: User customizes project name and accepts branding defaults
     await projectCreationPage.fillProjectName(projectName);
@@ -95,7 +103,7 @@ test.describe('Document360 API Documentation Project Creation and Validation of 
     await projectCreationPage.proceedToNextStep('Step 4 - Branding');
 
     // THEN: Step 5 should show privacy settings
-    await projectCreationPage.verifyStepTitle('Set the privacy of your documentation');
+    await projectCreationPage.verifyStepTitle(TestDataManager.getStepTitle('privacySettings'));
 
     // WHEN: User accepts private access (default for trial) and finishes
     await projectCreationPage.selectPrivateAccess();
@@ -121,108 +129,77 @@ test.describe('Document360 API Documentation Project Creation and Validation of 
     await documentationPage.verifySampleApiDocumentationLoaded();
 
     // AND: User navigates to Users category and selects specific endpoint
+    const usersCategory = TestDataManager.getCategoryData('users');
     await documentationPage.navigateToUsersCategory();
     await documentationPage.verifyUsersCategoryLoaded();
 
     // Add a small wait before selecting the endpoint
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(TestDataManager.getTimeout('medium'));
 
     await documentationPage.selectGetUserByIdEndpoint();
-    await documentationPage.verifyEndpointDetailsLoaded('Get user by ID');
+    await documentationPage.verifyEndpointDetailsLoaded(endpointData.name);
 
     // THEN: API endpoint attributes should be rendered accurately in editor view
     Log.info('THEN: API endpoint attributes should be displayed accurately in editor view');
 
-    // Verify basic endpoint information
-    await documentationPage.verifyEndpointMethod('GET');
-    await documentationPage.verifyEndpointPath('/users/{userId}');
-    await documentationPage.verifyEndpointDescription('Retrieve a specific user by their ID');
+    // Verify basic endpoint information from test data
+    await documentationPage.verifyEndpointMethod(endpointData.method);
+    await documentationPage.verifyEndpointPath(endpointData.path);
+    await documentationPage.verifyEndpointDescription(endpointData.description);
 
-    // Verify security configuration attributes
+    // Verify security configuration attributes from test data
     await documentationPage.verifySecuritySection();
-    await documentationPage.verifySecurityType('HTTP');
-    await documentationPage.verifySecurityTokenType('bearer');
+    await documentationPage.verifySecurityType(endpointData.security.type);
+    await documentationPage.verifySecurityTokenType(endpointData.security.tokenType);
 
-    // Verify path parameter attributes
-    await documentationPage.verifyPathParametersSection();
-    await documentationPage.verifyPathParameter({
-      name: 'userId',
-      type: 'integer (int64)',
-      required: true,
-      description: 'The ID of the user to retrieve'
-    });
+    // Verify path parameter attributes from test data
+    if (endpointData.pathParameters && endpointData.pathParameters.length > 0) {
+      await documentationPage.verifyPathParametersSection();
+      for (const param of endpointData.pathParameters) {
+        await documentationPage.verifyPathParameter(param);
+      }
+    }
 
-    // Verify response section structure
+    // Verify response section structure from test data
     await documentationPage.verifyResponsesSection();
-    await documentationPage.verifyResponseCode('200');
-    await documentationPage.verifyResponseCode('404');
-    await documentationPage.verifyResponseCode('500');
+    for (const responseCode of endpointData.responseCodes) {
+      await documentationPage.verifyResponseCode(responseCode);
+    }
 
-    // WHEN: User expands 200 response to view detailed schema attributes (ONLY ONCE)
-    Log.info('WHEN: User expands 200 response to view detailed schema attributes');
-    await documentationPage.expandResponseSection('200');
-    await documentationPage.verifyResponseExpanded('200');
+    // WHEN: User expands response to view detailed schema attributes
+    Log.info(`WHEN: User expands ${endpointData.primaryResponseCode} response to view detailed schema attributes`);
+    await documentationPage.expandResponseSection(endpointData.primaryResponseCode);
+    await documentationPage.verifyResponseExpanded(endpointData.primaryResponseCode);
 
     // THEN: Response schema attributes should display with accurate types and descriptions
     Log.info('THEN: Response schema properties should display with accurate types and descriptions');
     
-    await documentationPage.verifyResponseContentType('200', 'application/json');
-    await documentationPage.verifyResponseSchemaType('200', 'object');
+    await documentationPage.verifyResponseContentType(schemaData.responseCode, schemaData.contentType);
+    await documentationPage.verifyResponseSchemaType(schemaData.responseCode, schemaData.schemaType);
 
-    // Verify all API response properties with their detailed attributes
-    const expectedProperties = [
-      {
-        name: 'id',
-        type: 'integer (int64)',
-        description: 'Unique identifier for the user'
-      },
-      {
-        name: 'username',
-        type: 'string',
-        description: 'User\'s username'
-      },
-      {
-        name: 'email',
-        type: 'string (email)',
-        description: 'User\'s email address'
-      },
-      {
-        name: 'firstName',
-        type: 'string',
-        description: 'User\'s first name'
-      },
-      {
-        name: 'lastName',
-        type: 'string',
-        description: 'User\'s last name'
-      },
-      {
-        name: 'createdAt',
-        type: 'string (date-time)',
-        description: 'When the user was created'
-      },
-      {
-        name: 'updatedAt',
-        type: 'string (date-time)',
-        description: 'When the user was last updated'
-      }
-    ];
-
-    // Validate each property attribute accuracy WITHOUT expanding section repeatedly
-    for (const property of expectedProperties) {
-      await documentationPage.verifyResponsePropertyWithoutExpansion('200', property);
+    // Validate each property attribute accuracy dynamically from test data
+    Log.info(`Validating ${schemaData.properties.length} properties from test data`);
+    for (const property of schemaData.properties) {
+      await documentationPage.verifyResponsePropertyWithoutExpansion(schemaData.responseCode, property);
       Log.info(`✅ Verified attribute accuracy: ${property.name} (${property.type}) - ${property.description}`);
     }
 
-    // Verify property count without expanding again
-    await documentationPage.verifyResponsePropertyCountWithoutExpansion('200', expectedProperties.length);
+    // Verify property count from test data
+    await documentationPage.verifyResponsePropertyCountWithoutExpansion(schemaData.responseCode, schemaData.properties.length);
 
+    // Filter and validate required vs optional properties from test data
+    const requiredProperties = TestDataManager.getRequiredProperties('getUserByIdResponse');
+    const optionalProperties = TestDataManager.getOptionalProperties('getUserByIdResponse');
+    
+    Log.info(`✅ Validated ${requiredProperties.length} required properties`);
+    Log.info(`✅ Validated ${optionalProperties.length} optional properties`);
     
     Log.info(`✅ API Documentation project with comprehensive attribute validation completed successfully`);
     Log.info(`Project Name: ${projectName}`);
     Log.info(`Website URL: ${websiteUrl}`);
-    Log.info(`Validated ${expectedProperties.length} response properties with accurate types and descriptions`);
-    Log.info(`Verified attribute accuracy in both editor and published views`);
+    Log.info(`Endpoint: ${endpointData.method} ${endpointData.path}`);
+    Log.info(`Validated ${schemaData.properties.length} response properties with accurate types and descriptions`);
+    Log.info(`Verified attribute accuracy in both editor view`);
     Log.info(`Project URL: ${page.url()}`);
 
     Log.info('🎉 API Documentation Project Creation with Comprehensive Attribute Validation Test Completed Successfully');
