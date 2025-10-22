@@ -1,59 +1,243 @@
-name: Playwright Tests
+name: Playwright Framework Tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Test environment to run against'
+        required: true
+        default: 'qa'
+        type: choice
+        options:
+          - dev
+          - qa
+          - staging
+          - prod
+      test_type:
+        description: 'Type of tests to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - smoke
+          - regression
+          - api
+          - ui
 
-permissions: write-all    
+permissions: 
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: ${{ github.event.inputs.environment || 'qa' }}
+  TEST_TYPE: ${{ github.event.inputs.test_type || 'all' }}
 
 jobs:
   test:
-    timeout-minutes: 60
-    runs-on: windows-latest
+    name: Run Playwright Tests
+    timeout-minutes: 90
+    runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: lts/*
-      - name: Install dependencies
+          node-version: 'lts/*'
+          cache: 'npm'
+          
+      - name: Cache Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+            
+      - name: Install Dependencies
         run: npm ci
+        
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+            
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
-      - name: Run Playwright tests
-        run: npm run test:dev
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
-
-      # Allure Report steps
-      - name: Setup Allure History
-        uses: actions/checkout@v4.2.2
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
-      - name: Generate Allure Report
-        uses: simple-elf/allure-report-action@v1.11
-        if: always()
-        with:
-          allure_results: ./out/allure-results
-          allure_history: ./gh-pages/allure-history
-    # Custom script to publish Allure Report to gh-pages branch
-      - name: Publish Allure Report
-        if: always()
+        
+      - name: Install Playwright Dependencies (if cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+        
+      - name: Setup Test Environment
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git fetch --depth=1 origin gh-pages
-          git checkout gh-pages
-          cp -r ./gh-pages/allure-history/* .
-          git add .
-          git commit -m "Update Allure Report"
-          git push origin gh-pages
+          echo "Setting up test environment: ${{ env.NODE_ENV }}"
+          echo "Test type: ${{ env.TEST_TYPE }}"
+          npm run clean
+          
+      - name: Run Playwright Tests
+        id: playwright-tests
+        run: |
+          case "${{ env.TEST_TYPE }}" in
+            "smoke")
+              npm run test:smoke
+              ;;
+            "regression") 
+              npm run test:regression
+              ;;
+            "api")
+              npm run test:api
+              ;;
+            "ui")
+              npm run test:ui
+              ;;
+            *)
+              case "${{ env.NODE_ENV }}" in
+                "dev") npm run test:dev ;;
+                "qa") npm run test:qa ;;
+                "staging") npm run test:staging ;;
+                "prod") npm run test:prod ;;
+                *) npm run test:qa ;;
+              esac
+              ;;
+          esac
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_ENV: ${{ env.NODE_ENV }}
+          CI: true
+          
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ env.NODE_ENV }}-${{ github.run_id }}
+          path: |
+            test-results/${{ env.NODE_ENV }}/
+            !test-results/${{ env.NODE_ENV }}/**/*.mp4
+          retention-days: 30
+          
+      - name: Upload Enhanced Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: enhanced-reports-${{ env.NODE_ENV }}-${{ github.run_id }}
+          path: test-results/${{ env.NODE_ENV }}/enhanced-report/
+          retention-days: 30
+          
+      - name: Upload Videos (if any)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-videos-${{ env.NODE_ENV }}-${{ github.run_id }}
+          path: |
+            test-results/${{ env.NODE_ENV }}/**/*.mp4
+            test-results/videos/
+          retention-days: 7
+          
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-screenshots-${{ env.NODE_ENV }}-${{ github.run_id }}
+          path: |
+            test-results/${{ env.NODE_ENV }}/**/*.png
+            test-results/screenshots/
+          retention-days: 7
+          
+      - name: Publish Test Results Summary
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (${{ env.NODE_ENV }})
+          path: test-results/${{ env.NODE_ENV }}/junit-report.xml
+          reporter: java-junit
+          fail-on-error: false
+          
+      - name: Comment PR with Test Results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'test-results/${{ env.NODE_ENV }}/test-results.json';
+            
+            if (fs.existsSync(path)) {
+              const testResults = JSON.parse(fs.readFileSync(path, 'utf8'));
+              const stats = testResults.stats || {};
+              
+              const body = `## 🎭 Playwright Test Results
+              
+              **Environment:** ${{ env.NODE_ENV }}
+              **Test Type:** ${{ env.TEST_TYPE }}
+              
+              | Status | Count |
+              |--------|-------|
+              | ✅ Passed | \${stats.passed || 0} |
+              | ❌ Failed | \${stats.failed || 0} |
+              | ⏭️ Skipped | \${stats.skipped || 0} |
+              | 🕒 Duration | \${Math.round((stats.duration || 0) / 1000)}s |
+              
+              [📊 View Enhanced Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
+
+  deploy-reports:
+    name: Deploy Reports to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: test
+    if: always() && github.ref == 'refs/heads/master'
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Download Test Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: enhanced-reports-*
+          path: ./reports
+          merge-multiple: true
+          
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Prepare Reports Directory
+        run: |
+          mkdir -p ./public
+          cp -r ./reports/* ./public/ 2>/dev/null || :
+          echo "# Test Reports" > ./public/README.md
+          echo "Generated on: $(date)" >> ./public/README.md
+          
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

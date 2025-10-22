@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Test results and reports
+test-results/
+playwright-report/
+
+# Coverage reports
+coverage/
+
+# Environment files
+.env*
+!.env.example
+
+# Storage state and auth files
+*.json
+!package.json
+!tsconfig.json
+!playwright.config.ts
+
+# Logs
+*.log
+
+# Generated files
+auth.json
+storageState.json
+
+# Lock files
+package-lock.json
+yarn.lock

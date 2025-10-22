@@ -1,0 +1,34 @@
+{
+  "users": {
+    "superAdmin": {
+      "username": "superadmin",
+      "password": "superadmin",
+      "email": "superadmin@qa.com",
+      "role": "superAdmin"
+    },
+    "admin": {
+      "username": "admin@qa.com",
+      "password": "Admin@123",
+      "email": "admin@qa.com",
+      "role": "admin"
+    },
+    "user": {
+      "username": "user@qa.com",
+      "password": "User@123",
+      "email": "user@qa.com",
+      "role": "user"
+    }
+  },
+  "organizations": {
+    "testOrg": {
+      "name": "Test Organization QA",
+      "description": "QA test organization",
+      "domain": "testorg-qa.com"
+    }
+  },
+  "apiEndpoints": {
+    "createCompany": "/api/companies",
+    "getAccount": "/api/account",
+    "csrfTokenGateWay": "/api/csrf-token"
+  }
+}
