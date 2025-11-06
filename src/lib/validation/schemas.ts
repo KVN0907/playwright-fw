@@ -13,7 +13,11 @@ export const API_SCHEMAS = {
     id: { type: 'string', required: true },
     name: { type: 'string', required: true },
     email: { type: 'string', required: true, pattern: EMAIL_REGEX },
-    status: { type: 'string', required: true, enum: ['active', 'inactive'] as ('active' | 'inactive')[] },
+    status: {
+      type: 'string',
+      required: true,
+      enum: ['active', 'inactive'] as ('active' | 'inactive')[],
+    },
   },
 
   'POST /user': {

@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/baseTest';
+import { test, expect } from '../fixtures/advancedFixtures';
 import urls from './endPointsDTO/uri.json';
 
 test.describe('MW/API - GET Account Details', () => {

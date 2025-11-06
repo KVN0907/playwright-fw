@@ -51,11 +51,11 @@ type AssertionResult<T = void> = Promise<T>;
 function LogAction(action: string) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
-    
+
     descriptor.value = async function (...args: any[]) {
       const description = args.find(arg => typeof arg === 'string') || propertyKey;
       Log.info(`🎬 ${action}: ${description}`);
-      
+
       try {
         const result = await originalMethod.apply(this, args);
         Log.info(`✅ ${action} completed successfully`);
@@ -65,7 +65,7 @@ function LogAction(action: string) {
         throw error;
       }
     };
-    
+
     return descriptor;
   };
 }
@@ -77,10 +77,10 @@ function LogAction(action: string) {
 function Retry(maxRetries: number = 3) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
-    
+
     descriptor.value = async function (...args: any[]) {
       let lastError: Error;
-      
+
       for (let i = 0; i <= maxRetries; i++) {
         try {
           return await originalMethod.apply(this, args);
@@ -92,10 +92,10 @@ function Retry(maxRetries: number = 3) {
           }
         }
       }
-      
+
       throw lastError!;
     };
-    
+
     return descriptor;
   };
 }
@@ -110,7 +110,7 @@ function Retry(maxRetries: number = 3) {
 export abstract class BasePage<TPage extends BasePage<any> = any> {
   protected readonly page: Page;
   protected readonly baseURL: string;
-  
+
   /** Cache for frequently accessed elements */
   private readonly elementCache = new Map<string, Locator>();
 
@@ -131,7 +131,7 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
     Log.info(`🧭 Navigation: ${path}`);
     const { waitUntil = 'load', timeout = 30000, referer } = options;
     const url = `${this.baseURL}${path}`;
-    
+
     await this.page.goto(url, { waitUntil, timeout, referer });
     return this as unknown as TPage;
   }
@@ -157,11 +157,11 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
    */
   protected getLocator(selector: string, cacheKey?: string): Locator {
     const key = cacheKey || selector;
-    
+
     if (!this.elementCache.has(key)) {
       this.elementCache.set(key, this.page.locator(selector));
     }
-    
+
     return this.elementCache.get(key)!;
   }
 
@@ -172,8 +172,8 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
    * @returns Promise for chaining
    */
   async waitForElement(
-    locator: Locator, 
-    state: ElementState = 'visible', 
+    locator: Locator,
+    state: ElementState = 'visible',
     timeout = 10000
   ): Promise<void> {
     await locator.waitFor({ state, timeout });
@@ -188,10 +188,10 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
   async click(locator: Locator, options: InteractionOptions = {}): Promise<TPage> {
     Log.info(`🖱️ Click: ${options.description || 'Element click'}`);
     const { timeout = 10000, force = false } = options;
-    
+
     await this.waitForElement(locator, 'visible', timeout);
     await locator.click({ force, timeout });
-    
+
     return this as unknown as TPage;
   }
 
@@ -205,13 +205,13 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
   async fill(locator: Locator, text: string, options: InteractionOptions = {}): Promise<TPage> {
     Log.info(`⌨️ Fill: ${options.description || 'Element fill'}`);
     const { timeout = 10000 } = options;
-    
+
     await this.waitForElement(locator, 'visible', timeout);
     await locator.fill(text);
-    
+
     // Verify text was actually filled
     await expect(locator).toHaveValue(text);
-    
+
     return this as unknown as TPage;
   }
 
@@ -224,18 +224,24 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
    * @param description - Optional verification description
    * @returns Assertion result
    */
-  async verifyText(locator: Locator, expectedText: string | RegExp, description?: string): AssertionResult {
+  async verifyText(
+    locator: Locator,
+    expectedText: string | RegExp,
+    description?: string
+  ): AssertionResult {
     const actualText = await locator.textContent();
     Log.info(`🔍 Verifying text: ${description || 'Text verification'}`);
-    
+
     if (typeof expectedText === 'string' && actualText?.includes(expectedText)) {
       Log.info(`✅ Text verification passed: "${expectedText}"`);
     } else if (expectedText instanceof RegExp && actualText && expectedText.test(actualText)) {
       Log.info(`✅ Text verification passed: ${expectedText}`);
     } else {
-      Log.error(`❌ Text verification failed. Expected: "${expectedText}", Actual: "${actualText}"`);
+      Log.error(
+        `❌ Text verification failed. Expected: "${expectedText}", Actual: "${actualText}"`
+      );
     }
-    
+
     await expect(locator).toContainText(expectedText);
   }
 
@@ -258,7 +264,7 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
       Log.info(`🔍 Verifying ${desc}`);
       await this.verifyVisible(locator);
     });
-    
+
     await Promise.all(verifications);
   }
 
@@ -272,13 +278,13 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
   async capture(config: ScreenshotConfig = {}): Promise<string> {
     Log.info(`📸 Taking screenshot: ${config.path || 'auto-generated'}`);
     const timestamp = Utils.DateTime.generate('YYYY-MM-DD_HH-mm-ss', {});
-    const { 
+    const {
       path = `test-results/screenshots/${this.constructor.name}-${timestamp}.png`,
       fullPage = true,
       quality = 90,
-      type = 'png'
+      type = 'png',
     } = config;
-    
+
     await this.page.screenshot({ path, fullPage, quality, type });
     return path;
   }
@@ -295,9 +301,9 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
     const [title, url, viewport] = await Promise.all([
       this.page.title(),
       Promise.resolve(this.page.url()),
-      this.page.viewportSize()
+      this.page.viewportSize(),
     ]);
-    
+
     return { title, url, viewport };
   }
 
@@ -320,7 +326,11 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
    * @param description - Action description for logging
    * @param options - Click options
    */
-  async clickElement(locator: Locator, description?: string, options?: InteractionOptions): Promise<TPage> {
+  async clickElement(
+    locator: Locator,
+    description?: string,
+    options?: InteractionOptions
+  ): Promise<TPage> {
     Log.info(`🎬 Click: ${description || 'Element click'}`);
     await this.click(locator, options);
     return this as unknown as TPage;
@@ -328,12 +338,17 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
 
   /**
    * @description Fill element with text
-   * @param locator - Element locator  
+   * @param locator - Element locator
    * @param text - Text to fill
    * @param description - Action description for logging
    * @param options - Fill options
    */
-  async fillElement(locator: Locator, text: string, description?: string, options?: InteractionOptions): Promise<TPage> {
+  async fillElement(
+    locator: Locator,
+    text: string,
+    description?: string,
+    options?: InteractionOptions
+  ): Promise<TPage> {
     Log.info(`🎬 Fill: ${description || 'Element fill'}`);
     await this.fill(locator, text, options);
     return this as unknown as TPage;

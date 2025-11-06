@@ -100,13 +100,23 @@ export class OrganizationValidator extends BaseValidator {
    */
   static validateBusinessRules(org: OrganizationDetails): void {
     // Enterprise organizations should have higher member limits
-    if (org.type === 'enterprise' && org.settings.maxMembers < OrganizationValidator.ENTERPRISE_MIN_MEMBERS) {
-      throw new Error(`Enterprise organizations must support at least ${OrganizationValidator.ENTERPRISE_MIN_MEMBERS} members`);
+    if (
+      org.type === 'enterprise' &&
+      org.settings.maxMembers < OrganizationValidator.ENTERPRISE_MIN_MEMBERS
+    ) {
+      throw new Error(
+        `Enterprise organizations must support at least ${OrganizationValidator.ENTERPRISE_MIN_MEMBERS} members`
+      );
     }
 
     // Individual organizations should have limited members
-    if (org.type === 'individual' && org.settings.maxMembers > OrganizationValidator.INDIVIDUAL_MAX_MEMBERS) {
-      throw new Error(`Individual organizations cannot exceed ${OrganizationValidator.INDIVIDUAL_MAX_MEMBERS} members`);
+    if (
+      org.type === 'individual' &&
+      org.settings.maxMembers > OrganizationValidator.INDIVIDUAL_MAX_MEMBERS
+    ) {
+      throw new Error(
+        `Individual organizations cannot exceed ${OrganizationValidator.INDIVIDUAL_MAX_MEMBERS} members`
+      );
     }
 
     // Member count should not exceed max members setting

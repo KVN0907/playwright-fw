@@ -3,7 +3,7 @@ import { AuthenticationManager } from '../../lib/auth/AuthenticationManager';
 import Log from '../../lib/Log';
 
 test.describe('Multi-Authentication Tests', () => {
-  test('Verify AuthenticationManager loads correct auth type', async () => {
+  test('@smoke @critical Verify AuthenticationManager loads correct auth type', async () => {
     Log.info('=== Testing AuthenticationManager Configuration ===');
 
     const authManager = AuthenticationManager.getInstance();
@@ -25,7 +25,7 @@ test.describe('Multi-Authentication Tests', () => {
     Log.info('✅ AuthenticationManager configuration is valid');
   });
 
-  test('Verify browser session authentication works', async ({ page }) => {
+  test('@smoke @critical Verify browser session authentication works', async ({ page }) => {
     Log.info('=== Testing Browser Session Authentication ===');
 
     const authManager = AuthenticationManager.getInstance();
@@ -68,7 +68,7 @@ test.describe('Multi-Authentication Tests', () => {
     }
   });
 
-  test('Verify API authentication headers are set correctly', async ({ page }) => {
+  test('@regression Verify API authentication headers are set correctly', async ({ page }) => {
     Log.info('=== Testing API Authentication Headers ===');
 
     const authManager = AuthenticationManager.getInstance();

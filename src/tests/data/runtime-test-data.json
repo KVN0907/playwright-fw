@@ -1,0 +1,68 @@
+{
+  "description": "Sample runtime test data configuration",
+  "environment": "qa",
+  "users": [
+    {
+      "name": "Admin User",
+      "email": "admin@runtime.test.com",
+      "password": "Admin@123",
+      "role": "admin",
+      "organization": "Runtime Test Corp"
+    },
+    {
+      "name": "Manager User",
+      "email": "manager@runtime.test.com",
+      "password": "Manager@123",
+      "role": "manager",
+      "organization": "Runtime Test Corp"
+    },
+    {
+      "name": "Regular User",
+      "email": "user@runtime.test.com",
+      "password": "User@123",
+      "role": "user",
+      "organization": "Runtime Test Corp"
+    }
+  ],
+  "organizations": [
+    {
+      "name": "Runtime Test Corp",
+      "type": "enterprise"
+    },
+    {
+      "name": "Sample Startup",
+      "type": "startup"
+    }
+  ],
+  "locations": [
+    {
+      "name": "Main Office",
+      "type": "Office",
+      "entity": "EY_US"
+    },
+    {
+      "name": "Development Center",
+      "type": "Office",
+      "entity": "EY_INDIA"
+    },
+    {
+      "name": "Warehouse",
+      "type": "Warehouse",
+      "entity": "EY_UK"
+    }
+  ],
+  "custom": {
+    "apiEndpoint": "https://api-qa.test.com",
+    "apiKey": "test-api-key-12345",
+    "featureFlags": [
+      "newDashboard",
+      "betaReporting",
+      "advancedSearch"
+    ],
+    "testSettings": {
+      "timeout": 30000,
+      "retries": 2,
+      "slowMo": 100
+    }
+  }
+}

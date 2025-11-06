@@ -1,9 +1,13 @@
+/**
+ * @fileoverview HomePage - Landing page after authentication
+ * @description Provides fluent interface for home page interactions with method chaining
+ */
+
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
-import dotenv from 'dotenv';
-dotenv.config();
+import Log from '../../lib/Log';
 
-export class HomePage extends BasePage {
+export class HomePage extends BasePage<HomePage> {
   readonly banner: Locator;
   readonly heading: Locator;
   readonly controlDefinitionLibraries: Locator;
@@ -20,40 +24,69 @@ export class HomePage extends BasePage {
     this.maintenance = page.locator('text=Maintenance');
   }
 
-  async verifyBannerText(expectedText: string) {
-    console.log(this.page.url());
-    // Wait for the page to load and the error state to clear
-    await this.page.waitForLoadState('networkidle');
-    // Wait for the specific banner to be visible
-    await this.banner.waitFor({ state: 'visible', timeout: 15000 });
+  /**
+   * Verify banner text with fluent chaining
+   * @param expectedText - Expected banner text
+   * @returns Fluent interface for method chaining
+   */
+  async verifyBannerText(expectedText: string): Promise<HomePage> {
+    Log.info(`Current URL: ${this.page.url()}`);
+    await this.waitForLoad('networkidle');
+    await this.waitForElement(this.banner, 'visible', 15000);
     await this.verifyText(this.banner, expectedText, 'Banner text');
+    return this;
   }
 
-  async verifyHeadingText(expectedText: string) {
+  /**
+   * Verify heading text with fluent chaining
+   * @param expectedText - Expected heading text
+   * @returns Fluent interface for method chaining
+   */
+  async verifyHeadingText(expectedText: string): Promise<HomePage> {
     await this.verifyText(this.heading, expectedText, 'Heading text');
+    return this;
   }
 
   /**
    * Navigate back using browser back button
+   * @returns Fluent interface for method chaining
    */
-  async navigateBack() {
+  async navigateBack(): Promise<HomePage> {
     await this.page.goBack();
-    await this.page.waitForLoadState('networkidle');
-    console.log('Navigated back to previous page');
+    await this.waitForLoad('networkidle');
+    Log.info('Navigated back to previous page');
+    return this;
   }
 
-  async navigateToControlDefinitionLibraries() {
-    await this.clickElement(this.controlDefinitionLibraries, 'Control Definition Libraries');
+  /**
+   * Navigate to Control Definition Libraries and back
+   * @returns Fluent interface for method chaining
+   */
+  async navigateToControlDefinitionLibraries(): Promise<HomePage> {
+    await this.click(this.controlDefinitionLibraries, {
+      description: 'Control Definition Libraries',
+    });
     await this.navigateBack();
+    return this;
   }
 
-  async navigateToApproval() {
-    await this.clickElement(this.approval, 'Approval');
+  /**
+   * Navigate to Approval and back
+   * @returns Fluent interface for method chaining
+   */
+  async navigateToApproval(): Promise<HomePage> {
+    await this.click(this.approval, { description: 'Approval' });
     await this.navigateBack();
+    return this;
   }
 
-  async navigateToMaintenance() {
-    await this.clickElement(this.maintenance, 'Maintenance');
+  /**
+   * Navigate to Maintenance and back
+   * @returns Fluent interface for method chaining
+   */
+  async navigateToMaintenance(): Promise<HomePage> {
+    await this.click(this.maintenance, { description: 'Maintenance' });
     await this.navigateBack();
+    return this;
   }
 }

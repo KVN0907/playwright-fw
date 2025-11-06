@@ -6,7 +6,17 @@
     "esModuleInterop": true, // Enable interoperability between CommonJS and ES Modules
     "skipLibCheck": true, // Skip type checking of all declaration files (*.d.ts)
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true // Disallow inconsistently-cased references to the same file
+    "resolveJsonModule": true, // Disallow inconsistently-cased references to the same file
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures/*": ["src/tests/fixtures/*"],
+      "@pages/*": ["src/pages/*"],
+      "@lib/*": ["src/lib/*"],
+      "@config/*": ["src/config/*", "config/*"],
+      "@tests/*": ["src/tests/*"],
+      "@validation/*": ["src/lib/validation/*"],
+      "@testData/*": ["src/lib/testData/*"]
+    }
   },
   "include": [
     "src/**/*.ts", // Include all TypeScript files in src directory

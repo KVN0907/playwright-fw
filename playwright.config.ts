@@ -23,12 +23,8 @@ import testConfig from './src/config/TestConfig';
  * @description Clean up test artifacts before running tests
  */
 function cleanupTestArtifacts(): void {
-  const artifactDirs = [
-    'test-results/reports',
-    'test-results/screenshots', 
-    'test-results/videos'
-  ];
-  
+  const artifactDirs = ['test-results/reports', 'test-results/screenshots', 'test-results/videos'];
+
   artifactDirs.forEach(dir => {
     if (fs.existsSync(dir)) {
       fs.emptyDirSync(dir);

@@ -18,7 +18,7 @@ type ADOFieldMap = {
 };
 
 /** Union type for acceptance criteria field names */
-type AcceptanceCriteriaField = 
+type AcceptanceCriteriaField =
   | 'Microsoft.VSTS.Common.AcceptanceCriteria'
   | 'System.AcceptanceCriteria'
   | 'Custom.AcceptanceCriteria'
@@ -72,7 +72,7 @@ export class ADOIntegration {
    */
   async fetchWorkItem(workItemId: number): ADOResponse<ADOWorkItem> {
     Log.info(`📥 Fetching work item ${workItemId}`);
-    
+
     return this.safeApiCall(async () => {
       const response = await this.makeRequest(`wit/workitems/${workItemId}`);
       return this.parseWorkItem(response);
@@ -85,7 +85,10 @@ export class ADOIntegration {
    */
   async testConnection(): Promise<boolean> {
     return this.safeApiCall(async () => {
-      await this.makeRequest(`https://dev.azure.com/${this.config.organization}/_apis/projects`, true);
+      await this.makeRequest(
+        `https://dev.azure.com/${this.config.organization}/_apis/projects`,
+        true
+      );
       Log.info('✅ ADO connection successful');
       return true;
     }, 'test connection').catch(() => false);
@@ -114,14 +117,15 @@ export class ADOIntegration {
    * @returns Promise with parsed JSON response
    */
   private async makeRequest(endpoint: string, isAbsolute = false): Promise<any> {
-    const url = isAbsolute ? `${endpoint}?api-version=${this.config.apiVersion}` 
-                           : `${this.baseUrl}/${endpoint}?api-version=${this.config.apiVersion}`;
-    
+    const url = isAbsolute
+      ? `${endpoint}?api-version=${this.config.apiVersion}`
+      : `${this.baseUrl}/${endpoint}?api-version=${this.config.apiVersion}`;
+
     const response = await fetch(url, {
       headers: {
-        'Authorization': this.authHeader,
-        'Content-Type': 'application/json'
-      }
+        Authorization: this.authHeader,
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!response.ok) {
@@ -136,9 +140,11 @@ export class ADOIntegration {
    * @param workItemIds - Array of work item IDs to fetch
    * @returns Promise resolving to array of typed work items
    */
-  async fetchMultipleWorkItems(workItemIds: readonly number[]): ADOResponse<readonly ADOWorkItem[]> {
+  async fetchMultipleWorkItems(
+    workItemIds: readonly number[]
+  ): ADOResponse<readonly ADOWorkItem[]> {
     Log.info(`📥 Batch fetching ${workItemIds.length} work items`);
-    
+
     return this.safeApiCall(async () => {
       const ids = workItemIds.join(',');
       const response = await this.makeRequest(`wit/workitems?ids=${ids}`);
@@ -153,7 +159,10 @@ export class ADOIntegration {
    */
   async getWorkItemsByIteration(iterationPath: string): ADOResponse<readonly ADOWorkItem[]> {
     const wiql = `SELECT [System.Id] FROM WorkItems WHERE [System.IterationPath] = '${iterationPath}'`;
-    return this.safeApiCall(() => this.executeWiqlQuery(wiql), `fetch items for iteration ${iterationPath}`);
+    return this.safeApiCall(
+      () => this.executeWiqlQuery(wiql),
+      `fetch items for iteration ${iterationPath}`
+    );
   }
 
   /**
@@ -163,7 +172,10 @@ export class ADOIntegration {
    */
   async getWorkItemsByAssignee(assignedTo: string): ADOResponse<readonly ADOWorkItem[]> {
     const wiql = `SELECT [System.Id] FROM WorkItems WHERE [System.AssignedTo] = '${assignedTo}'`;
-    return this.safeApiCall(() => this.executeWiqlQuery(wiql), `fetch items for assignee ${assignedTo}`);
+    return this.safeApiCall(
+      () => this.executeWiqlQuery(wiql),
+      `fetch items for assignee ${assignedTo}`
+    );
   }
 
   /**
@@ -175,8 +187,6 @@ export class ADOIntegration {
     return this.safeApiCall(() => this.executeWiqlQuery(wiqlQuery), 'execute WIQL search');
   }
 
-
-
   /**
    * Execute WIQL query and return work items
    */
@@ -184,18 +194,20 @@ export class ADOIntegration {
     try {
       // First, execute the WIQL query to get work item IDs
       const wiqlUrl = `${this.baseUrl}/wit/wiql?api-version=${this.config.apiVersion}`;
-      
+
       const wiqlResponse = await fetch(wiqlUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${Buffer.from(`:${this.config.personalAccessToken}`).toString('base64')}`,
-          'Content-Type': 'application/json'
+          Authorization: `Basic ${Buffer.from(`:${this.config.personalAccessToken}`).toString('base64')}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query: wiql })
+        body: JSON.stringify({ query: wiql }),
       });
 
       if (!wiqlResponse.ok) {
-        throw new Error(`WIQL query failed: HTTP ${wiqlResponse.status}: ${wiqlResponse.statusText}`);
+        throw new Error(
+          `WIQL query failed: HTTP ${wiqlResponse.status}: ${wiqlResponse.statusText}`
+        );
       }
 
       const wiqlData = await wiqlResponse.json();
@@ -207,7 +219,6 @@ export class ADOIntegration {
 
       // Then fetch the actual work items
       return await this.fetchMultipleWorkItems(workItemIds);
-
     } catch (error) {
       Log.error(`Failed to execute WIQL query: ${error}`);
       throw error;
@@ -221,22 +232,26 @@ export class ADOIntegration {
    */
   private parseWorkItem(workItem: any): ADOWorkItem {
     const fields = workItem.fields ?? {};
-    
+
     const extractors: Record<keyof Omit<ADOWorkItem, 'id'>, FieldExtractor<any>> = {
-      title: (f) => f['System.Title'] ?? 'Untitled',
-      description: (f) => f['System.Description'] ?? '',
-      acceptanceCriteria: (f) => this.extractAcceptanceCriteria(f),
-      workItemType: (f) => f['System.WorkItemType'] ?? 'Unknown',
-      state: (f) => f['System.State'] ?? 'Unknown',
-      assignedTo: (f) => f['System.AssignedTo']?.displayName,
-      tags: (f) => f['System.Tags']?.split(';').map((tag: string) => tag.trim()).filter(Boolean) ?? []
+      title: f => f['System.Title'] ?? 'Untitled',
+      description: f => f['System.Description'] ?? '',
+      acceptanceCriteria: f => this.extractAcceptanceCriteria(f),
+      workItemType: f => f['System.WorkItemType'] ?? 'Unknown',
+      state: f => f['System.State'] ?? 'Unknown',
+      assignedTo: f => f['System.AssignedTo']?.displayName,
+      tags: f =>
+        f['System.Tags']
+          ?.split(';')
+          .map((tag: string) => tag.trim())
+          .filter(Boolean) ?? [],
     };
 
     return {
       id: workItem.id,
-      ...Object.fromEntries(
+      ...(Object.fromEntries(
         Object.entries(extractors).map(([key, extractor]) => [key, extractor(fields)])
-      ) as Omit<ADOWorkItem, 'id'>
+      ) as Omit<ADOWorkItem, 'id'>),
     };
   }
 
@@ -248,19 +263,26 @@ export class ADOIntegration {
   private extractAcceptanceCriteria(fields: Record<string, any>): string {
     const criteriaFields: readonly AcceptanceCriteriaField[] = [
       'Microsoft.VSTS.Common.AcceptanceCriteria',
-      'System.AcceptanceCriteria', 
+      'System.AcceptanceCriteria',
       'Custom.AcceptanceCriteria',
-      'System.Description'
+      'System.Description',
     ] as const;
 
-    const compose = <T>(...fns: ((x: T) => T)[]) => (value: T): T =>
-      fns.reduce((acc, fn) => fn(acc), value);
+    const compose =
+      <T>(...fns: ((x: T) => T)[]) =>
+      (value: T): T =>
+        fns.reduce((acc, fn) => fn(acc), value);
 
     const cleanHtml = compose(
-      (text: string) => text.replace(/<[^>]*>/g, ''),           // Remove HTML tags
-      (text: string) => text.replace(/&nbsp;/g, ' '),          // Non-breaking spaces
-      (text: string) => text.replace(/&(amp|lt|gt);/g, (match) => // HTML entities
-        ({ '&amp;': '&', '&lt;': '<', '&gt;': '>' }[match] ?? match)),
+      (text: string) => text.replace(/<[^>]*>/g, ''), // Remove HTML tags
+      (text: string) => text.replace(/&nbsp;/g, ' '), // Non-breaking spaces
+      (text: string) =>
+        text.replace(
+          /&(amp|lt|gt);/g,
+          (
+            match // HTML entities
+          ) => ({ '&amp;': '&', '&lt;': '<', '&gt;': '>' })[match] ?? match
+        ),
       (text: string) => text.trim()
     );
 
@@ -268,6 +290,8 @@ export class ADOIntegration {
       .map(field => fields[field])
       .find((value): value is string => typeof value === 'string' && value.length > 0);
 
-    return rawValue ? cleanHtml(rawValue) || 'No acceptance criteria found' : 'No acceptance criteria found';
+    return rawValue
+      ? cleanHtml(rawValue) || 'No acceptance criteria found'
+      : 'No acceptance criteria found';
   }
 }

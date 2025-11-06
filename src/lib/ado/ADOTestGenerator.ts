@@ -46,16 +46,15 @@ export class ADOTestGenerator {
     try {
       // Fetch work item from ADO
       const workItem = await this.adoIntegration.fetchWorkItem(workItemId);
-      
+
       // Generate test scripts
       const result = await this.testGenerator.generateFromWorkItem(workItem);
-      
+
       Log.info(`Successfully generated test scripts for work item ${workItemId}`);
       return result;
-      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      
+
       // Handle "no acceptance criteria" as a special case
       if (errorMessage.includes('No acceptance criteria')) {
         Log.info(`Work item ${workItemId} skipped: No acceptance criteria found`);
@@ -77,7 +76,7 @@ export class ADOTestGenerator {
     try {
       // Fetch all work items from ADO
       const workItems = await this.adoIntegration.fetchMultipleWorkItems(workItemIds);
-      
+
       // Generate test scripts for each work item
       const generatedScripts: GeneratedTestScript[] = [];
       const generatedFiles: string[] = [];
@@ -94,7 +93,6 @@ export class ADOTestGenerator {
             generatedFiles.push(result.pageObjectFile);
           }
           successfulGenerations++;
-          
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           if (errorMessage.includes('No acceptance criteria')) {
@@ -118,13 +116,14 @@ export class ADOTestGenerator {
           skippedNoAcceptanceCriteria,
           failedGenerations,
           generatedFiles,
-          processingTime
-        }
+          processingTime,
+        },
       };
 
-      Log.info(`Batch generation completed: ${successfulGenerations} successful, ${failedGenerations} failed in ${processingTime}ms`);
+      Log.info(
+        `Batch generation completed: ${successfulGenerations} successful, ${failedGenerations} failed in ${processingTime}ms`
+      );
       return result;
-      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       Log.error(`Batch test generation failed: ${errorMessage}`);
@@ -141,7 +140,7 @@ export class ADOTestGenerator {
     try {
       // Get work items from iteration
       const workItems = await this.adoIntegration.getWorkItemsByIteration(iterationPath);
-      
+
       if (workItems.length === 0) {
         Log.info(`No work items found in iteration: ${iterationPath}`);
         return {
@@ -153,15 +152,14 @@ export class ADOTestGenerator {
             skippedNoAcceptanceCriteria: 0,
             failedGenerations: 0,
             generatedFiles: [],
-            processingTime: 0
-          }
+            processingTime: 0,
+          },
         };
       }
 
       // Extract work item IDs and generate tests
       const workItemIds = workItems.map((wi: ADOWorkItem) => wi.id);
       return await this.generateFromWorkItemIds(workItemIds);
-      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       Log.error(`Failed to generate tests for iteration ${iterationPath}: ${errorMessage}`);
@@ -178,7 +176,7 @@ export class ADOTestGenerator {
     try {
       // Get work items for assignee
       const workItems = await this.adoIntegration.getWorkItemsByAssignee(assignedTo);
-      
+
       if (workItems.length === 0) {
         Log.info(`No work items found for assignee: ${assignedTo}`);
         return {
@@ -190,15 +188,14 @@ export class ADOTestGenerator {
             skippedNoAcceptanceCriteria: 0,
             failedGenerations: 0,
             generatedFiles: [],
-            processingTime: 0
-          }
+            processingTime: 0,
+          },
         };
       }
 
       // Extract work item IDs and generate tests
       const workItemIds = workItems.map((wi: ADOWorkItem) => wi.id);
       return await this.generateFromWorkItemIds(workItemIds);
-      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       Log.error(`Failed to generate tests for assignee ${assignedTo}: ${errorMessage}`);
@@ -215,7 +212,7 @@ export class ADOTestGenerator {
     try {
       // Search work items using query
       const workItems = await this.adoIntegration.searchWorkItems(wiqlQuery);
-      
+
       if (workItems.length === 0) {
         Log.info('No work items found matching the query');
         return {
@@ -227,15 +224,14 @@ export class ADOTestGenerator {
             skippedNoAcceptanceCriteria: 0,
             failedGenerations: 0,
             generatedFiles: [],
-            processingTime: 0
-          }
+            processingTime: 0,
+          },
         };
       }
 
       // Extract work item IDs and generate tests
       const workItemIds = workItems.map((wi: ADOWorkItem) => wi.id);
       return await this.generateFromWorkItemIds(workItemIds);
-      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       Log.error(`Failed to generate tests from query: ${errorMessage}`);
@@ -275,21 +271,21 @@ export class ADOTestGenerator {
 
     try {
       const workItems = await this.adoIntegration.getWorkItemsByIteration(iterationPath);
-      
+
       const summary = {
         totalItems: workItems.length,
         byType: {} as Record<string, number>,
         byState: {} as Record<string, number>,
-        withAcceptanceCriteria: 0
+        withAcceptanceCriteria: 0,
       };
 
       workItems.forEach((wi: ADOWorkItem) => {
         // Count by type
         summary.byType[wi.workItemType] = (summary.byType[wi.workItemType] || 0) + 1;
-        
+
         // Count by state
         summary.byState[wi.state] = (summary.byState[wi.state] || 0) + 1;
-        
+
         // Count items with acceptance criteria
         if (wi.acceptanceCriteria && wi.acceptanceCriteria !== 'No acceptance criteria found') {
           summary.withAcceptanceCriteria++;
@@ -297,7 +293,6 @@ export class ADOTestGenerator {
       });
 
       return { workItems, summary };
-      
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       Log.error(`Failed to get iteration summary: ${errorMessage}`);
@@ -310,29 +305,29 @@ export class ADOTestGenerator {
    */
   generateSummaryReport(result: GenerationResult): string {
     const { summary, workItems, generatedScripts } = result;
-    
+
     let report = `# Test Generation Summary Report\n\n`;
     report += `**Generation Date**: ${new Date().toISOString()}\n`;
     report += `**Processing Time**: ${summary.processingTime}ms\n\n`;
-    
+
     report += `## Overview\n`;
     report += `- **Total Work Items**: ${summary.totalWorkItems}\n`;
     report += `- **Successful Generations**: ${summary.successfulGenerations}\n`;
     report += `- **Failed Generations**: ${summary.failedGenerations}\n`;
     report += `- **Generated Files**: ${summary.generatedFiles.length}\n\n`;
-    
+
     report += `## Work Items Processed\n`;
     workItems.forEach((wi: ADOWorkItem) => {
       const generated = generatedScripts.find(gs => gs.workItemId === wi.id);
       const status = generated ? '✅ Generated' : '❌ Failed';
       report += `- **${wi.id}**: ${wi.title} (${wi.workItemType}) - ${status}\n`;
     });
-    
+
     report += `\n## Generated Files\n`;
     summary.generatedFiles.forEach(file => {
       report += `- ${file}\n`;
     });
-    
+
     return report;
   }
 }

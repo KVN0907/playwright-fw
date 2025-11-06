@@ -51,17 +51,26 @@ export class TestScriptGenerator {
 
     try {
       // Check if work item has acceptance criteria
-      if (!workItem.acceptanceCriteria || workItem.acceptanceCriteria === 'No acceptance criteria found') {
+      if (
+        !workItem.acceptanceCriteria ||
+        workItem.acceptanceCriteria === 'No acceptance criteria found'
+      ) {
         Log.info(`Skipping work item ${workItem.id} - no acceptance criteria found`);
-        throw new Error(`No acceptance criteria found for work item ${workItem.id}. Skipping test generation.`);
+        throw new Error(
+          `No acceptance criteria found for work item ${workItem.id}. Skipping test generation.`
+        );
       }
 
       // Extract acceptance criteria as array
       const acceptanceCriteria = this.extractAcceptanceCriteria(workItem.acceptanceCriteria);
-      
+
       if (acceptanceCriteria.length === 0) {
-        Log.info(`Skipping work item ${workItem.id} - no valid acceptance criteria could be extracted`);
-        throw new Error(`No valid acceptance criteria found for work item ${workItem.id}. Skipping test generation.`);
+        Log.info(
+          `Skipping work item ${workItem.id} - no valid acceptance criteria could be extracted`
+        );
+        throw new Error(
+          `No valid acceptance criteria found for work item ${workItem.id}. Skipping test generation.`
+        );
       }
 
       // Generate test cases using AI
@@ -82,12 +91,11 @@ export class TestScriptGenerator {
         testSpecFile,
         pageObjectFile,
         workItemId: workItem.id,
-        testCases
+        testCases,
       };
 
       Log.info(`Successfully generated test scripts for work item ${workItem.id}`);
       return result;
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       Log.error(`Error generating test scripts for work item ${workItem.id}: ${errorMessage}`);
@@ -102,7 +110,7 @@ export class TestScriptGenerator {
     Log.info(`Generating test scripts for ${workItems.length} work items`);
 
     const results: GeneratedTestScript[] = [];
-    
+
     for (const workItem of workItems) {
       try {
         const result = await this.generateFromWorkItem(workItem);
@@ -127,15 +135,15 @@ export class TestScriptGenerator {
 
     // Split by various patterns
     const patterns = [
-      /(?:^|\n)\s*(?:AC\d*|Acceptance Criteria?\s*\d*)\s*[:\-]\s*/gim,
+      /(?:^|\n)\s*(?:AC\d*|Acceptance Criteria?\s*\d*)\s*[:]\s*/gim,
       /(?:^|\n)\s*(?:Given|When|Then)\s+/gim,
-      /(?:^|\n)\s*(?:Scenario|Test Case)\s*[:\-]?\s*/gim,
-      /(?:^|\n)\s*[-•*]\s+/gm,
-      /(?:^|\n)\s*\d+\.\s+/gm
+      /(?:^|\n)\s*(?:Scenario|Test Case)\s*[:]?\s*/gim,
+      /(?:^|\n)\s*[•*]\s+/gm,
+      /(?:^|\n)\s*\d+\.\s+/gm,
     ];
 
     let criteria: string[] = [];
-    
+
     for (const pattern of patterns) {
       const matches = acceptanceCriteria.split(pattern);
       if (matches.length > 1) {
@@ -177,9 +185,12 @@ export class TestScriptGenerator {
   /**
    * Generate test cases using AI
    */
-  private async generateTestCases(workItem: ADOWorkItem, acceptanceCriteria: string[]): Promise<GeneratedTestCase[]> {
+  private async generateTestCases(
+    workItem: ADOWorkItem,
+    acceptanceCriteria: string[]
+  ): Promise<GeneratedTestCase[]> {
     const prompt = this.buildPrompt(workItem, acceptanceCriteria);
-    
+
     try {
       const response = await this.callAI(prompt);
       return this.parseTestCasesFromResponse(response);
@@ -249,7 +260,7 @@ Generate tests that cover all acceptance criteria with proper error handling and
    */
   private async callAI(prompt: string): Promise<string> {
     Log.info(`Calling AI service (${this.config.aiProvider}) for test generation`);
-    
+
     switch (this.config.aiProvider) {
       case 'vscode':
         return await this.callVSCodeAI(prompt);
@@ -271,7 +282,7 @@ Generate tests that cover all acceptance criteria with proper error handling and
       // Check if running in VS Code context
       if (typeof process !== 'undefined' && process.env.VSCODE_PID) {
         Log.info('Detected VS Code environment - using Copilot Chat');
-        
+
         // For now, return enhanced mock response
         // In real implementation, you would use VS Code extension API
         Log.info('Simulating VS Code AI integration - returning enhanced mock response');
@@ -402,25 +413,28 @@ Generate tests that cover all acceptance criteria with proper error handling and
   /**
    * Generate fallback test cases when AI fails
    */
-  private generateFallbackTestCases(workItem: ADOWorkItem, acceptanceCriteria: string[]): GeneratedTestCase[] {
+  private generateFallbackTestCases(
+    workItem: ADOWorkItem,
+    acceptanceCriteria: string[]
+  ): GeneratedTestCase[] {
     Log.info('Generating fallback test cases');
-    
+
     return acceptanceCriteria.map((ac, index) => ({
       testName: `Test acceptance criteria ${index + 1}`,
       description: `Validates: ${ac.substring(0, 100)}...`,
       testSteps: [
         '// Given user is authenticated and ready',
         'await page.navigateToFeature();',
-        '// When user performs the required action', 
+        '// When user performs the required action',
         'await page.performAction();',
         '// Then verify the expected outcome',
-        'await page.verifyResult();'
+        'await page.verifyResult();',
       ],
       pageObjectMethods: [
         'async navigateToFeature(): Promise<void> { /* Navigate to feature page */ }',
         'async performAction(): Promise<void> { /* Perform required action */ }',
-        'async verifyResult(): Promise<void> { /* Verify expected result */ }'
-      ]
+        'async verifyResult(): Promise<void> { /* Verify expected result */ }',
+      ],
     }));
   }
 
@@ -430,7 +444,7 @@ Generate tests that cover all acceptance criteria with proper error handling and
   private generateTestSpec(workItem: ADOWorkItem, testCases: GeneratedTestCase[]): string {
     const className = this.sanitizeClassName(workItem.title);
     const pageObjectName = `${className}Page`;
-    
+
     return `import { test } from '@playwright/test';
 import { ${pageObjectName} } from '../pageObjects/${pageObjectName}';
 
@@ -446,12 +460,16 @@ test.describe('${workItem.title}', () => {
     page = new ${pageObjectName}(playwrightPage);
   });
 
-${testCases.map((testCase, index) => `
+${testCases
+  .map(
+    (testCase, index) => `
   test('${testCase.testName}', async () => {
     // ${testCase.description}
     
 ${testCase.testSteps.map(step => `    ${step}`).join('\n')}
-  });`).join('\n')}
+  });`
+  )
+  .join('\n')}
 });`;
   }
 
@@ -496,7 +514,9 @@ export class ${pageObjectName} extends BasePage {
     this.errorMessage = this.page.locator('[data-testid="error-message"]');
   }
 
-${Array.from(allMethods).map(method => `  ${method}`).join('\n\n')}
+${Array.from(allMethods)
+  .map(method => `  ${method}`)
+  .join('\n\n')}
 
   /**
    * Wait for page to be ready

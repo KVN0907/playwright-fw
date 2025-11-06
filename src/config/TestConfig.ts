@@ -88,32 +88,34 @@ class ConfigurationFactory {
       headless: false,
       slowMo: 100,
       debugMode: true,
-      apiBaseURL: process.env.DEV_API_URL || process.env.API_URL || 'https://api-dev.ey.com/'
+      apiBaseURL: process.env.DEV_API_URL || process.env.API_URL || 'https://api-dev.ey.com/',
     },
     qa: {
       baseURL: process.env.QA_APP_URL || process.env.APP_URL || 'https://infinity-qa.ey.com/',
       timeout: 30000,
-      retries: 2,
+      retries: 0,
       workers: 4,
       headless: false,
-      apiBaseURL: process.env.QA_API_URL || process.env.API_URL || 'https://api-qa.ey.com/'
+      apiBaseURL: process.env.QA_API_URL || process.env.API_URL || 'https://api-qa.ey.com/',
     },
     staging: {
-      baseURL: process.env.STAGING_APP_URL || process.env.APP_URL || 'https://infinity-staging.ey.com/',
+      baseURL:
+        process.env.STAGING_APP_URL || process.env.APP_URL || 'https://infinity-staging.ey.com/',
       timeout: 45000,
-      retries: 2,
+      retries: 1,
       workers: 3,
       headless: true,
-      apiBaseURL: process.env.STAGING_API_URL || process.env.API_URL || 'https://api-staging.ey.com/'
+      apiBaseURL:
+        process.env.STAGING_API_URL || process.env.API_URL || 'https://api-staging.ey.com/',
     },
     prod: {
       baseURL: process.env.PROD_APP_URL || process.env.APP_URL || 'https://infinity.ey.com/',
       timeout: 60000,
-      retries: 3,
+      retries: 2,
       workers: 2,
       headless: true,
-      apiBaseURL: process.env.PROD_API_URL || process.env.API_URL || 'https://api.ey.com/'
-    }
+      apiBaseURL: process.env.PROD_API_URL || process.env.API_URL || 'https://api.ey.com/',
+    },
   } as const;
 
   /**
@@ -128,7 +130,7 @@ class ConfigurationFactory {
       baseURL: settings.baseURL,
       screenshot: 'only-on-failure' as const,
       video: 'retain-on-failure' as const,
-      trace: 'retain-on-failure' as const
+      trace: 'retain-on-failure' as const,
     };
 
     return [
@@ -136,39 +138,41 @@ class ConfigurationFactory {
         name: 'chromium',
         use: { ...devices['Desktop Chrome'], ...baseConfig },
         testDir: './src/tests',
-        testIgnore: ['**/node_modules/**', '**/api/**']
-      },
-      {
-        name: 'firefox',
-        use: { ...devices['Desktop Firefox'], ...baseConfig },
-        testDir: './src/tests',
         testIgnore: ['**/node_modules/**', '**/api/**'],
-        dependencies: ['chromium']
       },
-      {
-        name: 'webkit',
-        use: { ...devices['Desktop Safari'], ...baseConfig },
-        testDir: './src/tests',
-        testIgnore: ['**/node_modules/**', '**/api/**'],
-        dependencies: ['chromium']
-      },
-      {
-        name: 'mobile-chrome',
-        use: { ...devices['Pixel 5'], ...baseConfig },
-        testDir: './src/tests/mobile',
-        testIgnore: ['**/api/**']
-      },
+      // Disabled firefox and webkit for faster test execution
+      // Uncomment when cross-browser testing is needed
+      // {
+      //   name: 'firefox',
+      //   use: { ...devices['Desktop Firefox'], ...baseConfig },
+      //   testDir: './src/tests',
+      //   testIgnore: ['**/node_modules/**', '**/api/**'],
+      //   dependencies: ['chromium']
+      // },
+      // {
+      //   name: 'webkit',
+      //   use: { ...devices['Desktop Safari'], ...baseConfig },
+      //   testDir: './src/tests',
+      //   testIgnore: ['**/node_modules/**', '**/api/**'],
+      //   dependencies: ['chromium']
+      // },
+      // {
+      //   name: 'mobile-chrome',
+      //   use: { ...devices['Pixel 5'], ...baseConfig },
+      //   testDir: './src/tests/mobile',
+      //   testIgnore: ['**/api/**']
+      // },
       {
         name: 'api',
         use: {
           baseURL: settings.apiBaseURL || settings.baseURL,
           extraHTTPHeaders: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
         },
-        testDir: './src/tests/api'
-      }
+        testDir: './src/tests/api',
+      },
     ] as const;
   }
 
@@ -179,7 +183,7 @@ class ConfigurationFactory {
    */
   static createConfig(env: Environment): TestConfig {
     const settings = this.ENV_SETTINGS[env];
-    
+
     return {
       environment: env,
       execution: {
@@ -192,31 +196,34 @@ class ConfigurationFactory {
           baseURL: settings.baseURL,
           screenshot: 'only-on-failure',
           video: 'retain-on-failure',
-          trace: 'retain-on-failure'
-        }
+          trace: 'retain-on-failure',
+        },
       },
       browsers: this.createBrowserConfigs(settings),
       reporting: {
         outputDir: `./test-results/${env}`,
         reporters: [
-          { name: 'playwright-enhanced-reporter', options: { 
-            outputFolder: `./test-results/${env}/enhanced-report`,
-            open: env !== 'prod' ? 'always' : 'never',
-            showTrace: true,
-            showScreenshots: true
-          }},
+          {
+            name: 'playwright-enhanced-reporter',
+            options: {
+              outputFolder: `./test-results/${env}/enhanced-report`,
+              open: env !== 'prod' ? 'always' : 'never',
+              showTrace: true,
+              showScreenshots: true,
+            },
+          },
           { name: 'junit', options: { outputFile: `./test-results/${env}/junit-report.xml` } },
           { name: 'json', options: { outputFile: `./test-results/${env}/test-results.json` } },
-          { name: 'list' }
+          { name: 'list' },
         ],
         htmlReport: true,
-        junitReport: env !== 'dev'
+        junitReport: env !== 'dev',
       },
       api: {
         baseURL: settings.apiBaseURL || settings.baseURL,
         timeout: 15000,
-        retries: 3
-      }
+        retries: 3,
+      },
     };
   }
 
@@ -231,28 +238,26 @@ class ConfigurationFactory {
       timeout: config.execution.timeout,
       retries: config.execution.retries,
       workers: config.execution.workers,
-      
+
       outputDir: config.reporting.outputDir,
-      
+
       use: {
         ...config.execution.use,
         actionTimeout: 10000,
-        navigationTimeout: 30000
+        navigationTimeout: 30000,
       },
-      
+
       projects: config.browsers.map(browser => ({
         name: browser.name,
         use: browser.use,
         testDir: browser.testDir,
         testIgnore: browser.testIgnore,
-        dependencies: browser.dependencies
+        dependencies: browser.dependencies,
       })),
-      
-      reporter: config.reporting.reporters.map(reporter => 
-        reporter.options 
-          ? [reporter.name, reporter.options] 
-          : [reporter.name]
-      )
+
+      reporter: config.reporting.reporters.map(reporter =>
+        reporter.options ? [reporter.name, reporter.options] : [reporter.name]
+      ),
     };
   }
 }
@@ -271,11 +276,11 @@ export class ConfigManager {
   private constructor() {
     // Initialize environment utilities
     Utils.Environment.configure();
-    
+
     // Determine environment with fallback
     this.environment = this.detectEnvironment();
     this.currentConfig = ConfigurationFactory.createConfig(this.environment);
-    
+
     // Validate configuration
     this.validateConfiguration();
   }
@@ -300,11 +305,11 @@ export class ConfigManager {
       Utils.Environment.get('NODE_ENV'),
       Utils.Environment.get('TEST_ENV'),
       Utils.Environment.get('ENVIRONMENT'),
-      'qa' // fallback
+      'qa', // fallback
     ];
 
-    const detectedEnv = envSources.find(env => 
-      env && ['dev', 'qa', 'staging', 'prod'].includes(env)
+    const detectedEnv = envSources.find(
+      env => env && ['dev', 'qa', 'staging', 'prod'].includes(env)
     ) as Environment;
 
     console.log(`🌍 Detected environment: ${detectedEnv}`);
@@ -316,9 +321,16 @@ export class ConfigManager {
    * @throws Error if configuration is invalid
    */
   private validateConfiguration(): void {
-    const required = ['baseURL', 'timeout', 'retries'];
-    const missing = required.filter(key => !this.currentConfig.execution[key as keyof ExecutionConfig]);
-    
+    const required = ['baseURL', 'timeout'];
+    const missing = required.filter(
+      key => !this.currentConfig.execution[key as keyof ExecutionConfig]
+    );
+
+    // Check retries separately to allow 0 as valid value
+    if (typeof this.currentConfig.execution.retries !== 'number') {
+      missing.push('retries');
+    }
+
     if (missing.length > 0) {
       throw new Error(`Invalid configuration: missing ${missing.join(', ')}`);
     }
@@ -380,13 +392,13 @@ export class ConfigManager {
 export const config = ConfigManager.getInstance();
 
 /** Export types for external use */
-export type { 
-  Environment, 
-  TestConfig, 
-  BrowserConfig, 
-  ExecutionConfig, 
+export type {
+  Environment,
+  TestConfig,
+  BrowserConfig,
+  ExecutionConfig,
   EnvironmentSettings,
-  ReporterConfig 
+  ReporterConfig,
 };
 
 /** Default export for Playwright config file */

@@ -30,11 +30,12 @@ type Config<T extends Record<string, unknown>> = {
 };
 
 /** Environment configuration type */
-interface EnvConfig extends Config<{
-  testEnv?: string;
-  override?: boolean;
-  path?: string;
-}> {}
+interface EnvConfig
+  extends Config<{
+    testEnv?: string;
+    override?: boolean;
+    path?: string;
+  }> {}
 
 /* ===== ADVANCED UTILITY CLASSES ===== */
 
@@ -72,7 +73,10 @@ export class DateTimeUtils {
    * @param adjustments - Time adjustments
    * @returns Formatted time string
    */
-  static generateTime(format: TimeFormat, adjustments: Pick<DateTimeAdjustment, 'hours' | 'minutes'> = {}): string {
+  static generateTime(
+    format: TimeFormat,
+    adjustments: Pick<DateTimeAdjustment, 'hours' | 'minutes'> = {}
+  ): string {
     const { hours = 0, minutes = 0 } = adjustments;
     return moment().add(minutes, 'm').add(hours, 'h').format(format);
   }
@@ -86,7 +90,7 @@ export class EnvironmentUtils {
   private static readonly DEFAULT_CONFIG: EnvConfig = {
     testEnv: process.env.TEST_ENV,
     override: Boolean(process.env.TEST_ENV),
-    path: process.env.TEST_ENV ? `.env.${process.env.TEST_ENV}` : '.env'
+    path: process.env.TEST_ENV ? `.env.${process.env.TEST_ENV}` : '.env',
   } as const;
 
   /**
@@ -95,10 +99,10 @@ export class EnvironmentUtils {
    */
   static configure(config: Partial<EnvConfig> = {}): void {
     const finalConfig = { ...this.DEFAULT_CONFIG, ...config };
-    
+
     require('dotenv').config({
       path: finalConfig.path,
-      override: finalConfig.override
+      override: finalConfig.override,
     });
   }
 
@@ -135,7 +139,7 @@ export class StringUtils {
     ALPHA: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
     NUMERIC: '0123456789',
     SPECIAL: '.-_@#$%&*!',
-    CUSTOM: 'AutoQAABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-'
+    CUSTOM: 'AutoQAABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-',
   } as const;
 
   /**
@@ -144,9 +148,12 @@ export class StringUtils {
    * @param charset - Character set to use
    * @returns Random string
    */
-  static generate(length: number, charset: keyof typeof StringUtils.CHARSET = 'ALPHANUMERIC'): string {
+  static generate(
+    length: number,
+    charset: keyof typeof StringUtils.CHARSET = 'ALPHANUMERIC'
+  ): string {
     const chars = this.CHARSET[charset];
-    return Array.from({ length }, () => 
+    return Array.from({ length }, () =>
       chars.charAt(Math.floor(Math.random() * chars.length))
     ).join('');
   }
@@ -176,9 +183,9 @@ export class StringUtils {
    * @returns UUID-like string
    */
   static generateUUID(): string {
-    return 'xxxx-xxxx-4xxx-yxxx-xxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return 'xxxx-xxxx-4xxx-yxxx-xxxx'.replace(/[xy]/g, c => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   }
@@ -197,28 +204,29 @@ export class WebUtils {
    * @returns Promise resolving to CSRF token
    */
   static async fetchCSRFToken(
-    page: Page, 
-    baseUrl?: string, 
+    page: Page,
+    baseUrl?: string,
     csrfEndpoint = '/api/csrf-token'
   ): Promise<string> {
-    const url = (baseUrl ?? EnvironmentUtils.get('APP_URL', 'https://localhost:3000')) + csrfEndpoint;
-    
+    const url =
+      (baseUrl ?? EnvironmentUtils.get('APP_URL', 'https://localhost:3000')) + csrfEndpoint;
+
     const cookies = await page.context().cookies();
     const sessionCookie = cookies.find(c => c.name === 'SESSION');
-    
+
     if (!sessionCookie) {
       throw new Error('Session cookie not found. Ensure user is logged in.');
     }
 
     const response = await page.request.get(url, {
-      headers: { Cookie: `SESSION=${sessionCookie.value}` }
+      headers: { Cookie: `SESSION=${sessionCookie.value}` },
     });
 
     if (!response.ok()) {
       throw new Error(`CSRF token fetch failed: ${response.status()} ${response.statusText()}`);
     }
 
-    const { csrfToken } = await response.json() as { csrfToken: string };
+    const { csrfToken } = (await response.json()) as { csrfToken: string };
     return csrfToken;
   }
 
@@ -276,19 +284,19 @@ export const Utils = {
   Environment: EnvironmentUtils,
   String: StringUtils,
   Web: WebUtils,
-  
+
   /** Legacy compatibility - use Utils.String.generate instead */
   /** @deprecated Use Utils.String.generate() */
   getRandomString: (length: number) => StringUtils.generate(length, 'CUSTOM'),
-  
+
   /** @deprecated Use Utils.String.generateInteger() */
   generateRandomInteger: StringUtils.generateInteger,
-  
+
   /** @deprecated Use Utils.String.generateEmail() */
   generateRandomEmail: () => StringUtils.generateEmail(),
-  
+
   /** @deprecated Use Utils.Web.fetchCSRFToken() */
-  fetchCSRFToken: WebUtils.fetchCSRFToken
+  fetchCSRFToken: WebUtils.fetchCSRFToken,
 } as const;
 
 export default Utils;

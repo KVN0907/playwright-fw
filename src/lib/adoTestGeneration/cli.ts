@@ -3,7 +3,7 @@
 /**
  * ADO Test Generation CLI
  * Command-line interface for generating Playwright tests from Azure DevOps work items
- * 
+ *
  * Usage:
  *   npm run generate-from-ado -- --workItems 12345,12346,12347
  *   npm run generate-from-ado -- --help
@@ -20,7 +20,7 @@ import * as dotenv from 'dotenv';
  */
 function loadEnvironmentConfig(envName: string = 'ado') {
   const envPath = path.join(process.cwd(), 'config', 'environments', `${envName}.env`);
-  
+
   // Check if environment file exists
   const fs = require('fs');
   if (!fs.existsSync(envPath)) {
@@ -28,31 +28,31 @@ function loadEnvironmentConfig(envName: string = 'ado') {
     Log.info('Available environment files: dev.env, qa.env, ado.env');
     process.exit(1);
   }
-  
+
   // Load environment variables
   const result = dotenv.config({ path: envPath });
   if (result.error) {
     Log.error(`❌ Failed to load environment file: ${result.error.message}`);
     process.exit(1);
   }
-  
+
   Log.info(`📁 Loaded configuration from: ${envPath}`);
-  
+
   // ADO Configuration - Loaded from environment variables
   const config = {
     organization: process.env.ADO_ORGANIZATION || 'EYGS2',
-    project: process.env.ADO_PROJECT || 'eycompliancemanager', 
+    project: process.env.ADO_PROJECT || 'eycompliancemanager',
     personalAccessToken: process.env.ADO_PERSONAL_ACCESS_TOKEN || '',
     baseUrl: process.env.ADO_BASE_URL || 'https://dev.azure.com',
-    apiVersion: process.env.ADO_API_VERSION || '7.0'
+    apiVersion: process.env.ADO_API_VERSION || '7.0',
   };
-  
+
   // Validate required configuration
   if (!config.personalAccessToken) {
     Log.error(`❌ ADO_PERSONAL_ACCESS_TOKEN is required. Please set it in ${envPath}`);
     process.exit(1);
   }
-  
+
   return config;
 }
 
@@ -70,7 +70,7 @@ function parseArgs(): CliOptions {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     switch (arg) {
       case '--workItems':
       case '-w':
@@ -143,16 +143,16 @@ CONFIGURATION:
 async function testConnection(adoConfig: any): Promise<boolean> {
   try {
     const integration = new ADOIntegration(adoConfig);
-    
+
     // Test connection using the built-in method
     const connectionOk = await integration.testConnection();
-    
+
     if (connectionOk) {
       Log.info(`✅ ADO Connection successful`);
     } else {
       Log.error(`❌ ADO Connection failed`);
     }
-    
+
     return connectionOk;
   } catch (error) {
     Log.error(`❌ ADO Connection failed: ${error}`);
@@ -163,38 +163,39 @@ async function testConnection(adoConfig: any): Promise<boolean> {
 async function analyzeWorkItems(workItemIds: number[], adoConfig: any) {
   try {
     const integration = new ADOIntegration(adoConfig);
-    
+
     Log.info(`📊 Analyzing ${workItemIds.length} work items...`);
-    
+
     let withAcceptanceCriteria = 0;
     let withNeither = 0;
-    
+
     for (const id of workItemIds) {
       try {
         const workItem = await integration.fetchWorkItem(id);
-        const hasAC = workItem.acceptanceCriteria && 
-                      workItem.acceptanceCriteria.trim().length > 0 && 
-                      !workItem.acceptanceCriteria.includes('No acceptance criteria found');
-        
+        const hasAC =
+          workItem.acceptanceCriteria &&
+          workItem.acceptanceCriteria.trim().length > 0 &&
+          !workItem.acceptanceCriteria.includes('No acceptance criteria found');
+
         if (hasAC) {
           withAcceptanceCriteria++;
         } else {
           withNeither++;
         }
-        
-        Log.info(`   ${id}: ${workItem.title || 'No title'} - AC: ${hasAC ? '✅' : '❌'} - Type: ${workItem.workItemType} - State: ${workItem.state}`);
-        
+
+        Log.info(
+          `   ${id}: ${workItem.title || 'No title'} - AC: ${hasAC ? '✅' : '❌'} - Type: ${workItem.workItemType} - State: ${workItem.state}`
+        );
       } catch (error) {
         Log.error(`   ${id}: Failed to fetch - ${error}`);
         withNeither++;
       }
     }
-    
+
     Log.info('\n📋 Analysis Results:');
     Log.info(`   Total work items: ${workItemIds.length}`);
     Log.info(`   With acceptance criteria: ${withAcceptanceCriteria}`);
     Log.info(`   Without acceptance criteria: ${withNeither}`);
-    
   } catch (error) {
     Log.error(`❌ Analysis failed: ${error}`);
   }
@@ -203,7 +204,7 @@ async function analyzeWorkItems(workItemIds: number[], adoConfig: any) {
 async function generateTests(workItemIds: number[], adoConfig: any) {
   try {
     Log.info(`⚙️ Generating tests for ${workItemIds.length} work items...`);
-    
+
     // Create ADO Test Generator with configuration
     const config: ADOTestGeneratorConfig = {
       ado: adoConfig,
@@ -213,15 +214,18 @@ async function generateTests(workItemIds: number[], adoConfig: any) {
         promptFilePath: path.join(process.cwd(), 'prompt.md'),
         aiProvider: 'vscode',
         includePageObjects: process.env.ADO_INCLUDE_PAGE_OBJECTS === 'true',
-        basePageObjectsPath: path.join(process.cwd(), process.env.ADO_PAGE_OBJECTS_PATH || 'src/pages/common'),
-        testSpecsPath: path.join(process.cwd(), 'src', 'tests')
-      }
+        basePageObjectsPath: path.join(
+          process.cwd(),
+          process.env.ADO_PAGE_OBJECTS_PATH || 'src/pages/common'
+        ),
+        testSpecsPath: path.join(process.cwd(), 'src', 'tests'),
+      },
     };
-    
+
     const generator = new ADOTestGenerator(config);
-    
+
     const result = await generator.generateFromWorkItemIds(workItemIds);
-    
+
     Log.info('\n✅ Test generation completed!');
     Log.info(`📊 Summary:`);
     Log.info(`   Total work items: ${result.summary.totalWorkItems}`);
@@ -230,14 +234,13 @@ async function generateTests(workItemIds: number[], adoConfig: any) {
     Log.info(`   Failed generations: ${result.summary.failedGenerations}`);
     Log.info(`   Generated files: ${result.summary.generatedFiles.length}`);
     Log.info(`   Processing time: ${result.summary.processingTime}ms`);
-    
+
     if (result.summary.generatedFiles.length > 0) {
       Log.info('\n📁 Generated files:');
       result.summary.generatedFiles.forEach((file: string) => {
         Log.info(`   - ${file}`);
       });
     }
-    
   } catch (error) {
     Log.error(`❌ Test generation failed: ${error}`);
   }
@@ -251,7 +254,7 @@ async function runGeneration(options: CliOptions) {
     // Load environment configuration
     const envName = options.env || 'ado';
     const adoConfig = loadEnvironmentConfig(envName);
-    
+
     Log.info(`🔧 Configuration loaded:`);
     Log.info(`   Organization: ${adoConfig.organization}`);
     Log.info(`   Project: ${adoConfig.project}`);
@@ -276,7 +279,7 @@ async function runGeneration(options: CliOptions) {
     // Test connection
     Log.info('Testing ADO connection...');
     const connectionOk = await testConnection(adoConfig);
-    
+
     if (!connectionOk) {
       Log.error(`Please check your ADO configuration in config/environments/${envName}.env`);
       process.exit(1);
@@ -287,7 +290,6 @@ async function runGeneration(options: CliOptions) {
     } else {
       await generateTests(workItemIds, adoConfig);
     }
-
   } catch (error) {
     Log.error(`❌ Generation failed: ${error}`);
     process.exit(1);
@@ -313,7 +315,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Run the CLI
-main().catch((error) => {
+main().catch(error => {
   Log.error(`CLI error: ${error}`);
   process.exit(1);
 });

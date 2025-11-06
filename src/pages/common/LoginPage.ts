@@ -47,14 +47,14 @@ interface LoginElements {
 /** SSO login strategy for Microsoft/Azure AD */
 class SSOLoginStrategy implements LoginStrategy {
   readonly name = 'SSO';
-  
+
   canHandle(url: string): boolean {
     return url.includes('login.microsoftonline.com') || url.includes('azuread');
   }
-  
+
   async execute(credentials: LoginCredentials, elements: LoginElements): Promise<void> {
     Log.info('🔐 Executing SSO login strategy');
-    
+
     const { sso } = elements;
     await sso.emailInput.fill(credentials.email);
     await sso.nextButton.click();
@@ -66,14 +66,14 @@ class SSOLoginStrategy implements LoginStrategy {
 /** Form-based login strategy */
 class FormLoginStrategy implements LoginStrategy {
   readonly name = 'Form';
-  
+
   canHandle(url: string): boolean {
     return !url.includes('login.microsoftonline.com');
   }
-  
+
   async execute(credentials: LoginCredentials, elements: LoginElements): Promise<void> {
     Log.info('📝 Executing form-based login strategy');
-    
+
     const { form } = elements;
     await form.usernameInput.fill(credentials.email);
     await form.passwordInput.fill(credentials.password);
@@ -94,31 +94,28 @@ export class LoginPage extends BasePage<LoginPage> {
 
   constructor(page: Page) {
     super(page);
-    
+
     // Initialize element selectors with caching
     this.elements = {
       landing: {
         loginButton: this.getLocator('role=button[name="Login"]', 'landingLogin'),
-        welcomeHeading: this.getLocator('[role="heading"][name*="Good Day"]', 'welcome')
+        welcomeHeading: this.getLocator('[role="heading"][name*="Good Day"]', 'welcome'),
       },
       sso: {
         emailInput: this.getLocator('input[placeholder*="someone@example"]', 'ssoEmail'),
         nextButton: this.getLocator('role=button[name="Next"]', 'ssoNext'),
         passwordInput: this.getLocator('input[placeholder="Password"]', 'ssoPassword'),
-        signInButton: this.getLocator('role=button[name="Sign in"]', 'ssoSignIn')
+        signInButton: this.getLocator('role=button[name="Sign in"]', 'ssoSignIn'),
       },
       form: {
         usernameInput: this.getLocator('[role="textbox"][name*="Username"]', 'formUsername'),
         passwordInput: this.getLocator('[role="textbox"][name="Password"]', 'formPassword'),
-        signInButton: this.getLocator('role=button[name="Sign In"]', 'formSignIn')
-      }
+        signInButton: this.getLocator('role=button[name="Sign In"]', 'formSignIn'),
+      },
     };
 
     // Initialize login strategies
-    this.strategies = [
-      new SSOLoginStrategy(),
-      new FormLoginStrategy()
-    ] as const;
+    this.strategies = [new SSOLoginStrategy(), new FormLoginStrategy()] as const;
   }
 
   /* ===== PUBLIC API METHODS ===== */
@@ -140,31 +137,34 @@ export class LoginPage extends BasePage<LoginPage> {
    * @returns Fluent interface for method chaining
    */
   async login(
-    credentialsOrEmail: LoginCredentials | string, 
+    credentialsOrEmail: LoginCredentials | string,
     password?: string
   ): Promise<LoginPage> {
     Log.info('🚀 Initiating login process');
-    
-    const credentials: LoginCredentials = typeof credentialsOrEmail === 'string' 
-      ? { email: credentialsOrEmail, password: password! }
-      : credentialsOrEmail;
-    
+
+    const credentials: LoginCredentials =
+      typeof credentialsOrEmail === 'string'
+        ? { email: credentialsOrEmail, password: password! }
+        : credentialsOrEmail;
+
     // Click initial login button
-    await this.click(this.elements.landing.loginButton, { description: 'Landing page login button' });
-    
+    await this.click(this.elements.landing.loginButton, {
+      description: 'Landing page login button',
+    });
+
     // Wait for navigation and determine strategy
     await this.waitForLoad('networkidle');
     const currentUrl = this.page.url();
-    
+
     // Find and execute appropriate strategy
     const strategy = this.strategies.find(s => s.canHandle(currentUrl));
     if (!strategy) {
       throw new Error(`No login strategy found for URL: ${currentUrl}`);
     }
-    
+
     Log.info(`📋 Using ${strategy.name} login strategy`);
     await strategy.execute(credentials, this.elements);
-    
+
     return this;
   }
 
@@ -176,11 +176,11 @@ export class LoginPage extends BasePage<LoginPage> {
    */
   async verifyLoginSuccess(successElement?: Locator, timeout = 10000): Promise<LoginPage> {
     const elementToVerify = successElement || this.elements.landing.welcomeHeading;
-    
+
     Log.info('🔍 Verifying successful login');
     await this.waitForElement(elementToVerify, 'visible', timeout);
     await this.verifyVisible(elementToVerify);
-    
+
     return this;
   }
 
@@ -195,11 +195,11 @@ export class LoginPage extends BasePage<LoginPage> {
   }> {
     const currentUrl = this.page.url();
     const strategy = this.strategies.find(s => s.canHandle(currentUrl));
-    
+
     return {
       isLoggedIn: !currentUrl.includes('login'),
       currentUrl,
-      authMethod: strategy?.name || 'Unknown'
+      authMethod: strategy?.name || 'Unknown',
     };
   }
 }

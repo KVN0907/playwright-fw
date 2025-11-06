@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/baseTest';
+import { test, expect } from '../../fixtures/advancedFixtures';
 import Log from '../../../lib/Log';
 
 test.describe('Diagnostic Tests', () => {
