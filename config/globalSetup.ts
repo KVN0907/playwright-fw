@@ -34,7 +34,7 @@ function loadEnvWithDebug() {
   return true;
 }
 
-async function globalSetup(config: FullConfig) {
+async function globalSetup(_config: FullConfig) {
   // Load environment variables with debug info
   const envLoaded = loadEnvWithDebug();
   if (!envLoaded) {
@@ -105,8 +105,8 @@ async function globalSetup(config: FullConfig) {
 
     // For browser session authentication, save storage state
     if (authManager.getAuthType() === 'browser_session') {
-      // Store authentication state
-      const authPath = path.resolve(__dirname, '../auth.json');
+      // Store authentication state (use storageState.json to match config)
+      const authPath = path.resolve(__dirname, '../storageState.json');
       await page.context().storageState({ path: authPath });
       console.log(`Authentication state saved to: ${authPath}`);
     } else {

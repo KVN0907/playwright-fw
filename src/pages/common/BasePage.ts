@@ -47,8 +47,10 @@ type AssertionResult<T = void> = Promise<T>;
 /**
  * @decorator LogAction
  * @description Automatically logs method calls with parameters
+ * @unused - Available for future use
  */
-function LogAction(action: string) {
+
+function _LogAction(action: string) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
@@ -73,13 +75,15 @@ function LogAction(action: string) {
 /**
  * @decorator Retry
  * @description Automatically retries failed operations
+ * @unused - Available for future use
  */
-function Retry(maxRetries: number = 3) {
+
+function _Retry(maxRetries: number = 3) {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (...args: any[]) {
-      let lastError: Error;
+      let lastError: Error | undefined;
 
       for (let i = 0; i <= maxRetries; i++) {
         try {
@@ -93,7 +97,9 @@ function Retry(maxRetries: number = 3) {
         }
       }
 
-      throw lastError!;
+      if (lastError) {
+        throw lastError;
+      }
     };
 
     return descriptor;
@@ -162,7 +168,11 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
       this.elementCache.set(key, this.page.locator(selector));
     }
 
-    return this.elementCache.get(key)!;
+    const cached = this.elementCache.get(key);
+    if (!cached) {
+      throw new Error(`Failed to cache element with selector: ${selector}`);
+    }
+    return cached;
   }
 
   /**

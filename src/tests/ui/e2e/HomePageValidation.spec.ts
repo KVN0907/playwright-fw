@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '../../fixtures/advancedFixtures';
 import { HomePage } from '../../../pages/common/HomePage';
 
 test.describe('Home Page Validation Tests', () => {

@@ -1,5 +1,4 @@
-import { expect } from '@playwright/test';
-import { APIResponse } from '@playwright/test';
+import { expect, APIResponse } from '@playwright/test';
 import Log from '../Log';
 
 export interface ValidationConfig {

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures/advancedFixtures';
 import { AuthenticationManager } from '../../lib/auth/AuthenticationManager';
 import Log from '../../lib/Log';
 
