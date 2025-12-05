@@ -251,10 +251,10 @@ export class WebUtils {
   static async safeInteraction<T>(
     page: Page,
     selector: string,
-    action: (element: any) => Promise<T>,
+    action: (element: import('@playwright/test').Locator) => Promise<T>,
     retries = 3
   ): Promise<T> {
-    let lastError: Error;
+    let lastError: Error | undefined;
 
     for (let i = 0; i <= retries; i++) {
       try {
@@ -269,7 +269,9 @@ export class WebUtils {
       }
     }
 
-    throw new Error(`Failed after ${retries + 1} attempts: ${lastError!.message}`);
+    throw new Error(
+      `Failed after ${retries + 1} attempts: ${lastError?.message || 'Unknown error'}`
+    );
   }
 }
 

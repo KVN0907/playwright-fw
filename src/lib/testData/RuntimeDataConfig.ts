@@ -17,7 +17,7 @@ export interface RuntimeDataConfig {
   users?: RuntimeUserConfig[];
   organizations?: RuntimeOrgConfig[];
   locations?: RuntimeLocationConfig[];
-  custom?: Record<string, any>;
+  custom?: Record<string, unknown>;
   dataFile?: string;
   generateOnDemand?: boolean;
 }
@@ -29,14 +29,14 @@ export interface RuntimeUserConfig {
   role?: string;
   organization?: string;
   count?: number; // Generate multiple users
-  [key: string]: any; // Allow dynamic properties from CLI
+  [key: string]: unknown; // Allow dynamic properties from CLI
 }
 
 export interface RuntimeOrgConfig {
   name?: string;
   type?: 'enterprise' | 'business' | 'startup' | 'nonprofit';
   count?: number;
-  [key: string]: any; // Allow dynamic properties from CLI
+  [key: string]: unknown; // Allow dynamic properties from CLI
 }
 
 export interface RuntimeLocationConfig {
@@ -44,7 +44,7 @@ export interface RuntimeLocationConfig {
   type?: string;
   entity?: string;
   count?: number;
-  [key: string]: any; // Allow dynamic properties from CLI
+  [key: string]: unknown; // Allow dynamic properties from CLI
 }
 
 /* ===== DATA SOURCES ===== */
@@ -68,7 +68,7 @@ export class RuntimeConfigManager {
   private static instance: RuntimeConfigManager;
   private config: RuntimeDataConfig = {};
   private dataSources: DataSourceConfig[] = [];
-  private resolvedData: Map<string, any> = new Map();
+  private resolvedData: Map<string, unknown> = new Map();
 
   private constructor() {
     Log.info('🔧 RuntimeConfigManager initialized');
@@ -157,23 +157,23 @@ export class RuntimeConfigManager {
     args.forEach(arg => {
       if (arg.startsWith('--user-')) {
         const [key, value] = arg.replace('--user-', '').split('=');
-        config.users![0][key] = value;
+        if (config.users?.[0]) config.users[0][key] = value;
       } else if (arg.startsWith('--org-')) {
         const [key, value] = arg.replace('--org-', '').split('=');
-        config.organizations![0][key] = value;
+        if (config.organizations?.[0]) config.organizations[0][key] = value;
       } else if (arg.startsWith('--location-')) {
         const [key, value] = arg.replace('--location-', '').split('=');
-        config.locations![0][key] = value;
+        if (config.locations?.[0]) config.locations[0][key] = value;
       }
     });
 
-    if (Object.keys(config.users![0]).length > 0) {
+    if (config.users?.[0] && Object.keys(config.users[0]).length > 0) {
       this.mergeConfig({ users: config.users });
     }
-    if (Object.keys(config.organizations![0]).length > 0) {
+    if (config.organizations?.[0] && Object.keys(config.organizations[0]).length > 0) {
       this.mergeConfig({ organizations: config.organizations });
     }
-    if (Object.keys(config.locations![0]).length > 0) {
+    if (config.locations?.[0] && Object.keys(config.locations[0]).length > 0) {
       this.mergeConfig({ locations: config.locations });
     }
   }
@@ -344,14 +344,14 @@ export class RuntimeConfigManager {
   /**
    * Get custom data by key
    */
-  getCustomData<T = any>(key: string): T | undefined {
+  getCustomData<T = unknown>(key: string): T | undefined {
     return this.config.custom?.[key] as T;
   }
 
   /**
    * Store resolved data
    */
-  storeResolvedData(key: string, data: any): void {
+  storeResolvedData(key: string, data: unknown): void {
     this.resolvedData.set(key, data);
     Log.info(`📦 Stored resolved data: ${key}`);
   }
@@ -359,7 +359,7 @@ export class RuntimeConfigManager {
   /**
    * Get resolved data
    */
-  getResolvedData<T = any>(key: string): T | undefined {
+  getResolvedData<T = unknown>(key: string): T | undefined {
     return this.resolvedData.get(key) as T;
   }
 

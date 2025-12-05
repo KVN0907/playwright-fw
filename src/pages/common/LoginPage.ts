@@ -144,7 +144,7 @@ export class LoginPage extends BasePage<LoginPage> {
 
     const credentials: LoginCredentials =
       typeof credentialsOrEmail === 'string'
-        ? { email: credentialsOrEmail, password: password! }
+        ? { email: credentialsOrEmail, password: password || '' }
         : credentialsOrEmail;
 
     // Click initial login button

@@ -22,7 +22,7 @@ export interface Organization {
   website?: string;
   status: 'active' | 'inactive' | 'suspended';
   features: string[];
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   createdAt?: Date;
 }
 
@@ -174,7 +174,7 @@ export class OrganizationBuilder extends BaseBuilder<Organization> {
    * @param settings - Settings object
    * @returns Builder instance
    */
-  withSettings(settings: Record<string, any>): this {
+  withSettings(settings: Record<string, unknown>): this {
     this.data.settings = { ...this.data.settings, ...settings };
     return this;
   }

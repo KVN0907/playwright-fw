@@ -8,6 +8,7 @@ import { APIRequestContext, APIResponse, Page } from '@playwright/test';
 import Log from './Log';
 import { ConfigManager } from './config/ConfigManager';
 import { APIError } from './errors';
+import { AuthenticationManager } from './auth/AuthenticationManager';
 
 export interface APITestOptions {
   headers?: Record<string, string>;
@@ -15,6 +16,7 @@ export interface APITestOptions {
   ignoreHTTPSErrors?: boolean;
   retries?: number;
   retryDelay?: number;
+  skipAuth?: boolean; // Skip authentication for public endpoints
 }
 
 export interface RetryConfig {
@@ -25,7 +27,7 @@ export interface RetryConfig {
 
 export interface RequestInterceptor {
   name: string;
-  onRequest: (endpoint: string, options: any) => Promise<void> | void;
+  onRequest: (endpoint: string, options: Record<string, unknown>) => Promise<void> | void;
 }
 
 export interface ResponseInterceptor {
@@ -46,6 +48,8 @@ export class APITestHelper {
     timestamp: Date;
     duration?: number;
   }> = [];
+  private authManager: AuthenticationManager;
+  private isAuthenticated: boolean = false;
 
   constructor(apiContext: APIRequestContext, _page?: Page) {
     this.apiContext = apiContext;
@@ -59,6 +63,36 @@ export class APITestHelper {
       retryDelay: 1000,
       retryableStatusCodes: [408, 429, 500, 502, 503, 504],
     };
+    this.authManager = AuthenticationManager.getInstance();
+  }
+
+  /**
+   * Ensure authentication before making API requests
+   */
+  private async ensureAuthentication(skipAuth?: boolean): Promise<void> {
+    if (skipAuth) return;
+
+    const authType = this.authManager.getAuthType();
+
+    // For OAuth2 and JWT, authenticate via API
+    if (
+      (authType === 'oauth2' || authType === 'jwt_token' || authType === 'bearer_token') &&
+      !this.isAuthenticated
+    ) {
+      Log.info('Authenticating for API requests...');
+      const result = await this.authManager.authenticate(undefined, this.apiContext);
+
+      if (result.success) {
+        this.isAuthenticated = true;
+        // Merge auth headers into default headers
+        if (result.headers) {
+          this.defaultHeaders = { ...this.defaultHeaders, ...result.headers };
+        }
+        Log.info('✅ API authentication successful');
+      } else {
+        Log.warn(`⚠️  API authentication failed: ${result.error}`);
+      }
+    }
   }
 
   private getFullURL(endpoint: string): string {
@@ -103,7 +137,10 @@ export class APITestHelper {
   /**
    * Execute request interceptors
    */
-  private async executeRequestInterceptors(endpoint: string, options: any): Promise<void> {
+  private async executeRequestInterceptors(
+    endpoint: string,
+    options: Record<string, unknown>
+  ): Promise<void> {
     for (const interceptor of this.requestInterceptors) {
       try {
         await interceptor.onRequest(endpoint, options);
@@ -135,7 +172,7 @@ export class APITestHelper {
     retries?: number
   ): Promise<T> {
     const maxRetries = retries ?? this.retryConfig.maxRetries;
-    let lastError: Error;
+    let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
@@ -164,7 +201,7 @@ export class APITestHelper {
     }
 
     throw new APIError(
-      `${operationName} failed after ${maxRetries} retries: ${lastError!.message}`,
+      `${operationName} failed after ${maxRetries} retries: ${lastError?.message || 'Unknown error'}`,
       operationName,
       'GET',
       undefined,
@@ -220,6 +257,8 @@ export class APITestHelper {
   }
 
   async get(endpoint: string, options?: APITestOptions): Promise<APIResponse> {
+    await this.ensureAuthentication(options?.skipAuth);
+
     const url = this.getFullURL(endpoint);
     const startTime = Date.now();
 
@@ -268,6 +307,8 @@ export class APITestHelper {
     data?: Record<string, unknown>,
     options?: APITestOptions
   ): Promise<APIResponse> {
+    await this.ensureAuthentication(options?.skipAuth);
+
     const url = this.getFullURL(endpoint);
     const startTime = Date.now();
 
@@ -316,6 +357,8 @@ export class APITestHelper {
     data?: Record<string, unknown>,
     options?: APITestOptions
   ): Promise<APIResponse> {
+    await this.ensureAuthentication(options?.skipAuth);
+
     const url = this.getFullURL(endpoint);
     Log.info(`API PUT: ${url}`);
 
@@ -331,6 +374,8 @@ export class APITestHelper {
   }
 
   async delete(endpoint: string, options?: APITestOptions): Promise<APIResponse> {
+    await this.ensureAuthentication(options?.skipAuth);
+
     const url = this.getFullURL(endpoint);
     Log.info(`API DELETE: ${url}`);
 

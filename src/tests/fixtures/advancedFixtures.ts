@@ -4,16 +4,7 @@
  * @version 1.0
  */
 
-import {
-  test as base,
-  Page,
-  BrowserContext,
-  TestInfo,
-  PlaywrightTestArgs,
-  PlaywrightTestOptions,
-  PlaywrightWorkerArgs,
-  PlaywrightWorkerOptions,
-} from '@playwright/test';
+import { test as base, Page, TestInfo, PlaywrightWorkerArgs } from '@playwright/test';
 import { APITestHelper } from '../../lib/APITestHelper';
 import { HomePage } from '../../pages/common/HomePage';
 import { LoginPage } from '../../pages/common/LoginPage';
@@ -69,17 +60,17 @@ export interface TestContext {
   testName: string;
   startTime: Date;
   environment: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 
   /**
    * Add metadata to test context
    */
-  addMetadata(key: string, value: any): void;
+  addMetadata(key: string, value: unknown): void;
 
   /**
    * Get metadata from test context
    */
-  getMetadata(key: string): any;
+  getMetadata(key: string): unknown;
 }
 
 /**
@@ -137,7 +128,7 @@ export const test = base.extend<AdvancedFixtures>({
   apiHelper: async (
     { playwright }: PlaywrightWorkerArgs,
     use: (r: APITestHelper) => Promise<void>,
-    testInfo: TestInfo
+    _testInfo: TestInfo
   ) => {
     const apiContext = await playwright.request.newContext({
       ignoreHTTPSErrors: true,
@@ -156,7 +147,7 @@ export const test = base.extend<AdvancedFixtures>({
   authenticatedApi: async (
     { playwright }: PlaywrightWorkerArgs,
     use: (r: APITestHelper) => Promise<void>,
-    testInfo: TestInfo
+    _testInfo: TestInfo
   ) => {
     const authPath = path.resolve(process.cwd(), 'auth.json');
 
@@ -221,11 +212,11 @@ export const test = base.extend<AdvancedFixtures>({
       environment: process.env.NODE_ENV || 'qa',
       metadata: {},
 
-      addMetadata(key: string, value: any) {
+      addMetadata(key: string, value: unknown) {
         this.metadata[key] = value;
       },
 
-      getMetadata(key: string) {
+      getMetadata(key: string): unknown {
         return this.metadata[key];
       },
     };
@@ -241,7 +232,7 @@ export const test = base.extend<AdvancedFixtures>({
   },
 
   // Cleanup Stack for automatic resource management
-  cleanupStack: async ({}: {}, use: (r: CleanupStack) => Promise<void>, testInfo: TestInfo) => {
+  cleanupStack: async ({}: {}, use: (r: CleanupStack) => Promise<void>, _testInfo: TestInfo) => {
     const cleanups: Array<{ name: string; fn: () => Promise<void> }> = [];
 
     const stack: CleanupStack = {
@@ -295,7 +286,7 @@ export const testWithPlugins = test.extend({
     await use(page);
 
     await pluginManager.executeStage('onTestEnd', context, {
-      status: testInfo.status as any,
+      status: testInfo.status as 'passed' | 'failed' | 'skipped' | 'timedOut',
       duration: testInfo.duration,
       retry: testInfo.retry,
       attachments: testInfo.attachments,

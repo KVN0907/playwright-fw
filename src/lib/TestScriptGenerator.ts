@@ -3,10 +3,23 @@
  * Uses existing framework patterns and prompt file guidelines
  */
 
-import { ADOWorkItem } from './ado/ADOIntegration';
 import Log from './Log';
 import * as fs from 'fs';
 import * as path from 'path';
+
+// ADO Work Item interface
+export interface ADOWorkItem {
+  id: number;
+  title: string;
+  type?: string;
+  workItemType?: string;
+  state: string;
+  assignedTo?: string;
+  description?: string;
+  acceptanceCriteria?: string;
+  tags?: string[];
+  priority?: string;
+}
 
 export interface TestScriptConfig {
   outputDirectory: string;
@@ -277,7 +290,7 @@ Generate tests that cover all acceptance criteria with proper error handling and
   /**
    * Use VS Code's built-in AI capabilities
    */
-  private async callVSCodeAI(prompt: string): Promise<string> {
+  private async callVSCodeAI(_prompt: string): Promise<string> {
     try {
       // Check if running in VS Code context
       if (typeof process !== 'undefined' && process.env.VSCODE_PID) {
@@ -300,7 +313,7 @@ Generate tests that cover all acceptance criteria with proper error handling and
   /**
    * Call OpenAI API
    */
-  private async callOpenAI(prompt: string): Promise<string> {
+  private async callOpenAI(_prompt: string): Promise<string> {
     // Placeholder for OpenAI integration
     Log.info('OpenAI integration not implemented yet - using mock');
     return this.getMockAIResponse();
@@ -309,7 +322,7 @@ Generate tests that cover all acceptance criteria with proper error handling and
   /**
    * Call Anthropic Claude API
    */
-  private async callAnthropic(prompt: string): Promise<string> {
+  private async callAnthropic(_prompt: string): Promise<string> {
     // Placeholder for Anthropic integration
     Log.info('Anthropic integration not implemented yet - using mock');
     return this.getMockAIResponse();
@@ -462,7 +475,7 @@ test.describe('${workItem.title}', () => {
 
 ${testCases
   .map(
-    (testCase, index) => `
+    testCase => `
   test('${testCase.testName}', async () => {
     // ${testCase.description}
     

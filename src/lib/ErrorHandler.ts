@@ -62,7 +62,7 @@ export class ErrorHandler {
     delayMs: number = 1000,
     operationName?: string
   ): Promise<T> {
-    let lastError: Error;
+    let lastError: Error | undefined;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
@@ -81,7 +81,7 @@ export class ErrorHandler {
     }
 
     throw new Error(
-      `Operation failed after ${maxRetries} attempts. Last error: ${lastError!.message}`
+      `Operation failed after ${maxRetries} attempts. Last error: ${lastError?.message || 'Unknown error'}`
     );
   }
 
@@ -98,7 +98,7 @@ export class ErrorHandler {
         if (await condition()) {
           return;
         }
-      } catch (error) {
+      } catch {
         // Continue waiting if condition throws an error
       }
       await this.delay(intervalMs);

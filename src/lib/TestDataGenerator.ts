@@ -84,7 +84,9 @@ export class TestDataGenerator {
    * Generate library-specific test data with dynamic values
    * Only name and email are kept static as per requirement
    */
-  static generateLibraryData(overrides: Partial<any> = {}): any {
+  static generateLibraryData(
+    overrides: Partial<Record<string, unknown>> = {}
+  ): Record<string, unknown> {
     const defaultData = {
       address: this.generateAddress(),
       attribute1: this.generateAttribute(),
@@ -120,7 +122,10 @@ export class TestDataGenerator {
   /**
    * Load and merge with base request JSON
    */
-  static async loadRequestTemplate(templatePath: string, dynamicOverrides: any = {}): Promise<any> {
+  static async loadRequestTemplate(
+    templatePath: string,
+    dynamicOverrides: Partial<Record<string, unknown>> = {}
+  ): Promise<Record<string, unknown>> {
     try {
       const fs = await import('fs-extra');
       const baseRequest = await fs.readJson(templatePath);
@@ -130,7 +135,7 @@ export class TestDataGenerator {
 
       // Merge base template with dynamic data
       return { ...baseRequest, ...dynamicData };
-    } catch (error) {
+    } catch {
       console.warn(`Could not load template from ${templatePath}, using dynamic data only`);
       return this.generateLibraryData(dynamicOverrides);
     }

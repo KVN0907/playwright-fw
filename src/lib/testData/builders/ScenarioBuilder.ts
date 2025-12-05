@@ -19,7 +19,7 @@ export interface TestScenario {
   users: User[];
   organizations: Organization[];
   locations: Location[];
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   createdAt: Date;
 }
 
@@ -144,7 +144,7 @@ export class ScenarioBuilder extends BaseBuilder<TestScenario> {
    * @param value - Metadata value
    * @returns Builder instance
    */
-  addMetadata(key: string, value: any): this {
+  addMetadata(key: string, value: unknown): this {
     if (!this.data.metadata) this.data.metadata = {};
     this.data.metadata[key] = value;
     return this;

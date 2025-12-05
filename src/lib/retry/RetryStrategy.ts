@@ -177,7 +177,7 @@ export class RetryExecutor {
     };
 
     const finalConfig = { ...defaultConfig, ...config };
-    let lastError: Error;
+    let lastError: Error | undefined;
     let attempt = 0;
 
     while (attempt <= finalConfig.maxRetries) {
@@ -215,7 +215,8 @@ export class RetryExecutor {
     }
 
     Log.error(`❌ All ${finalConfig.maxRetries + 1} attempts failed`);
-    throw lastError!;
+    if (lastError) throw lastError;
+    throw new Error('All retry attempts failed');
   }
 
   /**
@@ -275,10 +276,10 @@ export class RetryExecutor {
  * @param customConfig - Custom retry configuration
  */
 export function RetryWithStrategy(category: ErrorCategory, customConfig?: Partial<RetryConfig>) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: unknown, _propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const config = {
         ...RetryStrategies.getConfig(category),
         ...customConfig,
@@ -294,11 +295,11 @@ export function RetryWithStrategy(category: ErrorCategory, customConfig?: Partia
 /**
  * Auto-categorize and retry decorator
  */
-export function AutoRetry(customConfig?: Partial<RetryConfig>) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+export function AutoRetry(_customConfig?: Partial<RetryConfig>) {
+  return function (_target: unknown, _propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       return await RetryExecutor.executeWithCategory(() => originalMethod.apply(this, args));
     };
 

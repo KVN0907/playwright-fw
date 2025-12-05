@@ -5,7 +5,7 @@
  */
 
 import Log from '../Log';
-import { IPlugin, PluginMetadata, PluginConfig, FrameworkContext, TestResult } from './IPlugin';
+import { IPlugin, PluginMetadata, PluginConfig, FrameworkContext } from './IPlugin';
 
 /**
  * @abstract BasePlugin
@@ -40,10 +40,10 @@ export abstract class BasePlugin implements IPlugin {
 
   /**
    * Validate plugin can run in current environment
-   * @param context - Framework context
+   * @param _context - Framework context
    * @returns True if plugin can run
    */
-  async canActivate(context: FrameworkContext): Promise<boolean> {
+  async canActivate(_context: FrameworkContext): Promise<boolean> {
     return this.config.enabled !== false;
   }
 

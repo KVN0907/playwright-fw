@@ -77,7 +77,7 @@ export interface LogContext {
   tenant?: string;
   userId?: string;
   correlationId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

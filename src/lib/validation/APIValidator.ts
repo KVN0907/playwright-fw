@@ -25,7 +25,7 @@ export class APIValidator {
   static async validateBasic<T>(
     response: APIResponse,
     expectedStatus: number = 200,
-    endpointName: string = 'API'
+    _endpointName: string = 'API'
   ): Promise<T> {
     return BaseValidator.validateAndExtractJson<T>(response, expectedStatus);
   }

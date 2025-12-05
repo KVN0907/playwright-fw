@@ -341,9 +341,9 @@ export class RuntimeDataResolver {
   /**
    * Auto-resolve: intelligently decide what to create based on runtime config
    */
-  static autoResolve<T = any>(
+  static autoResolve<T = unknown>(
     type: 'user' | 'organization' | 'location' | 'scenario',
-    identifier?: any,
+    identifier?: unknown,
     options: ResolverOptions = {}
   ): T {
     switch (type) {

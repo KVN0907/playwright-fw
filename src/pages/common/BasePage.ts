@@ -51,10 +51,10 @@ type AssertionResult<T = void> = Promise<T>;
  */
 
 function _LogAction(action: string) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const description = args.find(arg => typeof arg === 'string') || propertyKey;
       Log.info(`🎬 ${action}: ${description}`);
 
@@ -79,10 +79,10 @@ function _LogAction(action: string) {
  */
 
 function _Retry(maxRetries: number = 3) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       let lastError: Error | undefined;
 
       for (let i = 0; i <= maxRetries; i++) {
@@ -113,6 +113,7 @@ function _Retry(maxRetries: number = 3) {
  * @description Advanced base class with fluent interface, type safety, and modern patterns
  * @template TPage - Generic page type for type-safe chaining
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export abstract class BasePage<TPage extends BasePage<any> = any> {
   protected readonly page: Page;
   protected readonly baseURL: string;

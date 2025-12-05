@@ -5,7 +5,6 @@
  */
 
 import { Utils } from '../Utils';
-import Log from '../Log';
 
 /* ===== BASE BUILDER ===== */
 
@@ -76,8 +75,10 @@ export class TestDataFactory {
    * @param options - Generation options
    * @returns Generated data
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static generate<T = any>(
     type: 'email' | 'name' | 'phone' | 'address' | 'url' | 'date' | 'number',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options?: Record<string, any>
   ): T {
     switch (type) {
@@ -149,7 +150,7 @@ export class TestDataFactory {
    * @param country - Country code
    * @returns Address
    */
-  private static generateAddress(country: string = 'US'): string {
+  private static generateAddress(_country: string = 'US'): string {
     const streetNumber = Math.floor(Math.random() * 9999) + 1;
     const streets = ['Main St', 'Oak Ave', 'Maple Dr', 'Cedar Ln', 'Pine Rd'];
     const street = streets[Math.floor(Math.random() * streets.length)];

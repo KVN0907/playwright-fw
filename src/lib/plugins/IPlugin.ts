@@ -27,7 +27,7 @@ export interface FrameworkContext {
   readonly page?: Page;
   readonly context?: BrowserContext;
   readonly testInfo?: TestInfo;
-  readonly config: Record<string, any>;
+  readonly config: Record<string, unknown>;
   readonly environment: string;
 }
 
@@ -54,7 +54,7 @@ export interface PluginConfig {
   enabled?: boolean;
   priority?: PluginPriority;
   stages?: PluginStage[];
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
 }
 
 /* ===== PLUGIN INTERFACE ===== */

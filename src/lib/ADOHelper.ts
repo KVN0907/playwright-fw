@@ -145,7 +145,7 @@ export class ADOHelper {
         Log.warn(`⚠️ Work item ${workItemId} has no acceptance criteria`);
         return {
           workItem,
-          generatedScript: { filePath: '', content: '', metadata: {} as any },
+          generatedScript: { testSpecFile: '', workItemId: workItemId, testCases: [] },
           success: false,
           error: 'No acceptance criteria found',
         };
@@ -153,14 +153,7 @@ export class ADOHelper {
 
       // Generate test script
       Log.info(`🔧 Generating test script for work item ${workItemId}`);
-      const generatedScript = await this.testGenerator.generateFromAcceptanceCriteria(
-        workItem.acceptanceCriteria,
-        {
-          testName: workItem.title,
-          featureName: workItem.workItemType,
-          workItemId: workItem.id.toString(),
-        }
-      );
+      const generatedScript = await this.testGenerator.generateFromWorkItem(workItem);
 
       Log.info(`✅ Test script generated successfully for work item ${workItemId}`);
       return {
@@ -214,26 +207,25 @@ export class ADOHelper {
   /**
    * Parse ADO work item response
    */
-  private parseWorkItem(data: any): ADOWorkItem {
-    const fields = data.fields || {};
+  private parseWorkItem(data: Record<string, unknown>): ADOWorkItem {
+    const fields = (data.fields || {}) as Record<string, unknown>;
 
     // Try multiple field names for acceptance criteria
-    const acceptanceCriteria =
-      fields['Microsoft.VSTS.Common.AcceptanceCriteria'] ||
+    const acceptanceCriteria = (fields['Microsoft.VSTS.Common.AcceptanceCriteria'] ||
       fields['System.AcceptanceCriteria'] ||
       fields['Custom.AcceptanceCriteria'] ||
       fields['System.Description'] ||
-      '';
+      '') as string;
 
     return {
-      id: data.id,
-      title: fields['System.Title'] || '',
-      description: fields['System.Description'] || '',
+      id: data.id as number,
+      title: (fields['System.Title'] as string) || '',
+      description: (fields['System.Description'] as string) || '',
       acceptanceCriteria: this.cleanHtml(acceptanceCriteria),
-      workItemType: fields['System.WorkItemType'] || '',
-      state: fields['System.State'] || '',
-      assignedTo: fields['System.AssignedTo']?.displayName,
-      tags: fields['System.Tags']?.split(';').map((t: string) => t.trim()) || [],
+      workItemType: (fields['System.WorkItemType'] as string) || '',
+      state: (fields['System.State'] as string) || '',
+      assignedTo: (fields['System.AssignedTo'] as { displayName?: string })?.displayName,
+      tags: (fields['System.Tags'] as string)?.split(';').map((t: string) => t.trim()) || [],
     };
   }
 

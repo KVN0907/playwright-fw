@@ -387,47 +387,106 @@ export class AuthenticationManager {
   }
 
   /**
-   * OAuth2 authentication
+   * OAuth2 authentication (Enhanced for Keycloak JWT tokens)
    */
   private async authenticateWithOAuth2(requestContext?: APIRequestContext): Promise<AuthResult> {
     if (!requestContext) {
       return { success: false, error: 'Request context required for OAuth2 authentication' };
     }
 
-    if (!this.authConfig.credentials?.clientId || !this.authConfig.credentials?.clientSecret) {
-      return { success: false, error: 'Client ID and secret required for OAuth2' };
+    Log.info('Performing OAuth2/JWT authentication via Keycloak');
+
+    // Try password grant flow with username/password
+    if (this.authConfig.credentials?.username && this.authConfig.credentials?.password) {
+      Log.info('Using password grant flow (Resource Owner Password Credentials)');
+
+      try {
+        const tokenResponse = await requestContext.post(
+          `${this.configManager.getApiURL()}${this.authConfig.endpoints?.token}`,
+          {
+            data: {
+              username: this.authConfig.credentials.username,
+              password: this.authConfig.credentials.password,
+            },
+          }
+        );
+
+        if (tokenResponse.ok()) {
+          const responseData = await tokenResponse.json();
+          const token = responseData.accessToken || responseData.access_token;
+          const refreshToken = responseData.refreshToken || responseData.refresh_token;
+
+          if (token) {
+            // Store refresh token for later use
+            if (refreshToken && this.authConfig.credentials) {
+              this.authConfig.credentials.refreshToken = refreshToken;
+            }
+
+            const headers: Record<string, string> = {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            };
+
+            // Add tenant and user headers if available
+            const tenantId = process.env.X_TENANT_ID || process.env.TENANT_ID;
+            const userId = process.env.X_USER_ID || process.env.USER_ID;
+            const proxyTenantId = process.env.X_PROXY_TENANT_ID;
+
+            if (tenantId) headers['X-Tenant-Id'] = tenantId;
+            if (userId) headers['X-User-Id'] = userId;
+            if (proxyTenantId) headers['X-Proxy-Tenant-Id'] = proxyTenantId;
+
+            Log.info('✅ OAuth2/JWT token obtained successfully');
+            return {
+              success: true,
+              token: token,
+              headers: headers,
+            };
+          }
+        }
+
+        const errorBody = await tokenResponse.text();
+        Log.error(`Token request failed: ${tokenResponse.status()} - ${errorBody}`);
+      } catch (error) {
+        Log.error(`OAuth2 authentication error: ${error}`);
+      }
     }
 
-    Log.info('Performing OAuth2 authentication');
-    const tokenResponse = await requestContext.post(
-      `${this.configManager.getBaseURL()}${this.authConfig.endpoints?.token}`,
-      {
-        form: {
-          grant_type: 'client_credentials',
-          client_id: this.authConfig.credentials.clientId,
-          client_secret: this.authConfig.credentials.clientSecret,
-        },
-      }
-    );
+    // Fallback to client credentials if username/password not available
+    if (this.authConfig.credentials?.clientId && this.authConfig.credentials?.clientSecret) {
+      Log.info('Attempting client credentials flow');
 
-    if (tokenResponse.status() === 200) {
-      const responseData = await tokenResponse.json();
-      const token = responseData.access_token;
+      try {
+        const tokenResponse = await requestContext.post(
+          `${this.configManager.getApiURL()}${this.authConfig.endpoints?.token?.replace('/token', '/client-token')}`,
+          {
+            data: {},
+          }
+        );
 
-      if (token) {
-        return {
-          success: true,
-          token: token,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
+        if (tokenResponse.ok()) {
+          const responseData = await tokenResponse.json();
+          const token = responseData.accessToken || responseData.access_token;
+
+          if (token) {
+            return {
+              success: true,
+              token: token,
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            };
+          }
+        }
+      } catch (error) {
+        Log.error(`Client credentials flow error: ${error}`);
       }
     }
 
     return {
       success: false,
-      error: `OAuth2 authentication failed. Status: ${tokenResponse.status()}`,
+      error: 'OAuth2 authentication failed: No valid credentials provided or token request failed',
     };
   }
 
