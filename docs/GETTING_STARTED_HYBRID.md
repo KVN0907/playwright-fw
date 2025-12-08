@@ -16,12 +16,14 @@ Angular Components → Extract UI Elements → Generate UI Tests
 ### **Step 1: POC Validation** ✅
 
 **What we did:**
+
 - Created `HybridTestGenerator.ts` - Core generator engine
 - Created `test-hybrid-poc.ts` - Proof of concept script
 - Successfully parsed `LocationController.java`
 - Generated **12 API test cases** automatically
 
 **Results:**
+
 ```bash
 📊 Generated Tests:
    ✓ Location.api.spec.ts (12 test cases)
@@ -31,6 +33,7 @@ Angular Components → Extract UI Elements → Generate UI Tests
 ```
 
 **Test Quality:**
+
 - ✅ Path variables extracted correctly (e.g., `{id}`, `{clientTenantId}`)
 - ✅ HTTP methods detected (GET, POST, PUT, DELETE)
 - ✅ Method names parsed (`getLocationById`, `createLocation`, etc.)
@@ -43,17 +46,20 @@ Angular Components → Extract UI Elements → Generate UI Tests
 ### **Step 2: CI/CD Integration** ✅
 
 **What we did:**
+
 - Created `.github/workflows/auto-generate-tests.yml`
 - Automated test generation on code changes
 - Added manual triggers with options
 
 **Features:**
+
 1. **Automatic Triggers:**
    - Runs when controllers change
    - Runs when components change
    - Detects file changes in PRs
 
 2. **Manual Triggers:**
+
    ```yaml
    - Generate API tests: true/false
    - Generate UI tests: true/false
@@ -68,6 +74,7 @@ Angular Components → Extract UI Elements → Generate UI Tests
    ```
 
 **Benefits:**
+
 - 🚀 **Zero Manual Work**: Tests auto-generate on commit
 - 🔄 **Always Up-to-Date**: Regenerates when code changes
 - 📊 **CI Reports**: Shows what was generated
@@ -95,6 +102,7 @@ Angular Components → Extract UI Elements → Generate UI Tests
 3. **Example Improvements:**
 
 **Before:**
+
 ```typescript
 test('GET /locations/{id} - unknown', async ({ request }) => {
   const response = await request.get(`/locations/{id}`);
@@ -103,6 +111,7 @@ test('GET /locations/{id} - unknown', async ({ request }) => {
 ```
 
 **After:**
+
 ```typescript
 test('GET /locations/{id} - getLocationById', async ({ request }) => {
   // Given valid id
@@ -128,6 +137,7 @@ test('GET /locations/{id} - getLocationById', async ({ request }) => {
 ### **Step 4: Documentation** ✅
 
 **Created:**
+
 1. `HYBRID_TEST_GENERATION.md` - Comprehensive guide
 2. `QA_AUTOMATION_GUIDE.md` - QA workflow docs
 3. `GETTING_STARTED_HYBRID.md` - This quickstart guide
@@ -144,6 +154,7 @@ npx ts-node src/lib/test-hybrid-poc.ts
 ```
 
 **Output:**
+
 ```
 ✅ Generated: Location.api.spec.ts (12 tests)
 ```
@@ -184,6 +195,7 @@ npm run generate:all
 ## 📊 What Gets Generated
 
 ### **Directory Structure:**
+
 ```
 tests/automation/src/tests/generated/
 ├── api/
@@ -206,17 +218,18 @@ tests/automation/src/tests/generated/
 ## 🔥 Real-World Example
 
 ### **From This Controller:**
+
 ```java
 @RestController
 @RequestMapping("/locations")
 public class LocationController {
-    
+
     @GetMapping("/{id}")
     @Operation(summary = "Get location by ID")
     public ResponseEntity<LocationResponse> getLocationById(@PathVariable Long id) {
         // Implementation
     }
-    
+
     @PostMapping
     public ResponseEntity<LocationResponse> createLocation(@RequestBody LocationCreateDTO dto) {
         // Implementation
@@ -225,6 +238,7 @@ public class LocationController {
 ```
 
 ### **Generates This Test:**
+
 ```typescript
 test.describe('LocationController API Tests', () => {
   test('GET /locations/{id} - getLocationById', async ({ request }) => {
@@ -244,8 +258,8 @@ test.describe('LocationController API Tests', () => {
   test('POST /locations - createLocation', async ({ request }) => {
     // Given valid request data
     const requestData = {
-      name: "Test Location",
-      address: "Test Address"
+      name: 'Test Location',
+      address: 'Test Address',
     };
 
     // When create location
@@ -265,13 +279,16 @@ test.describe('LocationController API Tests', () => {
 ## 💡 Next Steps
 
 ### **Immediate:**
+
 1. ✅ **Test the generated file:**
+
    ```bash
    cd tests/automation
    npm test -- src/tests/generated/api/generated/Location.api.spec.ts
    ```
 
 2. ✅ **Generate from more controllers:**
+
    ```bash
    npm run generate:api  # All controllers
    ```
@@ -282,6 +299,7 @@ test.describe('LocationController API Tests', () => {
    - Tests auto-generate on next commit
 
 ### **Short Term:**
+
 4. **Customize generated tests:**
    - Add business-specific assertions
    - Include edge cases
@@ -293,6 +311,7 @@ test.describe('LocationController API Tests', () => {
    - Generate component interaction tests
 
 ### **Long Term:**
+
 6. **Add OpenAPI/Swagger support:**
    - Parse API spec files
    - Generate contract tests
@@ -310,6 +329,7 @@ test.describe('LocationController API Tests', () => {
 ### **Regenerating Tests:**
 
 When code changes:
+
 ```bash
 # Option 1: Manual regeneration
 npm run generate:api
@@ -321,6 +341,7 @@ git push  # Tests regenerate automatically
 ### **Customizing Templates:**
 
 Edit `HybridTestGenerator.ts`:
+
 ```typescript
 private generateAPITestCase(endpoint: JavaEndpoint): string {
   // Customize test template here
@@ -335,16 +356,19 @@ private generateAPITestCase(endpoint: JavaEndpoint): string {
 ## 📈 Metrics & Impact
 
 ### **Time Savings:**
+
 - **Manual**: 15-20 minutes per endpoint
 - **Generated**: 2-3 minutes for entire controller
 - **Speedup**: **10-20x faster**
 
 ### **Coverage:**
+
 - **LocationController**: 12 endpoints → 12 tests (100% coverage)
 - **Est. All Controllers**: ~150 endpoints → ~150 tests
 - **Time to generate all**: ~10 minutes vs ~40 hours manual
 
 ### **Quality:**
+
 - ✅ Consistent patterns
 - ✅ Framework compliant
 - ✅ Always up-to-date
@@ -364,6 +388,7 @@ private generateAPITestCase(endpoint: JavaEndpoint): string {
 ## 🆘 Troubleshooting
 
 ### **Issue: No tests generated**
+
 ```bash
 # Check if controller exists
 ls ../../service/compliancemanager/src/main/java/com/ey/compliance/service/web/rest/
@@ -373,6 +398,7 @@ npm run generate:hybrid -- --controllers [full-path-to-controller]
 ```
 
 ### **Issue: Tests don't compile**
+
 ```bash
 # Install dependencies
 npm ci
@@ -382,6 +408,7 @@ npx tsc --noEmit
 ```
 
 ### **Issue: Parser misses endpoints**
+
 - Check controller follows Spring Boot patterns
 - Ensure annotations are standard (`@GetMapping`, etc.)
 - Review generated file and enhance parser if needed
@@ -393,12 +420,14 @@ npx tsc --noEmit
 You've successfully implemented automated test generation from source code!
 
 **What you achieved:**
+
 - ✅ Generated 12 API tests from 1 controller
 - ✅ Set up CI/CD automation
 - ✅ Enhanced generator with better parsing
 - ✅ Created comprehensive documentation
 
 **Next action:**
+
 ```bash
 # Generate tests for all controllers
 cd tests/automation

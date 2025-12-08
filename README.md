@@ -29,7 +29,7 @@ mkdir -p tests/YOUR-PRODUCT-tests/{ui,api,pages}
 # See INTEGRATION_GUIDE.md for complete setup
 ```
 
-**📖 Complete Guide**: [INTEGRATION_GUIDE.md](./INTEGRATION_GUIDE.md)
+**📖 Complete Guide**: [INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md)
 
 ## Configuration
 
