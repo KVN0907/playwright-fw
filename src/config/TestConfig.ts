@@ -5,10 +5,14 @@
 
 import { PlaywrightTestConfig, devices } from '@playwright/test';
 import { config } from '../lib/config/ConfigManager';
+import * as path from 'path';
 
 // Get configuration from unified manager
 const environment = config.getEnvironment();
 const envConfig = config.getConfig();
+
+// Auth state file path
+const AUTH_FILE = path.join(__dirname, '../../auth.json');
 
 /**
  * Playwright configuration with sensible defaults
@@ -19,6 +23,9 @@ const playwrightConfig: PlaywrightTestConfig = {
   retries: envConfig.retries,
   workers: envConfig.workers,
   outputDir: `./test-results/${environment}`,
+
+  // Global setup for browser authentication
+  globalSetup: require.resolve('./global-setup'),
 
   use: {
     baseURL: envConfig.baseURL,
@@ -48,6 +55,8 @@ const playwrightConfig: PlaywrightTestConfig = {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
+        // Use saved auth state from browser login
+        storageState: AUTH_FILE,
       },
       testDir: './src/tests/api',
     },
