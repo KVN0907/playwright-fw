@@ -11,6 +11,7 @@ import { LoginPage } from '../../pages/common/LoginPage';
 import { LocationLibraryPage } from '../../pages/common/LocationLibraryPage';
 import { EYAdminClientListingPage } from '../../pages/eyadmin/EYAdminClientListingPage';
 import { RegulationConfigPanelPage } from '../../pages/eyadmin/RegulationConfigPanelPage';
+import { MasterQuestionnairePage } from '../../pages/eyadmin/MasterQuestionnairePage';
 import {
   UserBuilder,
   OrganizationBuilder,
@@ -36,6 +37,7 @@ export type AdvancedFixtures = {
   locationLibraryPage: LocationLibraryPage;
   eyAdminClientListingPage: EYAdminClientListingPage;
   regulationConfigPanelPage: RegulationConfigPanelPage;
+  masterQuestionnairePage: MasterQuestionnairePage;
 
   // API Helpers
   apiHelper: APITestHelper;
@@ -146,6 +148,16 @@ export const test = base.extend<AdvancedFixtures>({
     Log.info('⚖️ RegulationConfigPanelPage fixture initialized');
     await use(regulationConfigPanelPage);
     Log.info('⚖️ RegulationConfigPanelPage fixture cleanup');
+  },
+
+  masterQuestionnairePage: async (
+    { page }: { page: Page },
+    use: (r: MasterQuestionnairePage) => Promise<void>
+  ) => {
+    const masterQuestionnairePage = new MasterQuestionnairePage(page);
+    Log.info('📋 MasterQuestionnairePage fixture initialized');
+    await use(masterQuestionnairePage);
+    Log.info('📋 MasterQuestionnairePage fixture cleanup');
   },
 
   // API Helper with authentication
