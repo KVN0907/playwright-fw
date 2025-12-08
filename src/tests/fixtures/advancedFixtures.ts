@@ -9,6 +9,8 @@ import { APITestHelper } from '../../lib/APITestHelper';
 import { HomePage } from '../../pages/common/HomePage';
 import { LoginPage } from '../../pages/common/LoginPage';
 import { LocationLibraryPage } from '../../pages/common/LocationLibraryPage';
+import { EYAdminClientListingPage } from '../../pages/eyadmin/EYAdminClientListingPage';
+import { RegulationConfigPanelPage } from '../../pages/eyadmin/RegulationConfigPanelPage';
 import {
   UserBuilder,
   OrganizationBuilder,
@@ -32,6 +34,8 @@ export type AdvancedFixtures = {
   homePage: HomePage;
   loginPage: LoginPage;
   locationLibraryPage: LocationLibraryPage;
+  eyAdminClientListingPage: EYAdminClientListingPage;
+  regulationConfigPanelPage: RegulationConfigPanelPage;
 
   // API Helpers
   apiHelper: APITestHelper;
@@ -122,6 +126,26 @@ export const test = base.extend<AdvancedFixtures>({
     Log.info('📍 LocationLibraryPage fixture initialized');
     await use(locationLibraryPage);
     Log.info('📍 LocationLibraryPage fixture cleanup');
+  },
+
+  eyAdminClientListingPage: async (
+    { page }: { page: Page },
+    use: (r: EYAdminClientListingPage) => Promise<void>
+  ) => {
+    const eyAdminClientListingPage = new EYAdminClientListingPage(page);
+    Log.info('👔 EYAdminClientListingPage fixture initialized');
+    await use(eyAdminClientListingPage);
+    Log.info('👔 EYAdminClientListingPage fixture cleanup');
+  },
+
+  regulationConfigPanelPage: async (
+    { page }: { page: Page },
+    use: (r: RegulationConfigPanelPage) => Promise<void>
+  ) => {
+    const regulationConfigPanelPage = new RegulationConfigPanelPage(page);
+    Log.info('⚖️ RegulationConfigPanelPage fixture initialized');
+    await use(regulationConfigPanelPage);
+    Log.info('⚖️ RegulationConfigPanelPage fixture cleanup');
   },
 
   // API Helper with authentication
