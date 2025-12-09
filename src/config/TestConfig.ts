@@ -63,6 +63,7 @@ const playwrightConfig: PlaywrightTestConfig = {
   ],
 
   reporter: [
+    ['html', { outputFolder: './playwright-report', open: 'never' }],
     [
       'playwright-enhanced-reporter',
       {
