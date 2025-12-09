@@ -29,7 +29,7 @@ const playwrightConfig: PlaywrightTestConfig = {
 
   use: {
     baseURL: envConfig.baseURL,
-    headless: envConfig.headless,
+    headless: process.env.CI ? true : envConfig.headless,
     screenshot: envConfig.screenshot ? 'on' : 'off',
     video: envConfig.video ? 'on' : 'off',
     trace: envConfig.trace ? 'on' : 'off',
