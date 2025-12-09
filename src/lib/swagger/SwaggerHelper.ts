@@ -4,8 +4,8 @@
  */
 
 import { APIRequestContext } from '@playwright/test';
-import Log from './Log';
-import { ConfigManager } from './config/ConfigManager';
+import Log from '../utils/Log';
+import { ConfigManager } from '../config/ConfigManager';
 
 export interface OpenAPIEndpoint {
   path: string;

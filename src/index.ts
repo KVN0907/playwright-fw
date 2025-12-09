@@ -8,16 +8,16 @@ export { ConfigManager, config } from './lib/config/ConfigManager';
 export type { EnvironmentConfig, TestProfile } from './lib/config/ConfigManager';
 
 // Utilities
-export { Utils, DateTimeUtils, EnvironmentUtils, StringUtils, WebUtils } from './lib/Utils';
-export { default as Log } from './lib/Log';
+export { Utils, DateTimeUtils, EnvironmentUtils, StringUtils, WebUtils } from './lib/utils/Utils';
+export { default as Log } from './lib/utils/Log';
 
 // Test Helpers
-export { SimpleTestSetup, setupTest } from './lib/SimpleTestSetup';
-export { APITestHelper } from './lib/APITestHelper';
+// Note: SimpleTestSetup was removed, use testSetup from setup folder if needed
+export { APITestHelper } from './lib/api/APITestHelper';
 
 // ADO Integration
-export { ADOHelper, createADOHelperFromEnv, testADOConnection } from './lib/ADOHelper';
-export type { ADOConfig, ADOWorkItem, ADOGenerationResult } from './lib/ADOHelper';
+export { ADOHelper, createADOHelperFromEnv, testADOConnection } from './lib/ado/ADOHelper';
+export type { ADOConfig, ADOWorkItem, ADOGenerationResult } from './lib/ado/ADOHelper';
 
 // Test Data
 export { RuntimeDataResolver } from './lib/testData/RuntimeDataResolver';
@@ -27,11 +27,7 @@ export { UserBuilder, OrganizationBuilder, LocationBuilder, ScenarioBuilder } fr
 // Page Objects (Base)
 export { BasePage } from './pages/common/BasePage';
 
-// Fixtures
-export { test, expect } from './tests/fixtures/simpleFixtures';
-export type { SimpleFixtures } from './tests/fixtures/simpleFixtures';
-
-// Advanced fixtures (optional)
+// Advanced fixtures
 export {
   test as advancedTest,
   expect as advancedExpect,
@@ -46,13 +42,30 @@ export type {
 } from './tests/fixtures/advancedFixtures';
 
 // Error Handling
-export { ErrorHandler } from './lib/ErrorHandler';
+export { ErrorHandler } from './lib/utils/ErrorHandler';
 
 // Test Data Generator
-export { TestDataGenerator } from './lib/TestDataGenerator';
+export { TestDataGenerator } from './lib/generators/TestDataGenerator';
 
 // Validators
 export { APIValidator } from './lib/validation/APIValidator';
 export { AccountValidator } from './lib/validation/AccountValidator';
 export { UserValidator } from './lib/validation/UserValidator';
 export { OrganizationValidator } from './lib/validation/OrganizationValidator';
+
+// Visual Regression Testing
+export { VisualRegressionHelper } from './lib/visual/VisualRegressionHelper';
+export type { VisualTestOptions, VisualTestConfig } from './lib/visual/VisualRegressionHelper';
+export { FigmaHelper } from './lib/figma/FigmaHelper';
+export { VisualComparator } from './lib/visual/VisualComparator';
+export type { ComparisonOptions, ComparisonResult } from './lib/visual/VisualComparator';
+export { BaselineManager } from './lib/visual/BaselineManager';
+export type { BaselineMetadata, BaselineInfo } from './lib/visual/BaselineManager';
+
+// Visual Testing Fixtures
+export {
+  visualTest,
+  expect as visualExpect,
+  visualExpect as visualMatchers,
+} from './tests/fixtures/visualFixtures';
+export type { VisualFixtures } from './tests/fixtures/visualFixtures';

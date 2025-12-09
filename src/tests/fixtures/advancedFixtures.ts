@@ -5,7 +5,7 @@
  */
 
 import { test as base, Page, TestInfo, PlaywrightWorkerArgs } from '@playwright/test';
-import { APITestHelper } from '../../lib/APITestHelper';
+import { APITestHelper } from '../../lib/api/APITestHelper';
 import { HomePage } from '../../pages/common/HomePage';
 import { LoginPage } from '../../pages/common/LoginPage';
 import { LocationLibraryPage } from '../../pages/common/LocationLibraryPage';
@@ -21,7 +21,7 @@ import {
 import { pluginManager } from '../../lib/plugins';
 import { RuntimeDataResolver } from '../../lib/testData/RuntimeDataResolver';
 import { runtimeConfig } from '../../lib/testData/RuntimeDataConfig';
-import Log from '../../lib/Log';
+import Log from '../../lib/utils/Log';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 

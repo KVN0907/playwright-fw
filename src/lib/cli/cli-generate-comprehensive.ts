@@ -3,13 +3,13 @@
 /**
  * CLI for Enhanced Comprehensive Test Generation
  * Generates API tests with ZERO manual intervention
- * 
+ *
  * Features:
  * - Happy path tests for all endpoints
  * - Negative tests from BadRequestAlertException
  * - Validation tests from DTO annotations
  * - Authorization tests from UnauthorizedAlertException
- * 
+ *
  * Usage:
  *   npm run generate:comprehensive
  *   npm run generate:comprehensive -- --service security
@@ -17,7 +17,7 @@
  */
 
 import * as path from 'path';
-import { EnhancedTestGenerator } from './EnhancedTestGenerator';
+import { EnhancedTestGenerator } from '../generators/EnhancedTestGenerator';
 
 const args = process.argv.slice(2);
 

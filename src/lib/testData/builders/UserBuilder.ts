@@ -5,7 +5,7 @@
  */
 
 import { BaseBuilder, TestDataFactory } from '../TestDataFactory';
-import { Utils } from '../../Utils';
+import { Utils } from '../../utils/Utils';
 
 /* ===== USER INTERFACES ===== */
 

@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures/advancedFixtures';
-import { SwaggerHelper } from '../../lib/SwaggerHelper';
-import Log from '../../lib/Log';
+import { SwaggerHelper } from '../../lib/swagger/SwaggerHelper';
+import Log from '../../lib/utils/Log';
 
 /**
  * Swagger/OpenAPI Integration Tests

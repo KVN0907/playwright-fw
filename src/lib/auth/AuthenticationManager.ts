@@ -1,5 +1,5 @@
 import { Page, APIRequestContext, Cookie } from '@playwright/test';
-import Log from '../Log';
+import Log from '../utils/Log';
 import { ConfigManager } from '../config/ConfigManager';
 import { LoginPage } from '../../pages/common/LoginPage';
 

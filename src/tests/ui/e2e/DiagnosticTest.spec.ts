@@ -1,5 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
-import Log from '../../../lib/Log';
+import Log from '../../../lib/utils/Log';
 
 test.describe('Diagnostic Tests', () => {
   test('Check page state and authentication', async ({ page }) => {

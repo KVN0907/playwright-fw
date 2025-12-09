@@ -1,0 +1,9 @@
+{
+  "getAllQuestions": "/questions",
+  "saveQuestion": "/questions",
+  "updateQuestion": "/questions",
+  "deleteQuestionsByIds": "/questions",
+  "getAllQuestionsByRegAreaId": "/questions/{regAreaId}",
+  "deleteQuestion": "/questions/{regAreaId}",
+  "uploadQuestions": "/questions/upload-questions"
+}

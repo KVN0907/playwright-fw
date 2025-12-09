@@ -5,7 +5,7 @@
 
 import { Locator, Page, expect } from '@playwright/test';
 import { BasePage } from './BasePage';
-import Log from '../../lib/Log';
+import Log from '../../lib/utils/Log';
 
 export class LocationLibraryPage extends BasePage<LocationLibraryPage> {
   // Navigation elements

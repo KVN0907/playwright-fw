@@ -5,8 +5,8 @@
  * Simple demonstration of hybrid test generation
  */
 
-import { HybridTestGenerator } from './HybridTestGenerator';
-import { TestScriptConfig } from './TestScriptGenerator';
+import { HybridTestGenerator } from '../generators/HybridTestGenerator';
+import { TestScriptConfig } from '../generators/TestScriptGenerator';
 import * as path from 'path';
 
 async function main() {

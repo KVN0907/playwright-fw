@@ -10,8 +10,8 @@
  *   npm run generate:hybrid -- --component ../../../portal/admin/src/main/webapp/app/compliance
  */
 
-import { HybridTestGenerator } from './HybridTestGenerator';
-import { TestScriptConfig } from './TestScriptGenerator';
+import { HybridTestGenerator } from '../generators/HybridTestGenerator';
+import { TestScriptConfig } from '../generators/TestScriptGenerator';
 import * as fs from 'fs';
 import * as path from 'path';
 

@@ -1,5 +1,5 @@
 import { expect, APIResponse } from '@playwright/test';
-import Log from '../Log';
+import Log from '../utils/Log';
 
 export interface ValidationConfig {
   type: 'string' | 'number' | 'boolean' | 'object' | 'array';

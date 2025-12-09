@@ -5,10 +5,10 @@
  */
 
 import { APIRequestContext, APIResponse, Page } from '@playwright/test';
-import Log from './Log';
-import { ConfigManager } from './config/ConfigManager';
-import { APIError } from './errors';
-import { AuthenticationManager } from './auth/AuthenticationManager';
+import Log from '../utils/Log';
+import { ConfigManager } from '../config/ConfigManager';
+import { APIError } from '../errors';
+import { AuthenticationManager } from '../auth/AuthenticationManager';
 
 export interface APITestOptions {
   headers?: Record<string, string>;
@@ -386,6 +386,27 @@ export class APITestHelper {
     });
 
     Log.info(`API DELETE Response: ${response.status()} ${response.statusText()}`);
+    return response;
+  }
+
+  async patch(
+    endpoint: string,
+    data?: Record<string, unknown>,
+    options?: APITestOptions
+  ): Promise<APIResponse> {
+    await this.ensureAuthentication(options?.skipAuth);
+
+    const url = this.getFullURL(endpoint);
+    Log.info(`API PATCH: ${url}`);
+
+    const response = await this.apiContext.patch(url, {
+      data: data,
+      headers: this.mergeHeaders(options?.headers),
+      timeout: options?.timeout || ConfigManager.getInstance().getTimeout(),
+      ignoreHTTPSErrors: options?.ignoreHTTPSErrors || true,
+    });
+
+    Log.info(`API PATCH Response: ${response.status()} ${response.statusText()}`);
     return response;
   }
 

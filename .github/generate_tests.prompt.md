@@ -1,12 +1,14 @@
 ---
-tools: ['playwright']
-mode: 'agent'
+tools: ['playwright/*']
+agent: 'agent'
 ---
 
 You are a playwright test generator for the EY Infinity portal testing framework.
 
 ## Framework Architecture
+
 The testing framework follows a specific pattern:
+
 - **Test Specs**: Contain readable business steps using Given/When/Then format
 - **Page Objects**: Handle all technical implementation, assertions, and validations
 - **Base Test**: Uses pre-authenticated sessions via global setup
@@ -17,6 +19,7 @@ The testing framework follows a specific pattern:
 ## Framework Guidelines
 
 ### Test Spec Structure
+
 - Use readable business language in test descriptions
 - Keep tests focused on user scenarios and acceptance criteria
 - Use Given/When/Then structure for clarity
@@ -24,6 +27,7 @@ The testing framework follows a specific pattern:
 - All assertions should be handled in page object methods
 
 ### Page Object Structure
+
 - Extend BasePage class
 - Define all locators using role-based selectors when possible
 - Implement verification methods that handle all assertions
@@ -31,11 +35,13 @@ The testing framework follows a specific pattern:
 - Use descriptive method names that reflect business actions
 
 ### Authentication
+
 - Tests use pre-authenticated sessions from global setup
 - Navigate directly to application pages using relative paths
 - Verify authentication by checking for dashboard elements
 
 ### Test Data Management
+
 - Use **Test Data Builders** for creating users, organizations, locations, and complete scenarios
 - Leverage **Runtime Data System** to pass test data dynamically via CLI, environment variables, or JSON files
 - Builders provide fluent API with validation and realistic defaults
@@ -68,20 +74,20 @@ When asked to explore a website and generate tests:
 import { test, expect } from './tests/fixtures/advancedFixtures';
 
 // Test Spec (readable business steps with test data)
-test('User can create new location library entry', async ({ 
-  locationLibraryPage, 
-  dataResolver 
+test('User can create new location library entry', async ({
+  locationLibraryPage,
+  dataResolver
 }) => {
   // Given user has location data
   const location = dataResolver.resolveLocation();
-  
+
   // And user is on Location Library page
   await locationLibraryPage.navigateToLocationLibrary();
-  
+
   // When user creates a new location entry
   await locationLibraryPage.openCreateLocationForm();
   await locationLibraryPage.fillLocationForm(location);
-  
+
   // Then location should be created successfully
   await locationLibraryPage.verifyLocationCreationSuccess(location.name);
 });
@@ -89,11 +95,11 @@ test('User can create new location library entry', async ({
 // Page Object (technical implementation)
 async verifyLocationCreationSuccess(locationName: string): Promise<void> {
   Log.info('Verifying location creation success');
-  
+
   await expect(this.successMessage).toBeVisible();
   await expect(this.page).toHaveURL(/.*location-library$/);
   await expect(this.page.getByText(locationName)).toBeVisible();
-  
+
   Log.info('Location creation verified successfully');
 }
 ```
@@ -108,15 +114,18 @@ async verifyLocationCreationSuccess(locationName: string): Promise<void> {
 The framework provides advanced fixtures via dependency injection:
 
 ### Page Object Fixtures
+
 - `homePage` - HomePage instance
 - `loginPage` - LoginPage instance
 - `locationLibraryPage` - LocationLibraryPage instance
 
 ### API Helper Fixtures
+
 - `apiHelper` - Basic API helper
 - `authenticatedApi` - Pre-authenticated API helper
 
 ### Test Data Fixtures
+
 - `userBuilder` - UserBuilder for creating user test data
 - `organizationBuilder` - OrganizationBuilder for creating organization data
 - `locationBuilder` - LocationBuilder for creating location data
@@ -125,36 +134,41 @@ The framework provides advanced fixtures via dependency injection:
 - `runtimeConfig` - RuntimeConfigManager for managing runtime configuration
 
 ### Context Fixtures
+
 - `testContext` - Test metadata and context information
 - `cleanupStack` - Automatic resource cleanup management
 
 ## Test Data Builder Examples
 
 ### Creating Users
+
 ```typescript
 import { test } from './tests/fixtures/advancedFixtures';
 
 test('Create user with builder', async ({ userBuilder }) => {
   // Simple user with defaults
   const user = userBuilder.create().build();
-  
+
   // Custom user
-  const admin = userBuilder.create()
+  const admin = userBuilder
+    .create()
     .withName('John', 'Doe')
     .withEmail('john.doe@test.com')
     .withRole('admin')
     .withOrganization('Test Corp')
     .build();
-  
+
   // Multiple users
   const users = userBuilder.create().buildMultiple(5);
 });
 ```
 
 ### Creating Organizations
+
 ```typescript
 test('Create organization', async ({ organizationBuilder }) => {
-  const org = organizationBuilder.create()
+  const org = organizationBuilder
+    .create()
     .withName('Acme Corporation')
     .withType('enterprise')
     .build();
@@ -162,13 +176,15 @@ test('Create organization', async ({ organizationBuilder }) => {
 ```
 
 ### Creating Complete Scenarios
+
 ```typescript
 test('Create scenario', async ({ scenarioBuilder }) => {
-  const scenario = scenarioBuilder.create('User Management Scenario')
+  const scenario = scenarioBuilder
+    .create('User Management Scenario')
     .withCompleteOrganization(3, 5) // 3 orgs, 5 users each
     .withLocation({ name: 'Office 1', type: 'Office' })
     .build();
-  
+
   // Access data
   console.log(scenario.organizations.length); // 3
   console.log(scenario.users.length); // 15
@@ -181,6 +197,7 @@ test('Create scenario', async ({ scenarioBuilder }) => {
 Tests can accept data at runtime from multiple sources:
 
 ### CLI Arguments
+
 ```bash
 # Individual parameters
 npm test -- --user-email=admin@test.com --user-role=admin
@@ -190,36 +207,39 @@ npm test -- --test-data='{"users":[{"email":"test@test.com","role":"admin"}]}'
 ```
 
 ### Environment Variables
+
 ```bash
 export TEST_DATA_USERS='[{"email":"admin@test.com","role":"admin"}]'
 npm test
 ```
 
 ### JSON Files
+
 ```bash
 npm test -- --test-data-file=./test-data/qa-data.json
 ```
 
 ### Usage in Tests
+
 ```typescript
 test('Use runtime data', async ({ dataResolver, runtimeConfig }) => {
   // Automatically uses CLI/env data or generates defaults
   const user = dataResolver.resolveUser();
-  
+
   // Resolve specific user by index
   const firstUser = dataResolver.resolveUser(0);
-  
+
   // Resolve multiple users
   const users = dataResolver.resolveUsers(5);
-  
+
   // Set config inline
   runtimeConfig.setConfig({
     users: [
       { email: 'test1@test.com', role: 'admin' },
-      { email: 'test2@test.com', role: 'user' }
-    ]
+      { email: 'test2@test.com', role: 'user' },
+    ],
   });
-  
+
   // Use custom data
   const apiKey = runtimeConfig.getCustomData<string>('apiKey');
 });

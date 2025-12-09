@@ -4,7 +4,7 @@
  * @version 1.0
  */
 
-import { Utils } from '../Utils';
+import { Utils } from '../utils/Utils';
 
 /* ===== BASE BUILDER ===== */
 

@@ -1,6 +1,6 @@
 import { test, expect } from '../fixtures/advancedFixtures';
 import { AuthenticationManager } from '../../lib/auth/AuthenticationManager';
-import Log from '../../lib/Log';
+import Log from '../../lib/utils/Log';
 
 test.describe('Multi-Authentication Tests', () => {
   test('@smoke @critical Verify AuthenticationManager loads correct auth type', async () => {

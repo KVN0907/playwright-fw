@@ -3,8 +3,12 @@
  * Single file for all Azure DevOps integration functionality
  */
 
-import Log from './Log';
-import { TestScriptGenerator, TestScriptConfig, GeneratedTestScript } from './TestScriptGenerator';
+import Log from '../utils/Log';
+import {
+  TestScriptGenerator,
+  TestScriptConfig,
+  GeneratedTestScript,
+} from '../generators/TestScriptGenerator';
 
 /* ===== TYPES & INTERFACES ===== */
 

@@ -1,43 +1,44 @@
 import { test, expect } from '../fixtures/advancedFixtures';
-import Log from '../../lib/Log';
+import Log from '../../lib/utils/Log';
+import { APITestHelper } from '../../lib/api/APITestHelper';
 
 /**
  * Comprehensive API Tests for RoleResource
  * Generated automatically with ZERO manual intervention
- * 
+ *
  * Coverage:
  * - Happy path tests for all endpoints
  * - Negative tests for all error scenarios
  * - Validation tests for DTO constraints
  * - Authorization tests
- * 
+ *
  * Source: RoleResource.java
  */
 
 test.describe('RoleResource API Tests', () => {
   test('@smoke POST /api/roles - createRole - Happy Path', async ({ authenticatedApi }) => {
     Log.info('Testing POST /api/roles');
-    
+
     // Given valid request data
-    
+
     const requestData = {
       id: null,
       username: 'testuser_' + Date.now(),
       email: 'test_' + Date.now() + '@example.com',
       firstName: 'Test',
       lastName: 'User',
-      isActive: true
+      isActive: true,
     };
 
     // When making authenticated POST request
     const response = await authenticatedApi.post('/api/roles', requestData);
 
     // Then should return success
-    expect([200, 201, 204]).toContain(response.status());
-    Log.info(`Response status: ${response.status()}`);
-    
+    expect([201]).toContain(response!.status());
+    Log.info(`Response status: ${response!.status()}`);
+
     // And response should have valid structure
-    if (response.status() !== 204) {
+    if (response!.status() !== 204) {
       const data = await response.json();
       expect(data).toBeDefined();
     }
@@ -45,77 +46,80 @@ test.describe('RoleResource API Tests', () => {
 
   test('@negative POST /api/roles - idexists', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: idexists');
-    
+
     // Given unknown condition
-    const requestData = { id: 999, username: "existing", email: "existing@test.com" };
+    const requestData = { id: 999, username: 'existing', email: 'existing@test.com' };
 
     // When making POST request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.post('/api/roles', requestData);
+      response = await authenticatedApi.post('/api/roles', requestData);
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 400 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('idexists');
   });
 
   test('@negative POST /api/roles - roleExist', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: roleExist');
-    
+
     // Given unknown condition
     // Setup for roleExist
 
     // When making POST request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.post('/api/roles');
+      response = await authenticatedApi.post('/api/roles');
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 400 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('roleExist');
   });
 
   test('@negative POST /api/roles - notAuthorize', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: notAuthorize');
-    
+
     // Given unauthorized access
     // Setup for notAuthorize
 
     // When making POST request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.post('/api/roles');
+      response = await authenticatedApi.post('/api/roles');
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 401 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('notAuthorize');
   });
 
   test('@security POST /api/roles - Unauthorized Access', async ({ request }) => {
     Log.info('Testing unauthorized access');
-    
+
     // Given no valid authentication/authorization
     // Create a new API helper without auth
     const unauthApi = new APITestHelper(request);
-    
+
     // When making POST request without proper permissions
     let response;
     try {
@@ -126,33 +130,33 @@ test.describe('RoleResource API Tests', () => {
 
     // Then should return 401/403 error
     if (response) {
-      expect([401, 403]).toContain(response.status());
+      expect([401]).toContain(response!.status());
     }
   });
 
   test('@smoke PUT /api/roles - updateRole - Happy Path', async ({ authenticatedApi }) => {
     Log.info('Testing PUT /api/roles');
-    
+
     // Given valid request data
-    
+
     const requestData = {
       id: null,
       username: 'testuser_' + Date.now(),
       email: 'test_' + Date.now() + '@example.com',
       firstName: 'Test',
       lastName: 'User',
-      isActive: true
+      isActive: true,
     };
 
     // When making authenticated PUT request
     const response = await authenticatedApi.put('/api/roles', requestData);
 
     // Then should return success
-    expect([200, 201, 204]).toContain(response.status());
-    Log.info(`Response status: ${response.status()}`);
-    
+    expect([201]).toContain(response!.status());
+    Log.info(`Response status: ${response!.status()}`);
+
     // And response should have valid structure
-    if (response.status() !== 204) {
+    if (response!.status() !== 204) {
       const data = await response.json();
       expect(data).toBeDefined();
     }
@@ -160,121 +164,126 @@ test.describe('RoleResource API Tests', () => {
 
   test('@negative PUT /api/roles - idnull', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: idnull');
-    
+
     // Given unknown condition
     const requestData = { id: null };
 
     // When making PUT request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.put('/api/roles', requestData);
+      response = await authenticatedApi.put('/api/roles', requestData);
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 400 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('idnull');
   });
 
   test('@negative PUT /api/roles - idnotfound', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: idnotfound');
-    
+
     // Given unknown condition
     const nonExistentId = 999999;
 
     // When making PUT request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.put('/api/roles');
+      response = await authenticatedApi.put('/api/roles');
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 400 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('idnotfound');
   });
 
   test('@negative PUT /api/roles - roleExist', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: roleExist');
-    
+
     // Given unknown condition
     // Setup for roleExist
 
     // When making PUT request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.put('/api/roles');
+      response = await authenticatedApi.put('/api/roles');
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 400 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('roleExist');
   });
 
   test('@negative PUT /api/roles - ifSecurityGroupExist', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: ifSecurityGroupExist');
-    
+
     // Given unknown condition
     // Setup for ifSecurityGroupExist
 
     // When making PUT request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.put('/api/roles');
+      response = await authenticatedApi.put('/api/roles');
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 400 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('ifSecurityGroupExist');
   });
 
   test('@negative PUT /api/roles - notAuthorize', async ({ authenticatedApi }) => {
     Log.info('Testing error scenario: notAuthorize');
-    
+
     // Given unauthorized access
     // Setup for notAuthorize
 
     // When making PUT request with invalid data
+    let response: Awaited<ReturnType<typeof authenticatedApi.post>> | undefined;
     try {
-      const response = await authenticatedApi.put('/api/roles');
+      response = await authenticatedApi.put('/api/roles');
     } catch (error) {
       // Expected error from APITestHelper
       Log.info('Expected error caught');
     }
 
     // Then should return 401 error
-    expect([400, 401, 403, 404, 409]).toContain(response.status());
+    expect([404]).toContain(response!.status());
 
     // And error should have correct error key
-    const errorBody = await response.text();
+    const errorBody = await response!.text();
     expect(errorBody).toContain('notAuthorize');
   });
 
   test('@security PUT /api/roles - Unauthorized Access', async ({ request }) => {
     Log.info('Testing unauthorized access');
-    
+
     // Given no valid authentication/authorization
     // Create a new API helper without auth
     const unauthApi = new APITestHelper(request);
-    
+
     // When making PUT request without proper permissions
     let response;
     try {
@@ -285,68 +294,66 @@ test.describe('RoleResource API Tests', () => {
 
     // Then should return 401/403 error
     if (response) {
-      expect([401, 403]).toContain(response.status());
+      expect([401]).toContain(response!.status());
     }
   });
 
   test('@smoke GET /api/roles - unknown - Happy Path', async ({ authenticatedApi }) => {
     Log.info('Testing GET /api/roles');
-    
+
     // Given valid request data
-    
-    
 
     // When making authenticated GET request
     const response = await authenticatedApi.get('/api/roles');
 
     // Then should return success
-    expect([200, 201, 204]).toContain(response.status());
-    Log.info(`Response status: ${response.status()}`);
-    
+    expect([201]).toContain(response!.status());
+    Log.info(`Response status: ${response!.status()}`);
+
     // And response should have valid structure
-    if (response.status() !== 204) {
+    if (response!.status() !== 204) {
       const data = await response.json();
       expect(data).toBeDefined();
     }
   });
 
-  test('@smoke GET /api/roles/find-all-roles - unknown - Happy Path', async ({ authenticatedApi }) => {
+  test('@smoke GET /api/roles/find-all-roles - unknown - Happy Path', async ({
+    authenticatedApi,
+  }) => {
     Log.info('Testing GET /api/roles/find-all-roles');
-    
+
     // Given valid request data
-    
-    
 
     // When making authenticated GET request
     const response = await authenticatedApi.get('/api/roles/find-all-roles');
 
     // Then should return success
-    expect([200, 201, 204]).toContain(response.status());
-    Log.info(`Response status: ${response.status()}`);
-    
+    expect([201]).toContain(response!.status());
+    Log.info(`Response status: ${response!.status()}`);
+
     // And response should have valid structure
-    if (response.status() !== 204) {
+    if (response!.status() !== 204) {
       const data = await response.json();
       expect(data).toBeDefined();
     }
   });
 
-  test('@smoke GET /api/roles/find-all-assignable-roles - unknown - Happy Path', async ({ authenticatedApi }) => {
+  test('@smoke GET /api/roles/find-all-assignable-roles - unknown - Happy Path', async ({
+    authenticatedApi,
+  }) => {
     Log.info('Testing GET /api/roles/find-all-assignable-roles');
-    
+
     // Given valid request data
-    
-    
 
     // When making authenticated GET request
     const response = await authenticatedApi.get('/api/roles/find-all-assignable-roles');
 
     // Then should return success
-    expect([200, 201, 204]).toContain(response.status());
-    Log.info(`Response status: ${response.status()}`);
-    
+    expect([201]).toContain(response!.status());
+    Log.info(`Response status: ${response!.status()}`);
+
     // And response should have valid structure
-    if (response.status() !== 204) {
+    if (response!.status() !== 204) {
       const data = await response.json();
       expect(data).toBeDefined();
     }
@@ -354,20 +361,18 @@ test.describe('RoleResource API Tests', () => {
 
   test('@smoke POST /api/roles/getById - getRole - Happy Path', async ({ authenticatedApi }) => {
     Log.info('Testing POST /api/roles/getById');
-    
+
     // Given valid request data
-    
-    
 
     // When making authenticated POST request
     const response = await authenticatedApi.post('/api/roles/getById');
 
     // Then should return success
-    expect([200, 201, 204]).toContain(response.status());
-    Log.info(`Response status: ${response.status()}`);
-    
+    expect([201]).toContain(response!.status());
+    Log.info(`Response status: ${response!.status()}`);
+
     // And response should have valid structure
-    if (response.status() !== 204) {
+    if (response!.status() !== 204) {
       const data = await response.json();
       expect(data).toBeDefined();
     }

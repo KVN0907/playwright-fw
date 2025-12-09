@@ -1,5 +1,5 @@
 import { test, expect } from '../fixtures/advancedFixtures';
-import { TestDataGenerator } from '../../lib/TestDataGenerator';
+import { TestDataGenerator } from '../../lib/generators/TestDataGenerator';
 import urls from './endPointsDTO/uri.json';
 import * as path from 'path';
 

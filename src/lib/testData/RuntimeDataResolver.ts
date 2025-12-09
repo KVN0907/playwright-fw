@@ -4,7 +4,7 @@
  * @version 1.0
  */
 
-import Log from '../Log';
+import Log from '../utils/Log';
 import { UserBuilder, User } from './builders/UserBuilder';
 import { OrganizationBuilder, Organization } from './builders/OrganizationBuilder';
 import { LocationBuilder, Location } from './builders/LocationBuilder';
@@ -343,18 +343,27 @@ export class RuntimeDataResolver {
    */
   static autoResolve<T = unknown>(
     type: 'user' | 'organization' | 'location' | 'scenario',
-    identifier?: unknown,
+    identifier?: string | number | RuntimeUserConfig | RuntimeOrgConfig | RuntimeLocationConfig,
     options: ResolverOptions = {}
   ): T {
     switch (type) {
       case 'user':
-        return this.resolveUser(identifier, options) as T;
+        return this.resolveUser(
+          identifier as string | number | RuntimeUserConfig | undefined,
+          options
+        ) as T;
       case 'organization':
-        return this.resolveOrganization(identifier, options) as T;
+        return this.resolveOrganization(
+          identifier as string | number | RuntimeOrgConfig | undefined,
+          options
+        ) as T;
       case 'location':
-        return this.resolveLocation(identifier, options) as T;
+        return this.resolveLocation(
+          identifier as string | number | RuntimeLocationConfig | undefined,
+          options
+        ) as T;
       case 'scenario':
-        return this.resolveScenario(identifier || 'Auto Scenario', options) as T;
+        return this.resolveScenario((identifier as string) || 'Auto Scenario', options) as T;
       default:
         throw new Error(`Unknown type: ${type}`);
     }

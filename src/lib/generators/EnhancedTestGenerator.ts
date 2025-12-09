@@ -8,7 +8,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import Log from './Log';
+import Log from '../utils/Log';
 
 // ============================================
 // Type Definitions
@@ -143,7 +143,9 @@ export class EnhancedTestGenerator {
 
     // Extract entity name
     const entityNameMatch = content.match(/ENTITY_NAME\s*=\s*["']([^"']+)["']/);
-    const entityName = entityNameMatch ? entityNameMatch[1] : className.replace(/Resource|Controller/, '');
+    const entityName = entityNameMatch
+      ? entityNameMatch[1]
+      : className.replace(/Resource|Controller/, '');
 
     // Parse all endpoints with error scenarios
     const endpoints = this.extractEnhancedEndpoints(content, baseMapping);
@@ -165,10 +167,19 @@ export class EnhancedTestGenerator {
 
     const methodPatterns = [
       { method: 'GET' as const, pattern: /@GetMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/ },
-      { method: 'POST' as const, pattern: /@PostMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/ },
+      {
+        method: 'POST' as const,
+        pattern: /@PostMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/,
+      },
       { method: 'PUT' as const, pattern: /@PutMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/ },
-      { method: 'DELETE' as const, pattern: /@DeleteMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/ },
-      { method: 'PATCH' as const, pattern: /@PatchMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/ },
+      {
+        method: 'DELETE' as const,
+        pattern: /@DeleteMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/,
+      },
+      {
+        method: 'PATCH' as const,
+        pattern: /@PatchMapping(?:\((?:value\s*=\s*)?["']([^"']*)["']\))?/,
+      },
     ];
 
     // Split content by method annotations to process each method
@@ -410,7 +421,8 @@ export class EnhancedTestGenerator {
     }
 
     // @Size
-    const sizeRegex = /@Size\s*\(\s*(?:min\s*=\s*(\d+))?\s*,?\s*(?:max\s*=\s*(\d+))?\s*\)\s+(?:private\s+)?(\w+)\s+(\w+)/g;
+    const sizeRegex =
+      /@Size\s*\(\s*(?:min\s*=\s*(\d+))?\s*,?\s*(?:max\s*=\s*(\d+))?\s*\)\s+(?:private\s+)?(\w+)\s+(\w+)/g;
     while ((match = sizeRegex.exec(dtoContent)) !== null) {
       rules.push({
         field: match[4],
@@ -474,7 +486,9 @@ import Log from '../../lib/Log';
  */
 `;
 
-    const testSuites = controller.endpoints.map(endpoint => this.generateEndpointTests(endpoint, controller)).join('\n\n');
+    const testSuites = controller.endpoints
+      .map(endpoint => this.generateEndpointTests(endpoint, controller))
+      .join('\n\n');
 
     return `${imports}
 test.describe('${controller.className} API Tests', () => {
@@ -486,7 +500,10 @@ ${testSuites}
   /**
    * Generate all tests for an endpoint
    */
-  private generateEndpointTests(endpoint: EnhancedEndpoint, controller: EnhancedController): string {
+  private generateEndpointTests(
+    endpoint: EnhancedEndpoint,
+    controller: EnhancedController
+  ): string {
     const tests: string[] = [];
 
     // 1. Happy path test
@@ -521,20 +538,27 @@ ${testSuites}
   /**
    * Generate happy path test
    */
-  private generateHappyPathTest(endpoint: EnhancedEndpoint, controller: EnhancedController): string {
+  private generateHappyPathTest(
+    endpoint: EnhancedEndpoint,
+    controller: EnhancedController
+  ): string {
     const pathParams = endpoint.parameters.filter(p => p.annotation === 'PathVariable');
     const bodyParams = endpoint.parameters.filter(p => p.annotation === 'RequestBody');
 
     let testUrl = endpoint.path;
-    const pathVarSetup = pathParams.map(p => `const ${p.name} = ${this.getMockValue(p.type)};`).join('\n    ');
+    const pathVarSetup = pathParams
+      .map(p => `const ${p.name} = ${this.getMockValue(p.type)};`)
+      .join('\n    ');
     pathParams.forEach(p => {
       testUrl = testUrl.replace(`{${p.name}}`, `\${${p.name}}`);
     });
 
-    const expectedStatus = endpoint.method === 'POST' ? 201 : endpoint.method === 'DELETE' ? 204 : 200;
-    const bodySetup = bodyParams.length > 0 
-      ? `const requestData = ${this.getMockRequestBody(bodyParams[0].type)};`
-      : '';
+    const expectedStatus =
+      endpoint.method === 'POST' ? 201 : endpoint.method === 'DELETE' ? 204 : 200;
+    const bodySetup =
+      bodyParams.length > 0
+        ? `const requestData = ${this.getMockRequestBody(bodyParams[0].type)};`
+        : '';
 
     const requestCall = this.getApiHelperCall(endpoint.method, testUrl, bodyParams.length > 0);
 
@@ -551,12 +575,16 @@ ${testSuites}
     // Then should return success
     expect([200, 201, 204]).toContain(response.status());
     Log.info(\`Response status: \${response.status()}\`);
-    ${expectedStatus !== 204 ? `
+    ${
+      expectedStatus !== 204
+        ? `
     // And response should have valid structure
     if (response.status() !== 204) {
       const data = await response.json();
       expect(data).toBeDefined();
-    }` : ''}
+    }`
+        : ''
+    }
   });`;
   }
 
@@ -722,10 +750,12 @@ ${testSuites}
       },
     };
 
-    return errorDataMap[scenario.errorCode] || {
-      setup: '// Setup for ' + scenario.errorCode,
-      request: `const response = await authenticatedApi.${endpoint.method.toLowerCase()}('${endpoint.path}');`,
-    };
+    return (
+      errorDataMap[scenario.errorCode] || {
+        setup: '// Setup for ' + scenario.errorCode,
+        request: `const response = await authenticatedApi.${endpoint.method.toLowerCase()}('${endpoint.path}');`,
+      }
+    );
   }
 
   /**
@@ -751,7 +781,10 @@ ${testSuites}
 /**
  * CLI Entry point
  */
-export async function runEnhancedGeneration(servicePath: string, outputPath: string): Promise<void> {
+export async function runEnhancedGeneration(
+  servicePath: string,
+  outputPath: string
+): Promise<void> {
   const generator = new EnhancedTestGenerator({
     servicePath,
     outputPath,

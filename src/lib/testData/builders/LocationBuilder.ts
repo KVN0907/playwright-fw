@@ -5,7 +5,7 @@
  */
 
 import { BaseBuilder, TestDataFactory } from '../TestDataFactory';
-import { TestDataGenerator } from '../../TestDataGenerator';
+import { TestDataGenerator } from '../../generators/TestDataGenerator';
 
 /* ===== LOCATION INTERFACES ===== */
 

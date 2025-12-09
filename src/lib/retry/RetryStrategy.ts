@@ -4,7 +4,7 @@
  * @version 1.0
  */
 
-import Log from '../Log';
+import Log from '../utils/Log';
 
 /* ===== ERROR CATEGORIES ===== */
 

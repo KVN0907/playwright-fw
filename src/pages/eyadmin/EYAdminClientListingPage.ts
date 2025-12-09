@@ -5,7 +5,7 @@
 
 import { Locator, Page, expect } from '@playwright/test';
 import { BasePage } from '../common/BasePage';
-import Log from '../../lib/Log';
+import Log from '../../lib/utils/Log';
 
 export class EYAdminClientListingPage extends BasePage<EYAdminClientListingPage> {
   // Page heading and navigation

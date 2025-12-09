@@ -5,8 +5,8 @@
  */
 
 import { Locator, Page, expect } from '@playwright/test';
-import Log from '../../lib/Log';
-import { Utils } from '../../lib/Utils';
+import Log from '../../lib/utils/Log';
+import { Utils } from '../../lib/utils/Utils';
 
 /* ===== ADVANCED TYPES & INTERFACES ===== */
 
@@ -372,5 +372,44 @@ export abstract class BasePage<TPage extends BasePage<any> = any> {
    */
   async waitForLoadState(state: LoadState = 'networkidle', timeout?: number): Promise<void> {
     await this.page.waitForLoadState(state, { timeout });
+  }
+
+  /**
+   * @description Wait for network to become idle
+   * @param timeout - Maximum wait time
+   * @returns Fluent interface
+   */
+  async waitForNetworkIdle(timeout?: number): Promise<TPage> {
+    await this.page.waitForLoadState('networkidle', { timeout });
+    return this as unknown as TPage;
+  }
+
+  /**
+   * @description Wait for a specific response
+   * @param urlOrPredicate - URL string, regex, or predicate function
+   * @param optionsOrStatus - Wait options or expected status code
+   * @returns Promise with the response
+   */
+  async waitForResponse(
+    urlOrPredicate:
+      | string
+      | RegExp
+      | ((response: import('@playwright/test').Response) => boolean | Promise<boolean>),
+    optionsOrStatus?: { timeout?: number } | number
+  ): Promise<import('@playwright/test').Response> {
+    // If optionsOrStatus is a number, it's an expected status code
+    if (typeof optionsOrStatus === 'number') {
+      const expectedStatus = optionsOrStatus;
+      return this.page.waitForResponse(response => {
+        const urlMatch =
+          typeof urlOrPredicate === 'string'
+            ? response.url().includes(urlOrPredicate)
+            : urlOrPredicate instanceof RegExp
+              ? urlOrPredicate.test(response.url())
+              : true;
+        return urlMatch && response.status() === expectedStatus;
+      });
+    }
+    return this.page.waitForResponse(urlOrPredicate, optionsOrStatus);
   }
 }

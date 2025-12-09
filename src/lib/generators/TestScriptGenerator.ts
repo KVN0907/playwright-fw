@@ -3,7 +3,7 @@
  * Uses existing framework patterns and prompt file guidelines
  */
 
-import Log from './Log';
+import Log from '../utils/Log';
 import * as fs from 'fs';
 import * as path from 'path';
 

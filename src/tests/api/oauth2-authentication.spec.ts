@@ -1,7 +1,7 @@
 import { test, expect } from '../fixtures/advancedFixtures';
 import { AuthenticationManager } from '../../lib/auth/AuthenticationManager';
-import { APITestHelper } from '../../lib/APITestHelper';
-import Log from '../../lib/Log';
+import { APITestHelper } from '../../lib/api/APITestHelper';
+import Log from '../../lib/utils/Log';
 
 /**
  * OAuth2/JWT Authentication Tests

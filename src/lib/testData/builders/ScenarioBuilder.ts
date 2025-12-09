@@ -8,7 +8,7 @@ import { BaseBuilder, TestDataFactory } from '../TestDataFactory';
 import { UserBuilder, User } from './UserBuilder';
 import { OrganizationBuilder, Organization } from './OrganizationBuilder';
 import { LocationBuilder, Location } from './LocationBuilder';
-import Log from '../../Log';
+import Log from '../../utils/Log';
 
 /* ===== SCENARIO INTERFACES ===== */
 
