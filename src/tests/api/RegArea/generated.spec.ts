@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/advancedFixtures';
 
 /**
  * API Tests for RegAreaResource
