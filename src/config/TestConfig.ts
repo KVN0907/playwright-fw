@@ -71,6 +71,7 @@ const playwrightConfig: PlaywrightTestConfig = {
         open: environment !== 'prod' ? 'always' : 'never',
         showTrace: true,
         showScreenshots: true,
+        title: 'COMPLIANCE MANAGER AUTOMATION TESTS',
       },
     ],
     ['junit', { outputFile: `./test-results/${environment}/junit-report.xml` }],
