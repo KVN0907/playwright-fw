@@ -43,13 +43,38 @@ async function globalSetup(config: FullConfig) {
     console.log('   Navigating to login page...');
     await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
 
-    const loginPage = new LoginPage(page);
+    const loginType = process.env.LOGIN_TYPE || 'browser_session';
+    console.log(`   Login type: ${loginType}`);
 
-    console.log('   Performing login...');
-    await loginPage.login(username, password);
+    if (loginType === 'keycloak') {
+      // Keycloak direct login
+      console.log('   Performing keycloak login...');
+
+      // Check if we're already on keycloak login page or need to click login button
+      const currentUrl = page.url();
+      if (!currentUrl.includes('auth') && !currentUrl.includes('keycloak')) {
+        // Try to click login button if on landing page
+        const loginButton = page.locator('role=button[name="Login"]');
+        if (await loginButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+          await loginButton.click();
+          await page.waitForLoadState('networkidle');
+        }
+      }
+
+      // Fill keycloak form
+      await page.locator('#username').fill(username);
+      await page.locator('#password').fill(password);
+      await page.locator('#kc-login').click();
+    } else {
+      const loginPage = new LoginPage(page);
+      console.log('   Performing login...');
+      await loginPage.login(username, password);
+    }
 
     // Wait for successful login (adjust selector based on your app)
-    await page.waitForURL(url => !url.href.includes('login'), { timeout: 60000 });
+    await page.waitForURL(url => !url.href.includes('login') && !url.href.includes('auth'), {
+      timeout: 60000,
+    });
 
     console.log('   Saving auth state...');
     await context.storageState({ path: AUTH_FILE });

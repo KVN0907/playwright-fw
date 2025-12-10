@@ -29,7 +29,7 @@ const playwrightConfig: PlaywrightTestConfig = {
 
   use: {
     baseURL: envConfig.baseURL,
-    headless: envConfig.headless,
+    headless: process.env.CI ? true : envConfig.headless,
     screenshot: envConfig.screenshot ? 'on' : 'off',
     video: envConfig.video ? 'on' : 'off',
     trace: envConfig.trace ? 'on' : 'off',
@@ -63,6 +63,7 @@ const playwrightConfig: PlaywrightTestConfig = {
   ],
 
   reporter: [
+    ['html', { outputFolder: './playwright-report', open: 'never' }],
     [
       'playwright-enhanced-reporter',
       {
@@ -70,6 +71,7 @@ const playwrightConfig: PlaywrightTestConfig = {
         open: environment !== 'prod' ? 'always' : 'never',
         showTrace: true,
         showScreenshots: true,
+        title: 'COMPLIANCE MANAGER AUTOMATION TESTS',
       },
     ],
     ['junit', { outputFile: `./test-results/${environment}/junit-report.xml` }],
