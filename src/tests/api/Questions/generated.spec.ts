@@ -14,6 +14,25 @@ import { test, expect } from '../../fixtures/advancedFixtures';
  * - DELETE /questions/{id} - Delete a question by ID
  * - DELETE /questions - Delete multiple questions by IDs
  * - POST /questions/upload-questions - Upload questions from a file
+ *
+ * ADO Traceability:
+ * - Story #197265: Master questionnaire - Create reg area and questions (Backend)
+ * - Story #197273: Master questionnaire - Edit reg area name and questions (Backend)
+ *
+ * Related ADO Test Cases:
+ * - #202616: API - Add Valid Manual Text Question to Section (POST /questions)
+ * - #202617: API - Add Valid Yes/No Question with Special Characters (POST /questions)
+ * - #202618: API - Add Question with Minimum Allowed Length (3 chars) (POST /questions)
+ * - #202619: API - Add Question with Maximum Allowed Length (500 chars) (POST /questions)
+ * - #202620: API - Add Question with Too Short Text (<3 chars) (POST /questions)
+ * - #202621: API - Add Question with Too Long Text (>500 chars) (POST /questions)
+ * - #202622: API - Add Question with Unsupported Type (POST /questions)
+ * - #202624: API - Add Question to Non-existent Section (POST /questions)
+ * - #202772: Edit Question Text via API (PUT /questions)
+ * - #202773: Edit Question Type and Provide Required Options (PUT /questions)
+ * - #202778: Reject Question Edit for Nonexistent Question ID (PUT /questions)
+ * - #202781: Reject Malformed API Request for Question Edit (PUT /questions)
+ * - #202782: Verify Atomicity of Edit Operation on Multiple Fields (PUT /questions)
  */
 
 const API_BASE = '/api/compliancemanager';
@@ -184,7 +203,8 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('POST /questions', () => {
-    test('@smoke should create a new question', async ({ request }) => {
+    // ADO Test Case #202616: API - Add Valid Manual Text Question to Section
+    test('@smoke @ADO-202616 should create a new question', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -320,7 +340,8 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should handle non-existent regAreaId', async ({ request }) => {
+    // ADO Test Case #202624: API - Add Question to Non-existent Section
+    test('@negative @ADO-202624 should handle non-existent regAreaId', async ({ request }) => {
       // Given request with non-existent regAreaId
       const timestamp = Date.now();
       const requestData = {
@@ -339,7 +360,11 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('PUT /questions', () => {
-    test('@smoke should update an existing question', async ({ request }) => {
+    // ADO Test Case #202772: Edit Question Text via API
+    // ADO Test Case #202773: Edit Question Type and Provide Required Options
+    test('@smoke @ADO-202772 @ADO-202773 should update an existing question', async ({
+      request,
+    }) => {
       // Given: First create a reg area and question to update
       const regArea = await createTestRegArea(request);
 
@@ -404,7 +429,8 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return error when updating non-existent question', async ({
+    // ADO Test Case #202778: Reject Question Edit for Nonexistent Question ID
+    test('@negative @ADO-202778 should return error when updating non-existent question', async ({
       request,
     }) => {
       // Given update data for non-existent ID
@@ -1022,7 +1048,7 @@ test.describe('QuestionsResource API Tests', () => {
           const data = await response.json();
           // Should either strip tags or keep as literal
           expect(['<b>Text</b>', 'Text', 'bTextb']).toContain(
-            data.questionType.replace(/<\/?b>/g, match => (match === '<b>' ? '' : ''))
+            data.questionType.replace(/<\/?b>/g, (match: string) => (match === '<b>' ? '' : ''))
           );
           await request.delete(`${API_BASE}/questions/${data.id}`);
         }

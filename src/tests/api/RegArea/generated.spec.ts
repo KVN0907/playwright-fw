@@ -4,6 +4,17 @@ import { test, expect } from '../../fixtures/advancedFixtures';
  * API Tests for RegAreaResource
  * Generated from: C:\EYCM-CORE\eycompliancemanager\service\compliancemanager\src\main\java\com\ey\compliance\service\web\rest\RegAreaResource.java
  * Base Path: /reg-area
+ *
+ * ADO Traceability:
+ * - Story #197265: Master questionnaire - Create reg area and questions (Backend)
+ * - Story #197273: Master questionnaire - Edit reg area name and questions (Backend)
+ *
+ * Related ADO Test Cases:
+ * - #202614: API - Create Section with Valid, Unique Name (POST /reg-area)
+ * - #202615: API - Attempt to Create Section with Duplicate Name (POST /reg-area)
+ * - #202775: Edit Regulatory Area Name with Unique Value (PUT /reg-area)
+ * - #202776: Reject Regulatory Area Name Update Due to Uniqueness Violation (PUT /reg-area)
+ * - #202779: Reject Regulatory Area Edit for Nonexistent Reg Area ID (PUT /reg-area)
  */
 
 const API_BASE = '/api/compliancemanager';
@@ -26,7 +37,8 @@ test.describe('RegAreaResource API Tests', () => {
   });
 
   test.describe('POST /reg-area', () => {
-    test('@smoke should create a new regulatory area', async ({ request }) => {
+    // ADO Test Case #202614: API - Create Section with Valid, Unique Name
+    test('@smoke @ADO-202614 should create a new regulatory area', async ({ request }) => {
       // Given valid regulatory area data
       const timestamp = Date.now();
       const requestData = {
