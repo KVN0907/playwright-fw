@@ -1,0 +1,45 @@
+{
+  "config": {
+    "prefix": "AUTOQA",
+    "emailDomain": "ey.com",
+    "defaultPassword": "Test@123456",
+    "dynamicSuffix": true
+  },
+  "testUsers": {
+    "validUser": {
+      "firstNameBase": "Valid",
+      "lastNameBase": "User",
+      "emailBase": "autoqa.valid",
+      "description": "Valid EY Admin user for creation tests"
+    },
+    "listTestUser": {
+      "firstNameBase": "List",
+      "lastNameBase": "User",
+      "emailBase": "autoqa.list",
+      "description": "User for list/tab verification tests"
+    },
+    "noClientUser": {
+      "firstNameBase": "NoClient",
+      "lastNameBase": "User",
+      "emailBase": "autoqa.noclient",
+      "description": "User without client assignment"
+    },
+    "activeStatusUser": {
+      "firstNameBase": "Active",
+      "lastNameBase": "User",
+      "emailBase": "autoqa.active",
+      "description": "User for active status verification"
+    }
+  },
+  "invalidEmails": {
+    "invalidFormat": "invalid@@email.com",
+    "nonEyDomain": "test.user@gmail.com",
+    "duplicateEmail": "Keerthivasan.Rc@in.ey.com"
+  },
+  "notes": {
+    "dynamicGeneration": "Names are generated at runtime with timestamp suffix for uniqueness",
+    "emailRequirement": "The API validates that emails exist in EY's identity system. For valid user creation tests, emails must exist in EY identity.",
+    "prefix": "All test users use AUTOQA prefix for easy identification and cleanup",
+    "format": "firstName: AUTOQA_{firstNameBase}_{timestamp}, lastName: {lastNameBase}{timestamp}, email: {emailBase}.{timestamp}@ey.com"
+  }
+}

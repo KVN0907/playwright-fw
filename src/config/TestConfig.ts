@@ -43,6 +43,7 @@ const playwrightConfig: PlaywrightTestConfig = {
       use: {
         ...devices['Desktop Chrome'],
         ...(envConfig.slowMo > 0 && { launchOptions: { slowMo: envConfig.slowMo } }),
+        storageState: AUTH_FILE,
       },
       testDir: './src/tests',
       testIgnore: ['**/node_modules/**', '**/api/**'],
