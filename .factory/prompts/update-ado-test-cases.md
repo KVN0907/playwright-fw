@@ -64,9 +64,12 @@ Parameters:
 Extract from story:
 
 - **Assigned To** - Bugs will be assigned to this person
-- **Area Path** - Use same area path for bugs
-- **Iteration Path** - Use same iteration path for bugs
 - **Story Title** - For reference
+
+**IMPORTANT - Required Field Values:**
+
+- **Area Path** - MUST be `eycompliancemanager\MVP1`
+- **Iteration Path** - MUST be the current sprint (e.g., `eycompliancemanager\Sprint 5`)
 
 #### Step 2.2: Analyze Failures and Group
 
@@ -86,14 +89,16 @@ Work Item Type: Bug
 Fields:
   - System.Title: "[API] [Brief Issue Description]"
   - System.AssignedTo: [Story Owner Email]
-  - System.AreaPath: [Same as Story]
-  - System.IterationPath: [Same as Story]
-  - System.Tags: "api-bug; automation-detected; sprint1; [category]"
+  - System.AreaPath: "eycompliancemanager\\MVP1"  # REQUIRED - Always use MVP1
+  - System.IterationPath: "eycompliancemanager\\Sprint X"  # REQUIRED - Use current sprint
+  - System.Tags: "api-bug; automation-detected; sprintX; [category]"
   - Custom.TestPhase: "QA"
   - Microsoft.VSTS.Common.Severity: "2 - High"
   - Microsoft.VSTS.Common.Priority: 2
   - Microsoft.VSTS.TCM.ReproSteps: [DETAILED HTML - see template below]
 ```
+
+**Note:** Always set Area Path to `eycompliancemanager\MVP1` and Iteration Path to the current sprint.
 
 #### Step 2.4: Detailed Repro Steps Template (REQUIRED FORMAT)
 
@@ -313,13 +318,16 @@ Work Item Type: Bug
 Fields:
   - System.Title: "[API/Feature] - [Issue Description]"
   - System.AssignedTo: [Story Owner from parent story]
-  - System.AreaPath: [Same as parent story]
-  - System.IterationPath: [Same as parent story]
+  - System.AreaPath: "eycompliancemanager\\MVP1"  # REQUIRED - Always use MVP1
+  - System.IterationPath: "eycompliancemanager\\Sprint X"  # REQUIRED - Use current sprint
   - System.Tags: "api-bug; automation-detected; [sprint-tag]"
+  - Custom.TestPhase: "QA"  # REQUIRED field
   - Microsoft.VSTS.Common.Severity: [1-Critical/2-High/3-Medium/4-Low]
   - Microsoft.VSTS.Common.Priority: [1/2/3]
   - System.Description: [Detailed bug description - see template below]
 ```
+
+**IMPORTANT:** Area Path MUST be `eycompliancemanager\MVP1` and Iteration Path MUST be the current sprint.
 
 ### Step 3: Bug Description Template
 
