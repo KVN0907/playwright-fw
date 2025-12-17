@@ -46,7 +46,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204248
    * Verify Successful Login Returns Auth Token and Expected Response via API
    */
-  test('should return auth token on successful login @ADO-204248', async ({ request }) => {
+  test('should return auth token on successful login @regression @smoke @ADO-204248', async ({
+    request,
+  }) => {
     const response = await request.post(LOGIN_ENDPOINT, {
       data: {
         username: VALID_USERNAME,
@@ -65,7 +67,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204250
    * Verify Error Response for Invalid Credentials via API
    */
-  test('should return error for invalid credentials @ADO-204250', async ({ request }) => {
+  test('should return error for invalid credentials @regression @smoke @ADO-204250', async ({
+    request,
+  }) => {
     const response = await request.post(LOGIN_ENDPOINT, {
       data: {
         username: VALID_USERNAME,
@@ -80,7 +84,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204235
    * Verify Successful Login with Valid Credentials on Web Application
    */
-  test('should authenticate with valid credentials @ADO-204235', async ({ request }) => {
+  test('should authenticate with valid credentials @regression @smoke @ADO-204235', async ({
+    request,
+  }) => {
     const response = await request.post(LOGIN_ENDPOINT, {
       data: {
         username: VALID_USERNAME,
@@ -97,7 +103,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204236
    * Verify Error Message for Invalid Password on Web Application
    */
-  test('should show error for invalid password @ADO-204236', async ({ request }) => {
+  test('should show error for invalid password @regression @ADO-204236', async ({ request }) => {
     const response = await request.post(LOGIN_ENDPOINT, {
       data: {
         username: VALID_USERNAME,
@@ -115,7 +121,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204237
    * Verify Error Message for Non-Existent Username on Web Application
    */
-  test('should show error for non-existent username @ADO-204237', async ({ request }) => {
+  test('should show error for non-existent username @regression @ADO-204237', async ({
+    request,
+  }) => {
     const response = await request.post(LOGIN_ENDPOINT, {
       data: {
         username: NON_EXISTENT_USER,
@@ -130,7 +138,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204254
    * Verify No Disclosure of Credential Correctness in API Error Messages
    */
-  test('should not disclose which credential is wrong @ADO-204254', async ({ request }) => {
+  test('should not disclose which credential is wrong @regression @ADO-204254', async ({
+    request,
+  }) => {
     // Test with wrong password
     const wrongPassResponse = await request.post(LOGIN_ENDPOINT, {
       data: {
@@ -164,7 +174,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204256
    * Verify Handling of Malformed Payloads on Authentication API
    */
-  test('should handle malformed payload gracefully @ADO-204256', async ({ request }) => {
+  test('should handle malformed payload gracefully @regression @ADO-204256', async ({
+    request,
+  }) => {
     // Missing required fields
     const missingFieldsResponse = await request.post(LOGIN_ENDPOINT, {
       data: {},
@@ -195,7 +207,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204258
    * Verify Login with Special Characters and Boundary Values via API
    */
-  test('should handle special characters and boundary values @ADO-204258', async ({ request }) => {
+  test('should handle special characters and boundary values @regression @ADO-204258', async ({
+    request,
+  }) => {
     // Very long username
     const longUsername = 'a'.repeat(1000) + '@ey.com';
     const longResponse = await request.post(LOGIN_ENDPOINT, {
@@ -229,7 +243,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204241
    * Verify Login with Special Characters and Empty Strings
    */
-  test('should reject empty credentials @ADO-204241', async ({ request }) => {
+  test('should reject empty credentials @regression @ADO-204241', async ({ request }) => {
     // Empty username
     const emptyUserResponse = await request.post(LOGIN_ENDPOINT, {
       data: {
@@ -287,7 +301,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204255
    * Verify Session Expiry and Logout via API
    */
-  test('should handle logout properly @ADO-204255', async ({ request }) => {
+  test('should handle logout properly @regression @ADO-204255', async ({ request }) => {
     // First login
     const loginResponse = await request.post(LOGIN_ENDPOINT, {
       data: {
@@ -324,7 +338,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204251
    * Verify Account Lockout Mechanism after Repeated Failed Attempts via API
    */
-  test('should implement account lockout after failed attempts @ADO-204251', async ({
+  test('should implement account lockout after failed attempts @regression @ADO-204251', async ({
     request,
   }) => {
     const testUsername = `lockout_test_${Date.now()}@ey.com`;
@@ -385,7 +399,9 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204239
    * Verify Account Lockout After Multiple Failed Login Attempts
    */
-  test('should lock account after multiple failed attempts @ADO-204239', async ({ request }) => {
+  test('should lock account after multiple failed attempts @regression @ADO-204239', async ({
+    request,
+  }) => {
     const testUsername = VALID_USERNAME;
 
     // Make multiple failed attempts
@@ -415,7 +431,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204244
    * Verify Logout and Session Timeout on Web Application
    */
-  test('should invalidate session on logout @ADO-204244', async ({ request }) => {
+  test('should invalidate session on logout @regression @ADO-204244', async ({ request }) => {
     // Login first
     const loginResponse = await request.post(LOGIN_ENDPOINT, {
       data: {

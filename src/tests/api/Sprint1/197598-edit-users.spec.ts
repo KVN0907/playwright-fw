@@ -42,7 +42,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202514
    * API – Successfully Edit an Existing EY Admin User by EY Super Admin
    */
-  test('should successfully edit an existing EY Admin user @ADO-202514', async ({ request }) => {
+  test('should successfully edit an existing EY Admin user @regression @ADO-202514', async ({
+    request,
+  }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -70,7 +72,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202515
    * API – Attempt to Edit EY Admin with Missing Field
    */
-  test('should reject edit with missing required field @ADO-202515', async ({ request }) => {
+  test('should reject edit with missing required field @regression @ADO-202515', async ({
+    request,
+  }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -93,7 +97,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202516
    * API – Attempt to Edit EY Admin with Invalid Email Format
    */
-  test('should reject invalid email format on edit @ADO-202516', async ({ request }) => {
+  test('should reject invalid email format on edit @regression @ADO-202516', async ({
+    request,
+  }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -120,7 +126,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202517
    * API – Attempt to Update EY Admin Email to One Already Used by Another User
    */
-  test('should reject duplicate email on edit @ADO-202517', async ({ request }) => {
+  test('should reject duplicate email on edit @regression @ADO-202517', async ({ request }) => {
     // Create two users
     const user1 = await createTestUser(request);
     const user2 = await createTestUser(request);
@@ -147,7 +153,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202518
    * API – Attempt to Edit Non-Existent EY Admin User
    */
-  test('should return 404 for non-existent user @ADO-202518', async ({ request }) => {
+  test('should return 404 for non-existent user @regression @ADO-202518', async ({ request }) => {
     const nonExistentId = 999999999;
 
     const response = await request.put(`${USERS_ENDPOINT}/${nonExistentId}`, {
@@ -166,7 +172,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202519
    * API – Unauthorized Role Attempts to Edit EY Admin
    */
-  test('should reject unauthorized user edit attempts @ADO-202519', async ({ request }) => {
+  test('should reject unauthorized user edit attempts @regression @ADO-202519', async ({
+    request,
+  }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -192,7 +200,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202520
    * API – Successfully Edit an Inactive EY Admin User
    */
-  test('should allow editing inactive user @ADO-202520', async ({ request }) => {
+  test('should allow editing inactive user @regression @ADO-202520', async ({ request }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -220,7 +228,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202522
    * API – Attempt to Edit EY Admin With Excessively Long Field Data
    */
-  test('should reject excessively long field data @ADO-202522', async ({ request }) => {
+  test('should reject excessively long field data @regression @ADO-202522', async ({ request }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -245,7 +253,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202523
    * API – API Response Contains Updated User Fields, Status, and Client Info
    */
-  test('should return complete user data in response @ADO-202523', async ({ request }) => {
+  test('should return complete user data in response @regression @ADO-202523', async ({
+    request,
+  }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();

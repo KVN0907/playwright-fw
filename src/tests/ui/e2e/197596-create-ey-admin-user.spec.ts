@@ -60,7 +60,9 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * Successfully Add EY Admin with Valid Details (Web)
    * NOTE: Requires valid EY email in EY identity system
    */
-  test('Successfully Add EY Admin with Valid Details @ADO-202107', async ({ page: _page }) => {
+  test('Successfully Add EY Admin with Valid Details @regression @smoke @ADO-202107', async ({
+    page: _page,
+  }) => {
     await userManagementPage.verifyPageLoaded();
 
     // Generate dynamic user with unique timestamp
@@ -79,7 +81,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202108
    * Submission with Missing Required Fields Shows Inline Errors (Web)
    */
-  test('Submission with Missing Required Fields Shows Inline Errors @ADO-202108', async ({
+  test('Submission with Missing Required Fields Shows Inline Errors @regression @smoke @ADO-202108', async ({
     page: _page,
   }) => {
     await userManagementPage.openAddUserDialog();
@@ -121,7 +123,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202109
    * Submission with Invalid Email Format Fails and Shows Error (Web)
    */
-  test('Submission with Invalid Email Format Fails and Shows Error @ADO-202109', async ({
+  test('Submission with Invalid Email Format Fails and Shows Error @regression @smoke @ADO-202109', async ({
     page: _page,
   }) => {
     await userManagementPage.openAddUserDialog();
@@ -141,7 +143,9 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202110
    * Submission with Non-EY Domain Email is Prevented (Web)
    */
-  test('Submission with Non-EY Domain Email is Prevented @ADO-202110', async ({ page: _page }) => {
+  test('Submission with Non-EY Domain Email is Prevented @regression @smoke @ADO-202110', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -159,7 +163,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202111
    * Attempt to Add EY Admin with Duplicate Email Fails (Web)
    */
-  test('Attempt to Add EY Admin with Duplicate Email Fails @ADO-202111', async ({
+  test('Attempt to Add EY Admin with Duplicate Email Fails @regression @smoke @ADO-202111', async ({
     page: _page,
   }) => {
     await userManagementPage.openAddUserDialog();
@@ -180,7 +184,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * New EY Admin Appears in User Lists and Tabs Correctly (Web)
    * NOTE: Requires valid EY email in EY identity system
    */
-  test('New EY Admin Appears in User Lists and Tabs Correctly @ADO-202112', async ({
+  test('New EY Admin Appears in User Lists and Tabs Correctly @regression @smoke @ADO-202112', async ({
     page: _page,
   }) => {
     // Generate dynamic user with unique timestamp
@@ -211,7 +215,9 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202113
    * Search EY Admins by Name and Client (Web)
    */
-  test('Search EY Admins by Name and Client @ADO-202113', async ({ page: _page }) => {
+  test('Search EY Admins by Name and Client @regression @smoke @ADO-202113', async ({
+    page: _page,
+  }) => {
     // Search for AUTOQA users
     await userManagementPage.searchUser(TEST_PREFIX);
     const autoqaCount = await userManagementPage.getUserCount();
@@ -228,7 +234,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202114
    * User Creation with Backend/System Failure is Handled Gracefully (Web)
    */
-  test('User Creation with Backend/System Failure is Handled Gracefully @ADO-202114', async ({
+  test('User Creation with Backend/System Failure is Handled Gracefully @regression @ADO-202114', async ({
     page: _page,
   }) => {
     await userManagementPage.openAddUserDialog();
@@ -251,7 +257,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202115
    * Warning for Unsaved Changes on Navigation Away from Incomplete Form (Web)
    */
-  test('Warning for Unsaved Changes on Navigation Away from Incomplete Form @ADO-202115', async ({
+  test('Warning for Unsaved Changes on Navigation Away from Incomplete Form @regression @ADO-202115', async ({
     page: _page,
   }) => {
     await userManagementPage.openAddUserDialog();
@@ -270,7 +276,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * ADO Test Case: 202116
    * Inactive or Disabled EY Admins Do Not Show in Active Tab but Show in All Users (Web)
    */
-  test('Inactive EY Admins Do Not Show in Active Tab but Show in All Users @ADO-202116', async ({
+  test('Inactive EY Admins Do Not Show in Active Tab but Show in All Users @regression @ADO-202116', async ({
     page: _page,
   }) => {
     // View All Users tab
@@ -293,7 +299,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * Display Handling When Client Assignment is Unavailable at Creation (Web)
    * NOTE: Requires valid EY email in EY identity system
    */
-  test('Display Handling When Client Assignment is Unavailable at Creation @ADO-202117', async ({
+  test('Display Handling When Client Assignment is Unavailable at Creation @regression @ADO-202117', async ({
     page: _page,
   }) => {
     // Generate dynamic user with unique timestamp
@@ -314,7 +320,9 @@ test.describe('Story #197596 - Create EY Admin User', () => {
    * EY Admin Creation Status Defaults to Active Unless Specified Otherwise (Web)
    * NOTE: Requires valid EY email in EY identity system
    */
-  test('EY Admin Creation Status Defaults to Active @ADO-202118', async ({ page: _page }) => {
+  test('EY Admin Creation Status Defaults to Active @regression @ADO-202118', async ({
+    page: _page,
+  }) => {
     // Generate dynamic user with unique timestamp
     const newUser = generateDynamicUser(testData.testUsers.activeStatusUser as TestUserConfig);
 
@@ -346,7 +354,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
    * Security Test: XSS Injection in First Name field
    * System should sanitize or reject script tags
    */
-  test('XSS Injection Prevention in First Name @SECURITY-001', async ({ page }) => {
+  test('XSS Injection Prevention in First Name @regression @SECURITY-001', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     const xssPayload = "<script>alert('XSS')</script>";
@@ -374,7 +382,9 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Security Test: HTML Injection in Last Name field
    */
-  test('HTML Injection Prevention in Last Name @SECURITY-002', async ({ page: _page }) => {
+  test('HTML Injection Prevention in Last Name @regression @SECURITY-002', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     const htmlPayload = '<img src=x onerror="alert(1)">';
@@ -394,7 +404,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Security Test: SQL Injection patterns in Email field
    */
-  test('SQL Injection Prevention in Email @SECURITY-003', async ({ page: _page }) => {
+  test('SQL Injection Prevention in Email @regression @SECURITY-003', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     const sqlPayload = "test'; DROP TABLE users; --@ey.com";
@@ -412,7 +422,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Boundary Test: Single character First Name
    */
-  test('Single Character First Name @BOUNDARY-001', async ({ page: _page }) => {
+  test('Single Character First Name @regression @BOUNDARY-001', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -432,7 +442,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Boundary Test: Maximum length names (500+ characters)
    */
-  test('Maximum Length Names Exceed Limit @BOUNDARY-002', async ({ page: _page }) => {
+  test('Maximum Length Names Exceed Limit @regression @BOUNDARY-002', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -451,7 +461,9 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Boundary Test: Whitespace-only names
    */
-  test('Whitespace Only Names Should Be Rejected @BOUNDARY-003', async ({ page: _page }) => {
+  test('Whitespace Only Names Should Be Rejected @regression @BOUNDARY-003', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -469,7 +481,9 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
    * Special Characters Test: Unicode characters in names should be REJECTED
    * BUG: System currently accepts Unicode characters but should reject them
    */
-  test('Unicode Characters in Names Should Be Rejected @SPECIAL-001', async ({ page: _page }) => {
+  test('Unicode Characters in Names Should Be Rejected @regression @SPECIAL-001', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -487,7 +501,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
    * Special Characters Test: Emojis in names should be REJECTED
    * BUG: System currently accepts emojis but should reject them
    */
-  test('Emoji Characters Should Be Rejected @SPECIAL-002', async ({ page: _page }) => {
+  test('Emoji Characters Should Be Rejected @regression @SPECIAL-002', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -505,7 +519,9 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
    * Special Characters Test: Special symbols in names should be REJECTED
    * BUG: System currently accepts apostrophes/hyphens but should reject them
    */
-  test('Special Symbols in Names Should Be Rejected @SPECIAL-003', async ({ page: _page }) => {
+  test('Special Symbols in Names Should Be Rejected @regression @SPECIAL-003', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -523,7 +539,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
    * Input Handling Test: Leading and trailing spaces
    * Verifies that the email field auto-trims spaces (good UX behavior)
    */
-  test('Leading and Trailing Spaces Should Be Trimmed @INPUT-001', async ({ page }) => {
+  test('Leading and Trailing Spaces Should Be Trimmed @regression @INPUT-001', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Fill name fields normally
@@ -553,7 +569,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Input Handling Test: Email case sensitivity
    */
-  test('Email Should Be Case Insensitive @INPUT-002', async ({ page: _page }) => {
+  test('Email Should Be Case Insensitive @regression @INPUT-002', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Use uppercase email
@@ -573,7 +589,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Input Handling Test: Multiple consecutive spaces
    */
-  test('Multiple Consecutive Spaces in Names @INPUT-003', async ({ page: _page }) => {
+  test('Multiple Consecutive Spaces in Names @regression @INPUT-003', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -591,7 +607,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * UI/UX Test: Form reset on Cancel
    */
-  test('Cancel Button Clears Form Data @UIUX-001', async ({ page: _page }) => {
+  test('Cancel Button Clears Form Data @regression @UIUX-001', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -619,7 +635,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * UI/UX Test: Keyboard navigation (Tab order)
    */
-  test('Tab Navigation Through Form Fields @UIUX-002', async ({ page }) => {
+  test('Tab Navigation Through Form Fields @regression @UIUX-002', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Focus on first field
@@ -644,7 +660,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * UI/UX Test: Submit with Enter key
    */
-  test('Enter Key Submits Form @UIUX-003', async ({ page }) => {
+  test('Enter Key Submits Form @regression @UIUX-003', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -669,7 +685,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * UI/UX Test: Double-click prevention on Create button
    */
-  test('Double Click Prevention on Submit @UIUX-004', async ({ page: _page }) => {
+  test('Double Click Prevention on Submit @regression @UIUX-004', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -690,7 +706,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * UI/UX Test: Escape key closes dialog
    */
-  test('Escape Key Closes Dialog @UIUX-005', async ({ page }) => {
+  test('Escape Key Closes Dialog @regression @UIUX-005', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
     await userManagementPage.verifyAddUserDialogVisible();
 
@@ -704,7 +720,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * UI/UX Test: Email format validation feedback timing
    */
-  test('Real-time Email Validation Feedback @UIUX-006', async ({ page }) => {
+  test('Real-time Email Validation Feedback @regression @UIUX-006', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Type invalid email gradually
@@ -729,7 +745,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * UI/UX Test: Loading state during submission
    */
-  test('Loading State During Form Submission @UIUX-007', async ({ page }) => {
+  test('Loading State During Form Submission @regression @UIUX-007', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -761,7 +777,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Regression Test: Numeric-only names
    */
-  test('Numeric Only Names @EDGE-001', async ({ page: _page }) => {
+  test('Numeric Only Names @regression @EDGE-001', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -780,7 +796,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Edge Case: Email with plus addressing
    */
-  test('Email With Plus Addressing @EDGE-002', async ({ page: _page }) => {
+  test('Email With Plus Addressing @regression @EDGE-002', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -798,7 +814,7 @@ test.describe('Story #197596 - Additional Security & Edge Case Tests', () => {
   /**
    * Edge Case: Very long email local part
    */
-  test('Long Email Local Part @EDGE-003', async ({ page: _page }) => {
+  test('Long Email Local Part @regression @EDGE-003', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     const longLocalPart = `${TEST_PREFIX.toLowerCase()}.${'a'.repeat(60)}`;
@@ -833,7 +849,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Rapid multiple submissions
    * Could cause duplicate user creation or race condition
    */
-  test('Rapid Multiple Form Submissions Should Be Prevented @BUG-001', async ({ page }) => {
+  test('Rapid Multiple Form Submissions Should Be Prevented @regression @BUG-001', async ({
+    page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -855,7 +873,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Email with consecutive dots
    * Invalid email format that might bypass validation
    */
-  test('Email With Consecutive Dots Should Be Rejected @BUG-002', async ({ page: _page }) => {
+  test('Email With Consecutive Dots Should Be Rejected @regression @BUG-002', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -873,7 +893,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Email starting with dot
    * Invalid email format that might bypass validation
    */
-  test('Email Starting With Dot Should Be Rejected @BUG-003', async ({ page: _page }) => {
+  test('Email Starting With Dot Should Be Rejected @regression @BUG-003', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -891,7 +913,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Email ending with dot before @
    * Invalid email format that might bypass validation
    */
-  test('Email Ending With Dot Before @ Should Be Rejected @BUG-004', async ({ page: _page }) => {
+  test('Email Ending With Dot Before @ Should Be Rejected @regression @BUG-004', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -909,7 +933,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Name with only numbers
    * Should this be allowed? Most systems reject numeric-only names
    */
-  test('Name With Only Numbers Should Be Rejected @BUG-005', async ({ page: _page }) => {
+  test('Name With Only Numbers Should Be Rejected @regression @BUG-005', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -927,7 +953,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Name starting with number
    * Names typically don't start with numbers
    */
-  test('Name Starting With Number Should Be Rejected @BUG-006', async ({ page: _page }) => {
+  test('Name Starting With Number Should Be Rejected @regression @BUG-006', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -947,7 +975,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Hidden/invisible characters in name
    * Zero-width characters could cause display issues
    */
-  test('Hidden Characters in Name Should Be Rejected @BUG-007', async ({ page: _page }) => {
+  test('Hidden Characters in Name Should Be Rejected @regression @BUG-007', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     // Zero-width space character
@@ -968,7 +998,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Tab character in name
    * Whitespace characters other than space
    */
-  test('Tab Character in Name Should Be Rejected @BUG-008', async ({ page: _page }) => {
+  test('Tab Character in Name Should Be Rejected @regression @BUG-008', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -987,7 +1017,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * Multi-line input could break display
    * FINDING: Input field converts newlines to spaces (good sanitization)
    */
-  test('Newline Character in Name Should Be Sanitized @BUG-009', async ({ page }) => {
+  test('Newline Character in Name Should Be Sanitized @regression @BUG-009', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Fill fields directly to test newline handling
@@ -1008,7 +1038,9 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Very short name (1-2 characters)
    * Minimum length validation check
    */
-  test('Very Short Names Should Have Minimum Length @BUG-010', async ({ page: _page }) => {
+  test('Very Short Names Should Have Minimum Length @regression @BUG-010', async ({
+    page: _page,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -1027,7 +1059,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Form state after validation error
    * Error message should persist and be clearable
    */
-  test('Error State Clears When Correcting Input @BUG-011', async ({ page }) => {
+  test('Error State Clears When Correcting Input @regression @BUG-011', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Submit invalid email
@@ -1062,7 +1094,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Browser back button after form open
    * Could cause navigation issues or lost state
    */
-  test('Browser Back Button With Open Dialog @BUG-012', async ({ page }) => {
+  test('Browser Back Button With Open Dialog @regression @BUG-012', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -1088,7 +1120,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Page refresh during form fill
    * Data should not persist unexpectedly
    */
-  test('Page Refresh Clears Form Data @BUG-013', async ({ page }) => {
+  test('Page Refresh Clears Form Data @regression @BUG-013', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -1112,7 +1144,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Click outside dialog to close
    * Modal backdrop click behavior
    */
-  test('Click Outside Dialog Should Close Or Stay @BUG-014', async ({ page }) => {
+  test('Click Outside Dialog Should Close Or Stay @regression @BUG-014', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
     await userManagementPage.verifyAddUserDialogVisible();
 
@@ -1129,7 +1161,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Paste text with special formatting
    * RTF or HTML formatted text from clipboard
    */
-  test('Paste Formatted Text Should Strip Formatting @BUG-015', async ({ page }) => {
+  test('Paste Formatted Text Should Strip Formatting @regression @BUG-015', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Focus on first name field
@@ -1155,7 +1187,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Concurrent dialog operations
    * Rapidly opening and closing dialog
    */
-  test('Rapid Dialog Open Close Cycles @BUG-016', async ({ page: _page }) => {
+  test('Rapid Dialog Open Close Cycles @regression @BUG-016', async ({ page: _page }) => {
     // Rapid open-close cycles
     for (let i = 0; i < 3; i++) {
       await userManagementPage.openAddUserDialog();
@@ -1173,7 +1205,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Email with subdomain
    * Valid email format that might not be handled
    */
-  test('Email With Subdomain @BUG-017', async ({ page: _page }) => {
+  test('Email With Subdomain @regression @BUG-017', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -1192,7 +1224,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Mixed case email handling
    * Email should be normalized to lowercase
    */
-  test('Mixed Case Email Normalization @BUG-018', async ({ page }) => {
+  test('Mixed Case Email Normalization @regression @BUG-018', async ({ page }) => {
     await userManagementPage.openAddUserDialog();
 
     const mixedCaseEmail = `${TEST_PREFIX}_MixedCase${timestamp}@EY.COM`;
@@ -1211,7 +1243,10 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Form submission during network delay
    * Could cause timeout or duplicate submission
    */
-  test('Form Submission With Slow Network @BUG-019', async ({ page: _page, context }) => {
+  test('Form Submission With Slow Network @regression @BUG-019', async ({
+    page: _page,
+    context,
+  }) => {
     await userManagementPage.openAddUserDialog();
 
     await userManagementPage.fillAddUserForm({
@@ -1240,7 +1275,7 @@ test.describe('Story #197596 - Potential Bug Scenarios', () => {
    * BUG SCENARIO: Submit empty form with autofill
    * Browser autofill might interfere
    */
-  test('Autofill Interference Check @BUG-020', async ({ page: _page }) => {
+  test('Autofill Interference Check @regression @BUG-020', async ({ page: _page }) => {
     await userManagementPage.openAddUserDialog();
 
     // Clear any autofill by explicitly clearing fields

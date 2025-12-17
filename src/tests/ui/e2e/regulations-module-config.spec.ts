@@ -17,7 +17,7 @@ const testConfig = {
 };
 
 test.describe('Regulations Module Configuration - EY Admin', () => {
-  test('EY Admin enables Regulations Module for client @TC-262244 @AC1', async ({
+  test('EY Admin enables Regulations Module for client @regression @smoke @TC-262244 @AC1', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
     testContext,
@@ -44,7 +44,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await regulationConfigPanelPage.verifyPanelOpen();
   });
 
-  test('Fetch and display regulatory options from Questionnaire module @TC-262245 @AC2-AC3', async ({
+  test('Fetch and display regulatory options from Questionnaire module @regression @smoke @TC-262245 @AC2-AC3', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
   }) => {
@@ -65,7 +65,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await regulationConfigPanelPage.selectState(testConfig.states[0]);
   });
 
-  test('Save multiple selections in configuration panel @TC-262247 @AC4', async ({
+  test('Save multiple selections in configuration panel @regression @TC-262247 @AC4', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
     dataResolver,
@@ -90,7 +90,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await regulationConfigPanelPage.verifyConfigurationSaved();
   });
 
-  test('Pre-populate configuration panel with saved selections @TC-262248 @AC5', async ({
+  test('Pre-populate configuration panel with saved selections @regression @TC-262248 @AC5', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
   }) => {
@@ -112,7 +112,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     expect(selectedStates).toBeGreaterThan(0);
   });
 
-  test('Update and save changes to regulatory scope @TC-262249 @AC6', async ({
+  test('Update and save changes to regulatory scope @regression @TC-262249 @AC6', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
   }) => {
@@ -134,7 +134,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await regulationConfigPanelPage.verifyConfigurationSaved();
   });
 
-  test('Disable module and verify read-only state @TC-262250 @AC7', async ({
+  test('Disable module and verify read-only state @regression @TC-262250 @AC7', async ({
     eyAdminClientListingPage,
   }) => {
     // Given Regulations Module is enabled with saved configuration
@@ -151,7 +151,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await eyAdminClientListingPage.verifyConfigureButtonNotVisible(testConfig.clientName);
   });
 
-  test('Audit logging for configuration actions @TC-262251 @AC8', async ({
+  test('Audit logging for configuration actions @regression @TC-262251 @AC8', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
     page,
@@ -200,7 +200,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await expect(firstRow.locator('td.timestamp')).not.toBeEmpty();
   });
 
-  test('Handle empty Questionnaire module gracefully @TC-262252', async ({
+  test('Handle empty Questionnaire module gracefully @regression @TC-262252', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
     page,
@@ -230,7 +230,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await regulationConfigPanelPage.verifyNoDataMessageDisplayed();
   });
 
-  test('Prevent saving configuration with no selections @TC-262254', async ({
+  test('Prevent saving configuration with no selections @regression @TC-262254', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
   }) => {
@@ -245,7 +245,7 @@ test.describe('Regulations Module Configuration - EY Admin', () => {
     await regulationConfigPanelPage.verifySaveButtonDisabled();
   });
 
-  test('Handle network failure during fetch of regulatory options @TC-262255', async ({
+  test('Handle network failure during fetch of regulatory options @regression @TC-262255', async ({
     eyAdminClientListingPage,
     regulationConfigPanelPage,
     page,
