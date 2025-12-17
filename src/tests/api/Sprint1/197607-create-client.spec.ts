@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
  * Sprint 5 API Tests - Create New Client: EY Super Admin
@@ -53,9 +54,16 @@ interface ClientResponse {
   }>;
 }
 
-// Helper to generate unique client names for tests
-const generateUniqueClientName = (prefix = 'Test Client'): string => {
-  return `${prefix} ${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+// Helper to generate unique client names for tests using Faker
+const generateUniqueClientName = (): string => {
+  // Generate realistic company name variations
+  return faker.helpers.arrayElement([
+    faker.company.name(),
+    `${faker.person.lastName()} & ${faker.person.lastName()} ${faker.company.buzzNoun()}`,
+    `${faker.location.city()} ${faker.company.buzzNoun()} Corp`,
+    `${faker.word.adjective({ capitalize: true })} ${faker.company.buzzNoun()} Ltd`,
+    `${faker.person.lastName()} ${faker.company.buzzNoun()} Group`,
+  ]);
 };
 
 // Cleanup helper to track created clients for cleanup
