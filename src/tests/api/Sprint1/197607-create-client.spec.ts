@@ -787,6 +787,22 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   });
 
   /**
+   * Test Case: Create client with empty name
+   */
+  test('ADO-EDGE20 should reject client with empty name @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: '',
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Empty name should be rejected with 400, not 500
+    expect(response.status()).toBe(400);
+  });
+
+  /**
    * Test Case 30: Name with only numbers
    */
   test('ADO-EDGE16 should accept name with only numbers', async ({ request }) => {
@@ -879,6 +895,509 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
         const data = await response.json();
         if (data.id) createdClientIds.push(data.id);
       }
+    }
+  });
+
+  // ============================================
+  // Additional Bug-Hunting Scenarios
+  // ============================================
+
+  /**
+   * Test: Whitespace-only name
+   */
+  test('ADO-EDGE21 should reject whitespace-only name @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: '     ',
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Whitespace-only should be rejected with 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Name with leading/trailing whitespace
+   */
+  test('ADO-EDGE22 should trim or reject name with leading/trailing whitespace @regression', async ({
+    request,
+  }) => {
+    const payload: ClientCreateRequest = {
+      name: `   Padded Client ${Date.now()}   `,
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either accept (after trimming) or reject - not crash
+    expect([201, 400]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+      // Verify name was trimmed
+      expect(data.name?.trim()).toBe(data.name);
+    }
+  });
+
+  /**
+   * Test: Null name value
+   */
+  test('ADO-EDGE23 should reject null name @regression', async ({ request }) => {
+    const payload = {
+      name: null,
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Null name should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Negative cityId
+   */
+  test('ADO-EDGE24 should reject negative cityId @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: generateUniqueClientName('Negative City'),
+      cityId: -1,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Negative cityId should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Zero cityId
+   */
+  test('ADO-EDGE25 should reject zero cityId @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: generateUniqueClientName('Zero City'),
+      cityId: 0,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Zero cityId should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Non-existent cityId
+   */
+  test('ADO-EDGE26 should reject non-existent cityId @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: generateUniqueClientName('Invalid City'),
+      cityId: 999999999,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Non-existent cityId should return 400/404, not 500
+    expect([400, 404, 422]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Empty admin ID array
+   */
+  test('ADO-EDGE27 should reject empty admin ID array @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: generateUniqueClientName('No Admins'),
+      cityId: validCityId,
+      assignedEyAdminId: [],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Empty admin array should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Duplicate admin IDs in array
+   */
+  test('ADO-EDGE28 should handle duplicate admin IDs in array @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: generateUniqueClientName('Dup Admins'),
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId, validEyAdminId, validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either deduplicate or reject - not crash
+    expect([201, 400, 422]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+    }
+  });
+
+  /**
+   * Test: Null value in admin ID array
+   */
+  test('ADO-EDGE29 should reject null in admin ID array @regression', async ({ request }) => {
+    const payload = {
+      name: generateUniqueClientName('Null Admin'),
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId, null, validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Null in array should return 400, not 500
+    expect([400, 422]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Invalid admin ID format
+   */
+  test('ADO-EDGE30 should reject invalid admin ID format @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: generateUniqueClientName('Invalid Admin'),
+      cityId: validCityId,
+      assignedEyAdminId: ['not-a-valid-id', 'another-invalid'],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Invalid admin ID format should return 400, not 500
+    expect([400, 404, 422]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: SQL injection in name field
+   */
+  test('ADO-EDGE31 should handle SQL injection attempt in name @regression', async ({
+    request,
+  }) => {
+    const payload: ClientCreateRequest = {
+      name: `Test'; DROP TABLE clients; --${Date.now()}`,
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either accept (safely escaped) or reject - never execute SQL
+    expect([201, 400]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+    }
+  });
+
+  /**
+   * Test: XSS attempt in name field
+   */
+  test('ADO-EDGE32 should handle XSS attempt in name @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: `<script>alert('xss')</script>${Date.now()}`,
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either accept (safely encoded) or reject
+    expect([201, 400]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+      // Verify script was sanitized or encoded
+      expect(data.name).not.toContain('<script>');
+    }
+  });
+
+  /**
+   * Test: Unicode/emoji in name field
+   */
+  test('ADO-EDGE33 should handle unicode and emoji in name @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: `Test Client 日本語 🚀 ${Date.now()}`,
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either accept unicode or reject gracefully
+    expect([201, 400]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+    }
+  });
+
+  /**
+   * Test: Special characters only in name
+   */
+  test('ADO-EDGE34 should handle special characters only name @regression', async ({ request }) => {
+    const payload: ClientCreateRequest = {
+      name: `!@#$%^&*()_+-=[]{}|;:'"<>,.?/${Date.now()}`,
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either accept or reject gracefully
+    expect([201, 400]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+    }
+  });
+
+  /**
+   * Test: Extra unknown fields in request
+   */
+  test('ADO-EDGE35 should ignore or reject extra unknown fields @regression', async ({
+    request,
+  }) => {
+    const payload = {
+      name: generateUniqueClientName('Extra Fields'),
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+      unknownField: 'should be ignored',
+      anotherUnknown: 12345,
+      nestedUnknown: { deep: 'value' },
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either ignore extra fields or reject - not crash
+    expect([201, 400]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+    }
+  });
+
+  /**
+   * Test: Array type for name field (type coercion)
+   */
+  test('ADO-EDGE36 should reject array type for name field @regression', async ({ request }) => {
+    const payload = {
+      name: ['array', 'name'],
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Wrong type should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Object type for name field
+   */
+  test('ADO-EDGE37 should reject object type for name field @regression', async ({ request }) => {
+    const payload = {
+      name: { nested: 'object' },
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Wrong type should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Boolean type for cityId
+   */
+  test('ADO-EDGE38 should reject boolean type for cityId @regression', async ({ request }) => {
+    const payload = {
+      name: generateUniqueClientName('Bool City'),
+      cityId: true,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Wrong type should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Float/decimal cityId
+   */
+  test('ADO-EDGE39 should handle float cityId @regression', async ({ request }) => {
+    const payload = {
+      name: generateUniqueClientName('Float City'),
+      cityId: validCityId + 0.5,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should either truncate to int or reject - not crash
+    expect([201, 400]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+
+    if (response.status() === 201) {
+      const data = await response.json();
+      if (data.id) createdClientIds.push(data.id);
+    }
+  });
+
+  /**
+   * Test: String value for assignedEyAdminId (not array)
+   */
+  test('ADO-EDGE40 should reject string for assignedEyAdminId @regression', async ({ request }) => {
+    const payload = {
+      name: generateUniqueClientName('String Admin'),
+      cityId: validCityId,
+      assignedEyAdminId: validEyAdminId, // string instead of array
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Wrong type should return 400, not 500
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Very long admin ID string
+   */
+  test('ADO-EDGE41 should handle very long admin ID string @regression', async ({ request }) => {
+    const longAdminId = 'a'.repeat(10000);
+    const payload: ClientCreateRequest = {
+      name: generateUniqueClientName('Long Admin ID'),
+      cityId: validCityId,
+      assignedEyAdminId: [longAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should reject with 400, not crash with 500
+    expect([400, 404, 422]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Integer overflow for cityId
+   */
+  test('ADO-EDGE42 should handle integer overflow for cityId @regression', async ({ request }) => {
+    const payload = {
+      name: generateUniqueClientName('Overflow City'),
+      cityId: Number.MAX_SAFE_INTEGER + 1,
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Should reject gracefully, not crash
+    expect([400, 404, 422]).toContain(response.status());
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Missing required cityId field
+   */
+  test('ADO-EDGE43 should reject missing cityId field @regression', async ({ request }) => {
+    const payload = {
+      name: generateUniqueClientName('No City'),
+      assignedEyAdminId: [validEyAdminId],
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Missing required field should return 400
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Missing required assignedEyAdminId field
+   */
+  test('ADO-EDGE44 should reject missing assignedEyAdminId field @regression', async ({
+    request,
+  }) => {
+    const payload = {
+      name: generateUniqueClientName('No Admin'),
+      cityId: validCityId,
+    };
+
+    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+
+    // Missing required field should return 400
+    expect(response.status()).toBe(400);
+    expect(response.status()).not.toBe(500);
+  });
+
+  /**
+   * Test: Case sensitivity - create clients with same name different case
+   */
+  test('ADO-EDGE45 should handle case sensitivity for client names @regression', async ({
+    request,
+  }) => {
+    const baseName = `CaseSensitive${Date.now()}`;
+
+    // Create first client
+    const payload1: ClientCreateRequest = {
+      name: baseName.toLowerCase(),
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+    const response1 = await request.post(CLIENTS_ENDPOINT, { data: payload1 });
+    expect(response1.status()).toBe(201);
+    const data1 = await response1.json();
+    if (data1.id) createdClientIds.push(data1.id);
+
+    // Try to create with uppercase version
+    const payload2: ClientCreateRequest = {
+      name: baseName.toUpperCase(),
+      cityId: validCityId,
+      assignedEyAdminId: [validEyAdminId],
+    };
+    const response2 = await request.post(CLIENTS_ENDPOINT, { data: payload2 });
+
+    // Should either allow (case-sensitive) or reject (case-insensitive) - document behavior
+    expect([201, 409]).toContain(response2.status());
+    expect(response2.status()).not.toBe(500);
+
+    if (response2.status() === 201) {
+      const data2 = await response2.json();
+      if (data2.id) createdClientIds.push(data2.id);
     }
   });
 });
