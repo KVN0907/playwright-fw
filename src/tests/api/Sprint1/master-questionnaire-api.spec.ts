@@ -79,7 +79,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202614
    * API - Create Section with Valid, Unique Name
    */
-  test('@ADO-202614 should create section (reg area) with valid unique name', async ({
+  test('should create section (reg area) with valid unique name @ADO-202614', async ({
     request,
   }) => {
     const timestamp = Date.now();
@@ -107,7 +107,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202615
    * API - Attempt to Create Section with Duplicate Name
    */
-  test('@ADO-202615 should reject creation of section with duplicate name', async ({ request }) => {
+  test('should reject creation of section with duplicate name @ADO-202615', async ({ request }) => {
     const timestamp = Date.now();
     const requestData = {
       name: `Duplicate Section Test ${timestamp}`,
@@ -144,7 +144,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202616
    * API - Add Valid Manual Text Question to Section
    */
-  test('@ADO-202616 should add valid manual text question to section', async ({ request }) => {
+  test('should add valid manual text question to section @ADO-202616', async ({ request }) => {
     const regArea = await createTestRegArea(request);
 
     try {
@@ -178,7 +178,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202617
    * API - Add Valid Yes/No Question with Special Characters to Section
    */
-  test('@ADO-202617 should add valid yes/no question with special characters', async ({
+  test('should add valid yes/no question with special characters @ADO-202617', async ({
     request,
   }) => {
     const regArea = await createTestRegArea(request);
@@ -215,7 +215,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202618
    * API - Add Question with Minimum Allowed Length (3 Characters)
    */
-  test('@ADO-202618 should accept question with minimum length (3 characters)', async ({
+  test('should accept question with minimum length (3 characters) @ADO-202618', async ({
     request,
   }) => {
     const regArea = await createTestRegArea(request);
@@ -247,7 +247,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202619
    * API - Add Question with Maximum Allowed Length (500 Characters)
    */
-  test('@ADO-202619 should accept question with maximum length (500 characters)', async ({
+  test('should accept question with maximum length (500 characters) @ADO-202619', async ({
     request,
   }) => {
     const regArea = await createTestRegArea(request);
@@ -279,7 +279,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202620
    * API - Add Question with Too Short Text (<3 Characters)
    */
-  test('@ADO-202620 should reject question with too short text (<3 characters)', async ({
+  test('should reject question with too short text (<3 characters) @ADO-202620', async ({
     request,
   }) => {
     const regArea = await createTestRegArea(request);
@@ -330,7 +330,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202621
    * API - Add Question with Too Long Text (>500 Characters)
    */
-  test('@ADO-202621 should reject question with too long text (>500 characters)', async ({
+  test('should reject question with too long text (>500 characters) @ADO-202621', async ({
     request,
   }) => {
     const regArea = await createTestRegArea(request);
@@ -368,7 +368,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202622
    * API - Add Question with Unsupported Type
    */
-  test('@ADO-202622 should reject question with unsupported type', async ({ request }) => {
+  test('should reject question with unsupported type @ADO-202622', async ({ request }) => {
     const regArea = await createTestRegArea(request);
 
     try {
@@ -406,7 +406,7 @@ test.describe('Story #197265: Create Reg Area and Questions', () => {
    * ADO Test Case #202624
    * API - Add Question to Non-existent Section
    */
-  test('@ADO-202624 should reject adding question to non-existent section', async ({ request }) => {
+  test('should reject adding question to non-existent section @ADO-202624', async ({ request }) => {
     const timestamp = Date.now();
     const nonExistentRegAreaId = 999999999;
 
@@ -501,7 +501,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202772
    * Edit Question Text via API
    */
-  test('@ADO-202772 should edit question text via API', async ({ request }) => {
+  test('should edit question text via API @ADO-202772', async ({ request }) => {
     const regArea = await createTestRegArea(request);
     const question = await createTestQuestion(request, regArea.id, 'Original Question Text');
 
@@ -534,7 +534,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202773
    * Edit Question Type and Provide Required Options
    */
-  test('@ADO-202773 should edit question type', async ({ request }) => {
+  test('should edit question type @ADO-202773', async ({ request }) => {
     const regArea = await createTestRegArea(request);
     const question = await createTestQuestion(request, regArea.id, 'Type Change Test', 'Text');
 
@@ -566,7 +566,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202775
    * Edit Regulatory Area Name with Unique Value
    */
-  test('@ADO-202775 should edit regulatory area name with unique value', async ({ request }) => {
+  test('should edit regulatory area name with unique value @ADO-202775', async ({ request }) => {
     const regArea = await createTestRegArea(request);
 
     try {
@@ -596,7 +596,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202776
    * Reject Regulatory Area Name Update Due to Uniqueness Violation
    */
-  test('@ADO-202776 should reject reg area name update due to uniqueness violation', async ({
+  test('should reject reg area name update due to uniqueness violation @ADO-202776', async ({
     request,
   }) => {
     const timestamp = Date.now();
@@ -651,7 +651,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202777
    * Attempt to Edit Question Type to Dropdown with No Options
    */
-  test('@ADO-202777 should handle edit to dropdown type without options', async ({ request }) => {
+  test('should handle edit to dropdown type without options @ADO-202777', async ({ request }) => {
     const regArea = await createTestRegArea(request);
     const question = await createTestQuestion(request, regArea.id, 'Dropdown Test', 'Text');
 
@@ -686,7 +686,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202778
    * Reject Question Edit for Nonexistent Question ID
    */
-  test('@ADO-202778 should reject question edit for nonexistent question ID', async ({
+  test('should reject question edit for nonexistent question ID @ADO-202778', async ({
     request,
   }) => {
     const nonExistentId = 999999999;
@@ -708,7 +708,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202779
    * Reject Regulatory Area Edit for Nonexistent Reg Area ID
    */
-  test('@ADO-202779 should reject reg area edit for nonexistent ID', async ({ request }) => {
+  test('should reject reg area edit for nonexistent ID @ADO-202779', async ({ request }) => {
     const nonExistentId = 999999999;
     const updateData = {
       id: nonExistentId,
@@ -763,7 +763,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202781
    * Reject Malformed API Request for Question Edit
    */
-  test('@ADO-202781 should reject malformed API request for question edit', async ({ request }) => {
+  test('should reject malformed API request for question edit @ADO-202781', async ({ request }) => {
     const regArea = await createTestRegArea(request);
     const question = await createTestQuestion(request, regArea.id);
 
@@ -804,7 +804,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202782
    * Verify Atomicity of Edit Operation on Multiple Fields
    */
-  test('@ADO-202782 should verify atomicity of edit operation on multiple fields', async ({
+  test('should verify atomicity of edit operation on multiple fields @ADO-202782', async ({
     request,
   }) => {
     const regArea = await createTestRegArea(request);
@@ -895,7 +895,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #240732
    * Verify Concurrent Edits Use Version or Optimistic Locking
    */
-  test('@ADO-240732 should handle concurrent edits with optimistic locking', async ({
+  test('should handle concurrent edits with optimistic locking @ADO-240732', async ({
     request,
   }) => {
     const regArea = await createTestRegArea(request);
@@ -949,7 +949,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * Verify Changes Reflected in Downstream Applications
    * Note: This test verifies that changes propagate correctly across related endpoints
    */
-  test('@ADO-240733 should verify changes reflected in downstream queries', async ({ request }) => {
+  test('should verify changes reflected in downstream queries @ADO-240733', async ({ request }) => {
     const regArea = await createTestRegArea(request);
     const question = await createTestQuestion(request, regArea.id, 'Downstream Sync Test');
 

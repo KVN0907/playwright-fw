@@ -45,7 +45,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201683
    * Create EY Admin User - Success
    */
-  test('@ADO-201683 should create EY Admin user successfully', async ({ request }) => {
+  test('should create EY Admin user successfully @ADO-201683', async ({ request }) => {
     const userData = generateTestUser();
 
     const response = await request.post(USERS_ENDPOINT, {
@@ -64,7 +64,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201684
    * Create EY Admin User - Missing Required Fields
    */
-  test('@ADO-201684 should reject user creation with missing required fields', async ({
+  test('should reject user creation with missing required fields @ADO-201684', async ({
     request,
   }) => {
     // Missing firstName
@@ -99,7 +99,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201685
    * Create EY Admin User - Non-EY Email Domain
    */
-  test('@ADO-201685 should reject non-EY email domain', async ({ request }) => {
+  test('should reject non-EY email domain @ADO-201685', async ({ request }) => {
     const response = await request.post(USERS_ENDPOINT, {
       data: {
         firstName: 'TestFirst',
@@ -115,7 +115,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201686
    * Create EY Admin User - Invalid Email Format
    */
-  test('@ADO-201686 should reject invalid email format', async ({ request }) => {
+  test('should reject invalid email format @ADO-201686', async ({ request }) => {
     const invalidEmails = [
       'invalid-email',
       'test@',
@@ -141,7 +141,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201687
    * Create EY Admin User - Duplicate Email
    */
-  test('@ADO-201687 should reject duplicate email', async ({ request }) => {
+  test('should reject duplicate email @ADO-201687', async ({ request }) => {
     const userData = generateTestUser();
 
     // Create first user
@@ -166,7 +166,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201688
    * Create EY Admin User - Email Case Insensitive Uniqueness
    */
-  test('@ADO-201688 should treat email as case insensitive for uniqueness', async ({ request }) => {
+  test('should treat email as case insensitive for uniqueness @ADO-201688', async ({ request }) => {
     const baseEmail = `test.case.${Date.now()}@ey.com`;
 
     // Create user with lowercase email
@@ -195,7 +195,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201689
    * Create EY Admin User - Whitespace and Blanks in Required Fields
    */
-  test('@ADO-201689 should reject whitespace-only values in required fields', async ({
+  test('should reject whitespace-only values in required fields @ADO-201689', async ({
     request,
   }) => {
     // Whitespace firstName
@@ -223,7 +223,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201690
    * Create EY Admin User - Leading/Trailing Spaces in Input
    */
-  test('@ADO-201690 should trim leading/trailing spaces', async ({ request }) => {
+  test('should trim leading/trailing spaces @ADO-201690', async ({ request }) => {
     const response = await request.post(USERS_ENDPOINT, {
       data: {
         firstName: '  TestFirst  ',
@@ -243,7 +243,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201691
    * Create EY Admin User - Insufficient Privileges
    */
-  test('@ADO-201691 should reject user creation without proper privileges', async ({ request }) => {
+  test('should reject user creation without proper privileges @ADO-201691', async ({ request }) => {
     // This test simulates a non-Super Admin trying to create users
     const response = await request.post(USERS_ENDPOINT, {
       data: generateTestUser(),
@@ -259,7 +259,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201692
    * EY Admin User Listing - Newly Created User Appears
    */
-  test('@ADO-201692 should show newly created user in listing', async ({ request }) => {
+  test('should show newly created user in listing @ADO-201692', async ({ request }) => {
     const userData = generateTestUser();
 
     // Create user
@@ -288,7 +288,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201693
    * EY Admin User Listing - Pagination Support
    */
-  test('@ADO-201693 should support pagination in user listing', async ({ request }) => {
+  test('should support pagination in user listing @ADO-201693', async ({ request }) => {
     const response = await request.get(`${USERS_ENDPOINT}?page=0&size=10`);
     expect(response.ok()).toBe(true);
 
@@ -301,7 +301,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201694
    * Search EY Admin Users By Name and Client
    */
-  test('@ADO-201694 should search users by name', async ({ request }) => {
+  test('should search users by name @ADO-201694', async ({ request }) => {
     const searchTerm = 'Test';
     const response = await request.get(`${USERS_ENDPOINT}?searchTerm=${searchTerm}`);
     expect(response.ok()).toBe(true);
@@ -324,7 +324,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201695
    * Create EY Admin User - Parallel Requests (Race Condition Test)
    */
-  test('@ADO-201695 should handle parallel creation requests safely', async ({ request }) => {
+  test('should handle parallel creation requests safely @ADO-201695', async ({ request }) => {
     const email = `race.test.${Date.now()}@ey.com`;
     const requests = [];
 
@@ -352,7 +352,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201697
    * Create EY Admin User - Input Field Maximum Lengths
    */
-  test('@ADO-201697 should enforce maximum field lengths', async ({ request }) => {
+  test('should enforce maximum field lengths @ADO-201697', async ({ request }) => {
     const veryLongName = 'A'.repeat(500);
 
     const response = await request.post(USERS_ENDPOINT, {
@@ -370,7 +370,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201698
    * Create EY Admin User - Special Characters Handling
    */
-  test('@ADO-201698 should handle special characters in names', async ({ request }) => {
+  test('should handle special characters in names @ADO-201698', async ({ request }) => {
     const response = await request.post(USERS_ENDPOINT, {
       data: {
         firstName: "O'Brien",
@@ -387,7 +387,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201699
    * Create EY Admin User - Malicious Data Injection Protection
    */
-  test('@ADO-201699 @security should protect against injection attacks', async ({ request }) => {
+  test('should protect against injection attacks @ADO-201699 @security', async ({ request }) => {
     // SQL Injection attempt
     const sqlInjection = await request.post(USERS_ENDPOINT, {
       data: {
@@ -418,7 +418,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201700
    * Create EY Admin User - Expired Token or Session
    */
-  test('@ADO-201700 should reject requests with expired token', async ({ request }) => {
+  test('should reject requests with expired token @ADO-201700', async ({ request }) => {
     const response = await request.post(USERS_ENDPOINT, {
       data: generateTestUser(),
       headers: {
@@ -433,7 +433,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201702
    * Create EY Admin User - API Rate Limit Exceeded
    */
-  test('@ADO-201702 should handle rate limiting', async ({ request }) => {
+  test('should handle rate limiting @ADO-201702', async ({ request }) => {
     const requests = [];
 
     // Send many requests rapidly

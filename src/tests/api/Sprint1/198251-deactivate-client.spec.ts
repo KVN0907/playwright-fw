@@ -42,7 +42,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204440
    * API – Deactivate Single Client
    */
-  test('@ADO-204440 should deactivate single client successfully', async ({ request }) => {
+  test('should deactivate single client successfully @ADO-204440', async ({ request }) => {
     const client = await createTestClient(request);
     if (!client) {
       test.skip();
@@ -65,7 +65,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204441
    * API – Deactivate Client – Client Not Found
    */
-  test('@ADO-204441 should return 404 for non-existent client', async ({ request }) => {
+  test('should return 404 for non-existent client @ADO-204441', async ({ request }) => {
     const nonExistentId = 999999999;
 
     const response = await request.put(`${CLIENTS_ENDPOINT}/${nonExistentId}/deactivate`);
@@ -77,7 +77,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204442
    * API – Deactivate Client – Already Deactivated Client
    */
-  test('@ADO-204442 should handle already deactivated client gracefully', async ({ request }) => {
+  test('should handle already deactivated client gracefully @ADO-204442', async ({ request }) => {
     const client = await createTestClient(request);
     if (!client) {
       test.skip();
@@ -99,7 +99,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204443
    * API – Deactivate Client – Insufficient Permissions
    */
-  test('@ADO-204443 should reject deactivation without proper permissions', async ({ request }) => {
+  test('should reject deactivation without proper permissions @ADO-204443', async ({ request }) => {
     const client = await createTestClient(request);
     if (!client) {
       test.skip();
@@ -119,7 +119,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204444
    * API – Deactivate Client – With Active Users
    */
-  test('@ADO-204444 should handle client deactivation with active users', async ({ request }) => {
+  test('should handle client deactivation with active users @ADO-204444', async ({ request }) => {
     const client = await createTestClient(request);
     if (!client) {
       test.skip();
@@ -143,7 +143,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204445
    * API – Deactivate Multiple Clients (Bulk)
    */
-  test('@ADO-204445 should deactivate multiple clients in bulk', async ({ request }) => {
+  test('should deactivate multiple clients in bulk @ADO-204445', async ({ request }) => {
     // Create multiple clients
     const clients = await Promise.all([
       createTestClient(request),
@@ -171,7 +171,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204446
    * API – Deactivate Multiple Clients Partial Success
    */
-  test('@ADO-204446 should handle partial success in bulk deactivation', async ({ request }) => {
+  test('should handle partial success in bulk deactivation @ADO-204446', async ({ request }) => {
     const validClient = await createTestClient(request);
     if (!validClient) {
       test.skip();
@@ -197,7 +197,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204448
    * API – Concurrent Client Deactivation Requests
    */
-  test('@ADO-204448 should handle concurrent deactivation requests safely', async ({ request }) => {
+  test('should handle concurrent deactivation requests safely @ADO-204448', async ({ request }) => {
     const client = await createTestClient(request);
     if (!client) {
       test.skip();

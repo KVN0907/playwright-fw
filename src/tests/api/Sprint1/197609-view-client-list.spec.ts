@@ -31,7 +31,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202535
    * API – Get Clients – Valid Token (EY Super Admin)
    */
-  test('@ADO-202535 should return client list for EY Super Admin', async ({ request }) => {
+  test('should return client list for EY Super Admin @ADO-202535', async ({ request }) => {
     const response = await request.get(CLIENTS_ENDPOINT);
 
     expect(response.ok()).toBe(true);
@@ -45,7 +45,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202536
    * API – Get Clients – Invalid/Missing Token
    */
-  test('@ADO-202536 should reject requests with invalid token', async ({ request }) => {
+  test('should reject requests with invalid token @ADO-202536', async ({ request }) => {
     const response = await request.get(CLIENTS_ENDPOINT, {
       headers: {
         Authorization: 'Bearer invalid_token_12345',
@@ -59,7 +59,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202537
    * API – Get Clients – Unauthorized Role
    */
-  test('@ADO-202537 should reject unauthorized role access', async ({ request }) => {
+  test('should reject unauthorized role access @ADO-202537', async ({ request }) => {
     const response = await request.get(CLIENTS_ENDPOINT, {
       headers: {
         'X-User-Role': 'CLIENT_USER', // Not EY Super Admin
@@ -73,7 +73,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202539
    * API – Get Clients – Default Pagination
    */
-  test('@ADO-202539 should return paginated results by default', async ({ request }) => {
+  test('should return paginated results by default @ADO-202539', async ({ request }) => {
     const response = await request.get(CLIENTS_ENDPOINT);
 
     expect(response.ok()).toBe(true);
@@ -92,7 +92,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202540
    * API – Get Clients – Custom Pagination
    */
-  test('@ADO-202540 should support custom pagination parameters', async ({ request }) => {
+  test('should support custom pagination parameters @ADO-202540', async ({ request }) => {
     const page = 0;
     const size = 5;
 
@@ -111,7 +111,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202541
    * API – Get Clients – Search Filter (by Name)
    */
-  test('@ADO-202541 should filter clients by search term', async ({ request }) => {
+  test('should filter clients by search term @ADO-202541', async ({ request }) => {
     const searchTerm = 'Test';
 
     const response = await request.get(`${CLIENTS_ENDPOINT}?searchTerm=${searchTerm}`);
@@ -134,7 +134,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202542
    * API – Get Clients – Search Filter (No Match)
    */
-  test('@ADO-202542 should return empty results for non-matching search', async ({ request }) => {
+  test('should return empty results for non-matching search @ADO-202542', async ({ request }) => {
     const searchTerm = 'ZZZZNONEXISTENT12345';
 
     const response = await request.get(`${CLIENTS_ENDPOINT}?searchTerm=${searchTerm}`);
@@ -150,7 +150,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202543
    * API – Get Clients – Filter by Status (Active)
    */
-  test('@ADO-202543 should filter active clients only', async ({ request }) => {
+  test('should filter active clients only @ADO-202543', async ({ request }) => {
     const response = await request.get(`${CLIENTS_ENDPOINT}?status=ACTIVE`);
 
     expect(response.ok()).toBe(true);
@@ -168,7 +168,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202544
    * API – Get Clients – Filter by Status (Inactive)
    */
-  test('@ADO-202544 should filter inactive clients only', async ({ request }) => {
+  test('should filter inactive clients only @ADO-202544', async ({ request }) => {
     const response = await request.get(`${CLIENTS_ENDPOINT}?status=INACTIVE`);
 
     expect(response.ok()).toBe(true);
@@ -186,7 +186,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202545
    * API – Get Clients – Sort by Name
    */
-  test('@ADO-202545 should sort clients by name', async ({ request }) => {
+  test('should sort clients by name @ADO-202545', async ({ request }) => {
     // Ascending
     const ascResponse = await request.get(`${CLIENTS_ENDPOINT}?sort=name,asc`);
     expect(ascResponse.ok()).toBe(true);
@@ -215,7 +215,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202546
    * API – Get Clients – Sort by Created Date
    */
-  test('@ADO-202546 should sort clients by created date', async ({ request }) => {
+  test('should sort clients by created date @ADO-202546', async ({ request }) => {
     const response = await request.get(`${CLIENTS_ENDPOINT}?sort=createdAt,desc`);
 
     expect(response.ok()).toBe(true);
@@ -238,7 +238,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202547
    * API – Get Clients – Combined Filters (Search + Status + Sort)
    */
-  test('@ADO-202547 should support combined filters', async ({ request }) => {
+  test('should support combined filters @ADO-202547', async ({ request }) => {
     const response = await request.get(
       `${CLIENTS_ENDPOINT}?searchTerm=Test&status=ACTIVE&sort=name,asc&page=0&size=10`
     );
@@ -254,7 +254,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202548
    * API – Get Clients – Large Dataset Performance
    */
-  test('@ADO-202548 should handle large dataset requests within acceptable time', async ({
+  test('should handle large dataset requests within acceptable time @ADO-202548', async ({
     request,
   }) => {
     const startTime = Date.now();
@@ -273,7 +273,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202538
    * API – Get Clients – Empty Client List
    */
-  test('@ADO-202538 should handle empty client list gracefully', async ({ request }) => {
+  test('should handle empty client list gracefully @ADO-202538', async ({ request }) => {
     // Use a filter that likely returns no results
     const response = await request.get(`${CLIENTS_ENDPOINT}?searchTerm=DEFINITELY_NO_CLIENT_12345`);
 

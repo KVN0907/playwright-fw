@@ -42,7 +42,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202525
    * API – Deactivate Single EY Admin
    */
-  test('@ADO-202525 should deactivate single EY Admin successfully', async ({ request }) => {
+  test('should deactivate single EY Admin successfully @ADO-202525', async ({ request }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -65,7 +65,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202526
    * API – Deactivate User Not Found
    */
-  test('@ADO-202526 should return 404 for non-existent user', async ({ request }) => {
+  test('should return 404 for non-existent user @ADO-202526', async ({ request }) => {
     const nonExistentId = 999999999;
 
     const response = await request.put(`${USERS_ENDPOINT}/${nonExistentId}/deactivate`);
@@ -77,7 +77,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202527
    * API – Deactivate Already Deactivated EY Admin
    */
-  test('@ADO-202527 should handle already deactivated user gracefully', async ({ request }) => {
+  test('should handle already deactivated user gracefully @ADO-202527', async ({ request }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -99,7 +99,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202528
    * API – Deactivate with Insufficient Permissions
    */
-  test('@ADO-202528 should reject deactivation without proper permissions', async ({ request }) => {
+  test('should reject deactivation without proper permissions @ADO-202528', async ({ request }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -119,7 +119,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202529
    * API – Deactivate EY Super Admin (Self-Deactivation Guard)
    */
-  test('@ADO-202529 should prevent self-deactivation', async ({ request }) => {
+  test('should prevent self-deactivation @ADO-202529', async ({ request }) => {
     // Get current user info
     const meResponse = await request.get(`${API_BASE}/me`);
 
@@ -138,7 +138,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202530
    * API – Deactivate Bulk EY Admins
    */
-  test('@ADO-202530 should deactivate multiple users in bulk', async ({ request }) => {
+  test('should deactivate multiple users in bulk @ADO-202530', async ({ request }) => {
     // Create multiple users
     const users = await Promise.all([
       createTestUser(request),
@@ -166,7 +166,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202531
    * API – Deactivate Bulk EY Admins Partial Success
    */
-  test('@ADO-202531 should handle partial success in bulk deactivation', async ({ request }) => {
+  test('should handle partial success in bulk deactivation @ADO-202531', async ({ request }) => {
     const validUser = await createTestUser(request);
     if (!validUser) {
       test.skip();
@@ -193,7 +193,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202533
    * API – Concurrent Deactivation of Same User
    */
-  test('@ADO-202533 should handle concurrent deactivation requests safely', async ({ request }) => {
+  test('should handle concurrent deactivation requests safely @ADO-202533', async ({ request }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
