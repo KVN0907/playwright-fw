@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
  * Sprint 1 API Tests - Deactivate Client: EY Super Admin
@@ -22,12 +23,14 @@ import { test, expect } from '../../fixtures/advancedFixtures';
 const API_BASE = '/api/admin';
 const CLIENTS_ENDPOINT = `${API_BASE}/clients`;
 
-// Helper to create a test client
+// Helper to create a test client using faker
 async function createTestClient(request: any) {
+  const companyName = faker.company.name();
+  const uniqueId = `${Date.now()}`.slice(-6);
   const clientData = {
-    name: `TestClient${Date.now()}`,
-    code: `TC${Date.now().toString().slice(-6)}`,
-    description: 'Test client for deactivation',
+    name: `${companyName} ${uniqueId}`,
+    code: `TC${uniqueId}`,
+    description: faker.company.catchPhrase(),
   };
 
   const response = await request.post(CLIENTS_ENDPOINT, { data: clientData });

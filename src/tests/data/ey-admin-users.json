@@ -3,43 +3,39 @@
     "prefix": "AUTOQA",
     "emailDomain": "ey.com",
     "defaultPassword": "Test@123456",
-    "dynamicSuffix": true
+    "useFaker": true
   },
   "testUsers": {
     "validUser": {
-      "firstNameBase": "Valid",
-      "lastNameBase": "User",
-      "emailBase": "autoqa.valid",
-      "description": "Valid EY Admin user for creation tests"
+      "description": "Valid EY Admin user for creation tests",
+      "generateWith": "TestDataGenerator.user({ emailDomain: 'ey.com' })"
     },
     "listTestUser": {
-      "firstNameBase": "List",
-      "lastNameBase": "User",
-      "emailBase": "autoqa.list",
-      "description": "User for list/tab verification tests"
+      "description": "User for list/tab verification tests",
+      "generateWith": "TestDataGenerator.user()"
     },
     "noClientUser": {
-      "firstNameBase": "NoClient",
-      "lastNameBase": "User",
-      "emailBase": "autoqa.noclient",
-      "description": "User without client assignment"
+      "description": "User without client assignment",
+      "generateWith": "TestDataGenerator.user()"
     },
     "activeStatusUser": {
-      "firstNameBase": "Active",
-      "lastNameBase": "User",
-      "emailBase": "autoqa.active",
-      "description": "User for active status verification"
+      "description": "User for active status verification",
+      "generateWith": "TestDataGenerator.user()"
     }
   },
   "invalidEmails": {
-    "invalidFormat": "invalid@@email.com",
-    "nonEyDomain": "test.user@gmail.com",
-    "duplicateEmail": "Keerthivasan.Rc@in.ey.com"
+    "description": "Generate with TestDataGenerator.invalidEmails()",
+    "examples": [
+      "invalid@@email.com",
+      "test.user@gmail.com",
+      "missing@domain"
+    ]
   },
   "notes": {
-    "dynamicGeneration": "Names are generated at runtime with timestamp suffix for uniqueness",
+    "fakerUsage": "Use TestDataGenerator from src/tests/data/TestDataGenerator.ts for dynamic data",
+    "importExample": "import TestDataGenerator from '../data/TestDataGenerator';",
+    "usageExample": "const user = TestDataGenerator.user(); const client = TestDataGenerator.client();",
     "emailRequirement": "The API validates that emails exist in EY's identity system. For valid user creation tests, emails must exist in EY identity.",
-    "prefix": "All test users use AUTOQA prefix for easy identification and cleanup",
-    "format": "firstName: AUTOQA_{firstNameBase}_{timestamp}, lastName: {lastNameBase}{timestamp}, email: {emailBase}.{timestamp}@ey.com"
+    "fakerDocs": "See @faker-js/faker documentation for all available generators"
   }
 }

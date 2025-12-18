@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
  * Sprint 1 API Tests - Create Users: EY Super Admin
@@ -33,12 +34,24 @@ const API_BASE = '/api/admin';
 const USERS_ENDPOINT = `${API_BASE}/users`;
 const EY_ADMIN_ENDPOINT = `${API_BASE}/ey-admin`;
 
-// Test user data
-const generateTestUser = () => ({
-  firstName: `TestFirst${Date.now()}`,
-  lastName: `TestLast${Date.now()}`,
-  email: `test.user.${Date.now()}@ey.com`,
-});
+// Helper to generate unique ID
+const uniqueId = () => `${Date.now()}`.slice(-6);
+
+// Helper to generate test email
+const generateTestEmail = (prefix: string, domain = 'ey.com') =>
+  `${prefix}.${faker.string.alphanumeric(6)}@${domain}`;
+
+// Test user data using faker
+const generateTestUser = () => {
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
+  const id = uniqueId();
+  return {
+    firstName: `${firstName}${id}`,
+    lastName: `${lastName}${id}`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${id}@ey.com`,
+  };
+};
 
 test.describe('Story #197592: Create Users - EY Super Admin', () => {
   /**
@@ -71,7 +84,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     const missingFirstName = await request.post(USERS_ENDPOINT, {
       data: {
         lastName: 'TestLast',
-        email: `missing.first.${Date.now()}@ey.com`,
+        email: generateTestEmail('missing.first'),
       },
     });
     expect([400, 422]).toContain(missingFirstName.status());
@@ -80,7 +93,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     const missingLastName = await request.post(USERS_ENDPOINT, {
       data: {
         firstName: 'TestFirst',
-        email: `missing.last.${Date.now()}@ey.com`,
+        email: generateTestEmail('missing.last'),
       },
     });
     expect([400, 422]).toContain(missingLastName.status());
@@ -104,7 +117,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: 'TestFirst',
         lastName: 'TestLast',
-        email: `test.user.${Date.now()}@gmail.com`,
+        email: generateTestEmail('test.user', 'gmail.com'),
       },
     });
 
@@ -169,7 +182,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
   test('should treat email as case insensitive for uniqueness @regression @ADO-201688', async ({
     request,
   }) => {
-    const baseEmail = `test.case.${Date.now()}@ey.com`;
+    const baseEmail = generateTestEmail('test.case');
 
     // Create user with lowercase email
     const firstResponse = await request.post(USERS_ENDPOINT, {
@@ -205,7 +218,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: '   ',
         lastName: 'TestLast',
-        email: `whitespace.test.${Date.now()}@ey.com`,
+        email: generateTestEmail('whitespace.test'),
       },
     });
     expect([400, 422]).toContain(whitespaceFirst.status());
@@ -215,7 +228,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: 'TestFirst',
         lastName: '   ',
-        email: `whitespace.test.${Date.now()}@ey.com`,
+        email: generateTestEmail('whitespace.test'),
       },
     });
     expect([400, 422]).toContain(whitespaceLast.status());
@@ -230,7 +243,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: '  TestFirst  ',
         lastName: '  TestLast  ',
-        email: `trim.test.${Date.now()}@ey.com`,
+        email: generateTestEmail('trim.test'),
       },
     });
 
@@ -331,7 +344,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
   test('should handle parallel creation requests safely @regression @ADO-201695', async ({
     request,
   }) => {
-    const email = `race.test.${Date.now()}@ey.com`;
+    const email = generateTestEmail('race.test');
     const requests = [];
 
     // Send multiple parallel requests with same email
@@ -365,7 +378,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: veryLongName,
         lastName: 'TestLast',
-        email: `max.length.${Date.now()}@ey.com`,
+        email: generateTestEmail('max.length'),
       },
     });
 
@@ -381,7 +394,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: "O'Brien",
         lastName: 'García-López',
-        email: `special.chars.${Date.now()}@ey.com`,
+        email: generateTestEmail('special.chars'),
       },
     });
 
@@ -399,7 +412,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: "Robert'); DROP TABLE users;--",
         lastName: 'TestLast',
-        email: `sql.inject.${Date.now()}@ey.com`,
+        email: generateTestEmail('sql.inject'),
       },
     });
     expect([200, 201, 400, 422]).toContain(sqlInjection.status());
@@ -409,7 +422,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       data: {
         firstName: '<script>alert("XSS")</script>',
         lastName: 'TestLast',
-        email: `xss.inject.${Date.now()}@ey.com`,
+        email: generateTestEmail('xss.inject'),
       },
     });
 
@@ -449,7 +462,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
           data: {
             firstName: `RateTest${i}`,
             lastName: 'User',
-            email: `rate.test.${Date.now()}.${i}@ey.com`,
+            email: generateTestEmail(`rate.test.${i}`),
           },
         })
       );

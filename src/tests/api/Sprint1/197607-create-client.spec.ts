@@ -55,15 +55,14 @@ interface ClientResponse {
 }
 
 // Helper to generate unique client names for tests using Faker
-const generateUniqueClientName = (): string => {
-  // Generate realistic company name variations
-  return faker.helpers.arrayElement([
-    faker.company.name(),
-    `${faker.person.lastName()} & ${faker.person.lastName()} ${faker.company.buzzNoun()}`,
-    `${faker.location.city()} ${faker.company.buzzNoun()} Corp`,
-    `${faker.word.adjective({ capitalize: true })} ${faker.company.buzzNoun()} Ltd`,
-    `${faker.person.lastName()} ${faker.company.buzzNoun()} Group`,
-  ]);
+const generateUniqueClientName = (prefix?: string): string => {
+  const uniqueId = `${Date.now()}`.slice(-6);
+  const companyName = faker.company.name();
+  // If prefix is provided, use it; otherwise generate realistic company name
+  if (prefix) {
+    return `${prefix} ${uniqueId}_${faker.string.alphanumeric(6)}`;
+  }
+  return `${companyName} ${uniqueId}`;
 };
 
 // Cleanup helper to track created clients for cleanup
@@ -750,19 +749,17 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 27: Null values in request
    */
   test('ADO-EDGE13 should reject null values', async ({ request }) => {
-    // @ts-expect-error Testing null value
     const nullNamePayload = {
-      name: null,
+      name: null as any,
       cityId: validCityId,
       assignedEyAdminId: [validEyAdminId],
     };
     const nullNameResponse = await request.post(CLIENTS_ENDPOINT, { data: nullNamePayload });
     expect(nullNameResponse.status()).toBe(400);
 
-    // @ts-expect-error Testing null value
     const nullCityPayload = {
       name: generateUniqueClientName('Null City'),
-      cityId: null,
+      cityId: null as any,
       assignedEyAdminId: [validEyAdminId],
     };
     const nullCityResponse = await request.post(CLIENTS_ENDPOINT, { data: nullCityPayload });
@@ -1081,10 +1078,10 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: Invalid admin ID format
    */
   test('ADO-EDGE30 should reject invalid admin ID format @regression', async ({ request }) => {
-    const payload: ClientCreateRequest = {
+    const payload = {
       name: generateUniqueClientName('Invalid Admin'),
       cityId: validCityId,
-      assignedEyAdminId: ['not-a-valid-id', 'another-invalid'],
+      assignedEyAdminId: ['not-a-valid-id', 'another-invalid'] as any,
     };
 
     const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
@@ -1308,10 +1305,10 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    */
   test('ADO-EDGE41 should handle very long admin ID string @regression', async ({ request }) => {
     const longAdminId = 'a'.repeat(10000);
-    const payload: ClientCreateRequest = {
+    const payload = {
       name: generateUniqueClientName('Long Admin ID'),
       cityId: validCityId,
-      assignedEyAdminId: [longAdminId],
+      assignedEyAdminId: [longAdminId] as any,
     };
 
     const response = await request.post(CLIENTS_ENDPOINT, { data: payload });

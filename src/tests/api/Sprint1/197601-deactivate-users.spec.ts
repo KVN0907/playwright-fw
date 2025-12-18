@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
  * Sprint 1 API Tests - Deactivate Users: EY Super Admin
@@ -22,12 +23,15 @@ import { test, expect } from '../../fixtures/advancedFixtures';
 const API_BASE = '/api/admin';
 const USERS_ENDPOINT = `${API_BASE}/users`;
 
-// Helper to create a test user for deactivation tests
+// Helper to create a test user for deactivation tests using faker
 async function createTestUser(request: any) {
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
+  const uniqueId = `${Date.now()}`.slice(-6);
   const userData = {
-    firstName: `DeactivateTest${Date.now()}`,
-    lastName: `User${Date.now()}`,
-    email: `deactivate.test.${Date.now()}@ey.com`,
+    firstName: `${firstName}${uniqueId}`,
+    lastName: `${lastName}${uniqueId}`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${uniqueId}@ey.com`,
   };
 
   const response = await request.post(USERS_ENDPOINT, { data: userData });

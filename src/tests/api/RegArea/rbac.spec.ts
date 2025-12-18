@@ -15,8 +15,12 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { faker } from '@faker-js/faker';
 
 const API_BASE = process.env.DEV_API_URL || 'https://eycompliancemanager-dev.ey.com/api';
+
+// Helper to generate unique names
+const uniqueId = () => `${Date.now()}`.slice(-6);
 
 /**
  * Permission Matrix:
@@ -34,7 +38,7 @@ test.describe('RegArea RBAC Tests', () => {
 
   // Test data for RBAC tests
   let testRegAreaId: number;
-  const testRegAreaName = `RBAC_Test_RegArea_${Date.now()}`;
+  const testRegAreaName = `${faker.commerce.department()} RBAC Test ${uniqueId()}`;
 
   test.describe('Super Admin - Full CRUD Access', () => {
     test('@rbac Super Admin can create reg area', async ({ request }) => {

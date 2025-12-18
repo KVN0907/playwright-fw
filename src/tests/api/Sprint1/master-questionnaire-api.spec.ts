@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
  * Sprint 1 API Tests - Master Questionnaire
@@ -12,12 +13,14 @@ import { test, expect } from '../../fixtures/advancedFixtures';
 
 const API_BASE = '/api/compliancemanager';
 
-// Helper function to create a test reg area
+// Helper to generate unique ID suffix
+const uniqueId = () => `${Date.now()}`.slice(-6);
+
+// Helper function to create a test reg area using faker
 async function createTestRegArea(request: any): Promise<{ id: number; name: string }> {
-  const timestamp = Date.now();
   const regAreaData = {
-    name: `Test RegArea ${timestamp}`,
-    description: 'Auto-created for Sprint 1 tests',
+    name: `${faker.commerce.department()} RegArea ${uniqueId()}`,
+    description: faker.lorem.sentence(),
     isActive: true,
     isApproved: true,
     isDelete: false,
@@ -34,16 +37,15 @@ async function deleteTestRegArea(request: any, regAreaId: number): Promise<void>
   await request.delete(`${API_BASE}/reg-area/${regAreaId}`);
 }
 
-// Helper function to create a test question
+// Helper function to create a test question using faker
 async function createTestQuestion(
   request: any,
   regAreaId: number,
   title?: string,
   questionType: string = 'Text'
 ): Promise<{ id: number; title: string; questionType: string; regAreaId: number }> {
-  const timestamp = Date.now();
   const questionData = {
-    title: title || `Test Question ${timestamp}`,
+    title: title || `${faker.lorem.words(3)} ${uniqueId()}`,
     questionType,
     regAreaId,
     isActive: true,

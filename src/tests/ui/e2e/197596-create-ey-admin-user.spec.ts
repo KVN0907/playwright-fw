@@ -19,30 +19,26 @@ import {
   EYAdminUserManagementPage,
   EYAdminUser,
 } from '../../../pages/eyadmin/EYAdminUserManagementPage';
+import { faker } from '@faker-js/faker';
 import * as testData from '../../data/ey-admin-users.json';
 
 // Test data configuration
 const TEST_PREFIX = testData.config.prefix;
-const timestamp = Date.now();
-const uniqueId = `${timestamp}`.slice(-8); // 8-digit unique suffix
-
-// Type for test user config from JSON
-interface TestUserConfig {
-  firstNameBase: string;
-  lastNameBase: string;
-  emailBase: string;
-  description?: string;
-}
+const EMAIL_DOMAIN = testData.config.emailDomain;
+const timestamp = Date.now(); // Used throughout for unique identifiers
 
 /**
- * Generate dynamic AUTOQA user with unique timestamp suffix
- * Format: firstName: AUTOQA_{base}_{timestamp}, lastName: {base}{timestamp}, email: {base}.{timestamp}@ey.com
+ * Generate dynamic AUTOQA user with faker data and unique suffix
+ * Format: firstName: AUTOQA_{fakerFirst}_{timestamp}, lastName: {fakerLast}{timestamp}, email: {first}.{last}.{timestamp}@ey.com
  */
-function generateDynamicUser(userConfig: TestUserConfig): EYAdminUser {
+function generateDynamicUser(): EYAdminUser {
+  const uniqueId = `${Date.now()}`.slice(-8);
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
   return {
-    firstName: `${TEST_PREFIX}_${userConfig.firstNameBase}_${uniqueId}`,
-    lastName: `${userConfig.lastNameBase}${uniqueId}`,
-    email: `${userConfig.emailBase}.${uniqueId}@${testData.config.emailDomain}`,
+    firstName: `${TEST_PREFIX}_${firstName}_${uniqueId}`,
+    lastName: `${lastName}${uniqueId}`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${uniqueId}@${EMAIL_DOMAIN}`,
   };
 }
 
@@ -66,7 +62,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
     await userManagementPage.verifyPageLoaded();
 
     // Generate dynamic user with unique timestamp
-    const newUser = generateDynamicUser(testData.testUsers.validUser as TestUserConfig);
+    const newUser = generateDynamicUser();
 
     await userManagementPage.createEYAdmin(newUser);
     await userManagementPage.verifyUserCreationSuccess();
@@ -131,7 +127,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
     await userManagementPage.fillAddUserForm({
       firstName: `${TEST_PREFIX}_InvalidEmail`,
       lastName: 'TestUser',
-      email: testData.invalidEmails.invalidFormat,
+      email: 'invalid@@email.com', // Invalid email format
     });
     await userManagementPage.submitAddUserForm();
 
@@ -151,7 +147,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
     await userManagementPage.fillAddUserForm({
       firstName: `${TEST_PREFIX}_NonEYDomain`,
       lastName: 'TestUser',
-      email: testData.invalidEmails.nonEyDomain,
+      email: 'test.user@gmail.com', // Non-EY domain
     });
     await userManagementPage.submitAddUserForm();
 
@@ -171,7 +167,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
     await userManagementPage.fillAddUserForm({
       firstName: `${TEST_PREFIX}_Duplicate`,
       lastName: 'User',
-      email: testData.invalidEmails.duplicateEmail,
+      email: 'keerthivasan.rc@in.ey.com', // Known existing user email
     });
     await userManagementPage.submitAddUserForm();
 
@@ -188,7 +184,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
     page: _page,
   }) => {
     // Generate dynamic user with unique timestamp
-    const newUser = generateDynamicUser(testData.testUsers.listTestUser as TestUserConfig);
+    const newUser = generateDynamicUser();
 
     await userManagementPage.createEYAdmin(newUser);
     await userManagementPage.verifyUserCreationSuccess();
@@ -303,7 +299,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
     page: _page,
   }) => {
     // Generate dynamic user with unique timestamp
-    const newUser = generateDynamicUser(testData.testUsers.noClientUser as TestUserConfig);
+    const newUser = generateDynamicUser();
 
     await userManagementPage.createEYAdmin(newUser);
     await userManagementPage.verifyUserCreationSuccess();
@@ -324,7 +320,7 @@ test.describe('Story #197596 - Create EY Admin User', () => {
     page: _page,
   }) => {
     // Generate dynamic user with unique timestamp
-    const newUser = generateDynamicUser(testData.testUsers.activeStatusUser as TestUserConfig);
+    const newUser = generateDynamicUser();
 
     await userManagementPage.createEYAdmin(newUser);
     await userManagementPage.verifyUserCreationSuccess();

@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
  * API Tests for RegAreaResource
@@ -18,6 +19,35 @@ import { test, expect } from '../../fixtures/advancedFixtures';
  */
 
 const API_BASE = '/api/compliancemanager';
+
+// Helper to generate unique reg area data using faker
+const generateRegAreaName = (prefix?: string) => {
+  const uniqueId = `${Date.now()}`.slice(-6);
+  if (prefix) {
+    return `${prefix} ${uniqueId}`;
+  }
+  return `${faker.commerce.department()} Compliance ${uniqueId}`;
+};
+
+const generateRegAreaDescription = () => faker.lorem.sentence();
+
+// Helper to generate complete reg area data
+const generateRegAreaData = (
+  overrides?: Partial<{
+    name: string;
+    description: string;
+    isActive: boolean;
+    isApproved: boolean;
+    isDelete: boolean;
+  }>
+) => ({
+  name: generateRegAreaName(),
+  description: generateRegAreaDescription(),
+  isActive: true,
+  isApproved: true,
+  isDelete: false,
+  ...overrides,
+});
 
 test.describe('RegAreaResource API Tests', () => {
   test.describe('GET /reg-area', () => {
@@ -40,10 +70,10 @@ test.describe('RegAreaResource API Tests', () => {
     // ADO Test Case #202614: API - Create Section with Valid, Unique Name
     test('@smoke @ADO-202614 should create a new regulatory area', async ({ request }) => {
       // Given valid regulatory area data
-      const timestamp = Date.now();
+      const regAreaName = generateRegAreaName();
       const requestData = {
-        name: `Test Reg Area ${timestamp}`,
-        description: `Test regulatory area description ${timestamp}`,
+        name: regAreaName,
+        description: faker.lorem.sentence(),
         isActive: true,
         isApproved: true,
         isDelete: false,
@@ -116,14 +146,7 @@ test.describe('RegAreaResource API Tests', () => {
   test.describe('PUT /reg-area', () => {
     test('@smoke should update an existing regulatory area', async ({ request }) => {
       // Given: First create a regulatory area to update
-      const timestamp = Date.now();
-      const createData = {
-        name: `Reg Area To Update ${timestamp}`,
-        description: 'Original description',
-        isActive: true,
-        isApproved: true,
-        isDelete: false,
-      };
+      const createData = generateRegAreaData({ name: generateRegAreaName('Reg Area To Update') });
 
       const createResponse = await request.post(`${API_BASE}/reg-area`, { data: createData });
       expect(createResponse.status()).toBe(201);
@@ -132,8 +155,8 @@ test.describe('RegAreaResource API Tests', () => {
       // Given update data
       const updateData = {
         id: created.id,
-        name: `Updated Reg Area ${timestamp}`,
-        description: 'Updated description',
+        name: generateRegAreaName('Updated Reg Area'),
+        description: faker.lorem.sentence(),
         isActive: true,
         isApproved: true,
         isDelete: false,
@@ -192,14 +215,7 @@ test.describe('RegAreaResource API Tests', () => {
   test.describe('DELETE /reg-area/{id}', () => {
     test('@smoke should delete a regulatory area by ID', async ({ request }) => {
       // Given: First create a regulatory area to delete
-      const timestamp = Date.now();
-      const createData = {
-        name: `Reg Area To Delete ${timestamp}`,
-        description: 'To be deleted',
-        isActive: true,
-        isApproved: true,
-        isDelete: false,
-      };
+      const createData = generateRegAreaData({ name: generateRegAreaName('Reg Area To Delete') });
 
       const createResponse = await request.post(`${API_BASE}/reg-area`, { data: createData });
       expect(createResponse.status()).toBe(201);

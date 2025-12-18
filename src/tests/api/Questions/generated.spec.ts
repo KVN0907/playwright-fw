@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
  * API Tests for QuestionsResource
@@ -37,12 +38,20 @@ import { test, expect } from '../../fixtures/advancedFixtures';
 
 const API_BASE = '/api/compliancemanager';
 
-// Helper function to create a test reg area for question tests
+// Helper to generate unique ID suffix
+const uniqueId = () => `${Date.now()}`.slice(-6);
+
+// Helper to generate question title
+const generateQuestionTitle = (prefix?: string) => {
+  if (prefix) return `${prefix} ${uniqueId()}`;
+  return `${faker.lorem.words(3)} ${uniqueId()}`;
+};
+
+// Helper function to create a test reg area for question tests using faker
 async function createTestRegArea(request: any): Promise<{ id: number; name: string }> {
-  const timestamp = Date.now();
   const regAreaData = {
-    name: `Test RegArea for Questions ${timestamp}`,
-    description: 'Auto-created for question tests',
+    name: `${faker.commerce.department()} Regulations ${uniqueId()}`,
+    description: faker.lorem.sentence(),
     isActive: true,
     isApproved: true,
     isDelete: false,
