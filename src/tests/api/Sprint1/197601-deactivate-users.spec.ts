@@ -236,6 +236,106 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
   });
 
   /**
+   * ADO Test Case #202535
+   * API – Cannot Deactivate EY Admin Assigned to Client
+   * An EY Admin who is assigned to an active client cannot be deactivated
+   * Linked Bug: #290349
+   */
+  test('should prevent deactivation of EY Admin assigned to a client @regression @ADO-202535', async ({
+    request,
+  }) => {
+    const CLIENTS_ENDPOINT = '/api/admin/api/clients';
+    const EY_ADMINS_ENDPOINT = '/api/admin/api/ey-admins';
+    const CITIES_ENDPOINT = '/api/admin/api/cities/search-by-name';
+    const CHANGE_STATUS_ENDPOINT = '/api/admin/api/ey-admins/change-active-status';
+
+    // Step 1: Get an existing EY Admin
+    const adminsResponse = await request.get(EY_ADMINS_ENDPOINT);
+    console.log(`EY Admins status: ${adminsResponse.status()}`);
+    if (!adminsResponse.ok()) {
+      console.log(`EY Admins error: ${await adminsResponse.text()}`);
+      test.skip(true, 'Could not fetch EY Admins list');
+      return;
+    }
+
+    const eyAdmins = await adminsResponse.json();
+    console.log(`EY Admins count: ${eyAdmins?.length || 0}`);
+    if (!eyAdmins || eyAdmins.length === 0) {
+      test.skip(true, 'No EY Admins available');
+      return;
+    }
+
+    const eyAdminToAssign = eyAdmins[0];
+    console.log(`Selected EY Admin: ${JSON.stringify(eyAdminToAssign)}`);
+
+    // Step 2: Get a valid city ID (POST with search data)
+    const citiesResponse = await request.post(CITIES_ENDPOINT, {
+      data: { name: 'a' }, // Search for cities containing 'a'
+    });
+    console.log(`Cities status: ${citiesResponse.status()}`);
+    if (!citiesResponse.ok()) {
+      console.log(`Cities error: ${await citiesResponse.text()}`);
+      test.skip(true, 'Could not fetch cities');
+      return;
+    }
+
+    const cities = await citiesResponse.json();
+    console.log(`Cities count: ${cities?.length || 0}`);
+    if (!cities || cities.length === 0) {
+      test.skip(true, 'No cities available');
+      return;
+    }
+
+    const validCityId = cities[0].id;
+    console.log(`Selected city ID: ${validCityId}`);
+
+    // Step 3: Create a client with the EY Admin assigned
+    const clientName = `Deactivation Test Client ${Date.now()}`;
+    const clientPayload = {
+      name: clientName,
+      cityId: validCityId,
+      assignedEyAdminId: [eyAdminToAssign.id],
+    };
+
+    const createClientResponse = await request.post(CLIENTS_ENDPOINT, { data: clientPayload });
+    console.log(`Create client status: ${createClientResponse.status()}`);
+
+    if (createClientResponse.status() !== 201) {
+      const errorText = await createClientResponse.text();
+      console.log(`Create client error: ${errorText}`);
+      test.skip(true, `Could not create test client: ${createClientResponse.status()}`);
+      return;
+    }
+
+    const createdClient = await createClientResponse.json();
+
+    try {
+      // Step 4: Try to deactivate the EY Admin who is assigned to the client
+      // Use GET /api/admin/api/ey-admins/change-active-status/{id} to toggle status
+      const deactivateUrl = `${CHANGE_STATUS_ENDPOINT}/${eyAdminToAssign.id}`;
+      console.log(`Changing EY Admin status at: ${deactivateUrl}`);
+
+      const deactivateResponse = await request.get(deactivateUrl);
+      console.log(`Change status response code: ${deactivateResponse.status()}`);
+
+      const responseBody = await deactivateResponse.text();
+      console.log(`Change status response: ${responseBody}`);
+
+      // Should reject deactivation because EY Admin is assigned to an active client
+      // Expected: 400/403/409/422 (rejection due to client assignment)
+      expect(
+        [400, 403, 409, 422],
+        `EY Admin assigned to client should not be deactivatable. Got ${deactivateResponse.status()}: ${responseBody}`
+      ).toContain(deactivateResponse.status());
+    } finally {
+      // Cleanup: Delete the test client
+      if (createdClient?.id) {
+        await request.delete(`${CLIENTS_ENDPOINT}/${createdClient.id}`);
+      }
+    }
+  });
+
+  /**
    * ADO Test Case #202532
    * API – Audit Log Entry for Deactivation
    */
