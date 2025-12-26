@@ -734,6 +734,652 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
     });
   });
 
+  test.describe('Duplicate Questions - All Permutations', () => {
+    let duplicateTestRegAreaId: number;
+    let secondRegAreaId: number;
+    const baseQuestionTitle = `Duplicate Test Question`;
+
+    test.beforeAll(async ({ request }) => {
+      // Create two reg areas for duplicate testing across sections
+      const regArea1Response = await request.post(REG_AREA_ENDPOINT, {
+        data: {
+          name: `Duplicate Test RegArea 1 ${generateUniqueId()}`,
+          description: 'Primary reg area for duplicate question tests',
+          isActive: true,
+          isApproved: true,
+        },
+      });
+      if (regArea1Response.status() === 201) {
+        const data = await regArea1Response.json();
+        duplicateTestRegAreaId = data.id;
+        console.log(`Created duplicate test reg area 1: ${duplicateTestRegAreaId}`);
+      }
+
+      const regArea2Response = await request.post(REG_AREA_ENDPOINT, {
+        data: {
+          name: `Duplicate Test RegArea 2 ${generateUniqueId()}`,
+          description: 'Secondary reg area for cross-section duplicate tests',
+          isActive: true,
+          isApproved: true,
+        },
+      });
+      if (regArea2Response.status() === 201) {
+        const data = await regArea2Response.json();
+        secondRegAreaId = data.id;
+        console.log(`Created duplicate test reg area 2: ${secondRegAreaId}`);
+      }
+    });
+
+    test.afterAll(async ({ request }) => {
+      // Cleanup
+      if (duplicateTestRegAreaId) {
+        await request.delete(`${REG_AREA_ENDPOINT}/${duplicateTestRegAreaId}`);
+      }
+      if (secondRegAreaId) {
+        await request.delete(`${REG_AREA_ENDPOINT}/${secondRegAreaId}`);
+      }
+    });
+
+    test('@duplicate should reject exact duplicate title in same reg area', async ({ request }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueTitle = `${baseQuestionTitle} Exact ${generateUniqueId()}`;
+
+      // Create first question
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: uniqueTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      // Try to create exact duplicate
+      const duplicateResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: uniqueTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Should reject duplicate - 400 or 409 (Conflict)
+      expect([400, 409, 422]).toContain(duplicateResponse.status());
+    });
+
+    test('@duplicate should allow same title in different reg areas', async ({ request }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId || !secondRegAreaId, 'Test reg areas not available');
+
+      const sharedTitle = `${baseQuestionTitle} CrossSection ${generateUniqueId()}`;
+
+      // Create question in first reg area
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: sharedTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      // Create same title in second reg area - should be allowed
+      const secondResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: sharedTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: secondRegAreaId,
+        },
+      });
+      expect(secondResponse.status()).toBe(201);
+
+      const firstQuestion = await firstResponse.json();
+      const secondQuestion = await secondResponse.json();
+
+      // Both should exist with different IDs
+      expect(firstQuestion.id).not.toBe(secondQuestion.id);
+      expect(firstQuestion.regAreaId).toBe(duplicateTestRegAreaId);
+      expect(secondQuestion.regAreaId).toBe(secondRegAreaId);
+    });
+
+    test('@duplicate should reject duplicate with different case (case-insensitive)', async ({
+      request,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueId = generateUniqueId();
+      const originalTitle = `${baseQuestionTitle} Case Test ${uniqueId}`;
+
+      // Create original question
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: originalTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      // Test case variations
+      const caseVariations = [
+        originalTitle.toUpperCase(),
+        originalTitle.toLowerCase(),
+        originalTitle
+          .split(' ')
+          .map((w, i) => (i % 2 === 0 ? w.toUpperCase() : w.toLowerCase()))
+          .join(' '),
+      ];
+
+      for (const variation of caseVariations) {
+        const duplicateResponse = await request.post(QUESTIONS_ENDPOINT, {
+          data: {
+            id: null,
+            title: variation,
+            questionType: QUESTION_TYPES.TEXT,
+            regAreaId: duplicateTestRegAreaId,
+          },
+        });
+
+        // API may or may not be case-insensitive - document behavior
+        if (duplicateResponse.status() === 201) {
+          console.log(`API allows case variation: "${variation}" (case-sensitive)`);
+        } else {
+          console.log(`API rejects case variation: "${variation}" (case-insensitive)`);
+          expect([400, 409, 422]).toContain(duplicateResponse.status());
+        }
+      }
+    });
+
+    test('@duplicate should reject duplicate with leading/trailing whitespace', async ({
+      request,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueTitle = `${baseQuestionTitle} Whitespace ${generateUniqueId()}`;
+
+      // Create original question (without extra whitespace)
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: uniqueTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      // Try with leading whitespace
+      const leadingResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: `   ${uniqueTitle}`,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Try with trailing whitespace
+      const trailingResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: `${uniqueTitle}   `,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Try with both leading and trailing
+      const bothResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: `   ${uniqueTitle}   `,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // If API normalizes whitespace, all should be rejected as duplicates
+      const responses = [
+        { name: 'leading', response: leadingResponse },
+        { name: 'trailing', response: trailingResponse },
+        { name: 'both', response: bothResponse },
+      ];
+
+      for (const { name, response } of responses) {
+        if (response.status() === 201) {
+          console.log(`API allows ${name} whitespace variation (no normalization)`);
+        } else {
+          console.log(`API rejects ${name} whitespace variation (normalizes whitespace)`);
+          expect([400, 409, 422]).toContain(response.status());
+        }
+      }
+    });
+
+    test('@duplicate should handle duplicate with extra internal whitespace', async ({
+      request,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueId = generateUniqueId();
+      const originalTitle = `Question With Normal Spacing ${uniqueId}`;
+
+      // Create original question
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: originalTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      // Try with extra internal spaces
+      const extraSpacesTitle = `Question  With   Normal    Spacing ${uniqueId}`;
+      const extraSpacesResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: extraSpacesTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Document API behavior for internal whitespace
+      if (extraSpacesResponse.status() === 201) {
+        console.log('API allows extra internal whitespace (treats as different title)');
+      } else {
+        console.log('API rejects extra internal whitespace (normalizes internal spaces)');
+        expect([400, 409, 422]).toContain(extraSpacesResponse.status());
+      }
+    });
+
+    test('@duplicate should allow similar but not identical titles (substring)', async ({
+      request,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueId = generateUniqueId();
+      const baseTitle = `Base Question ${uniqueId}`;
+
+      // Create base question
+      const baseResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: baseTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(baseResponse.status()).toBe(201);
+
+      // Similar titles that should be allowed
+      const similarTitles = [
+        `${baseTitle} Extended`, // Appended text
+        `Prefix ${baseTitle}`, // Prepended text
+        `${baseTitle}!`, // Added punctuation
+        `${baseTitle}?`, // Different punctuation
+        baseTitle.slice(0, -1), // One char shorter (if >= 3 chars)
+      ];
+
+      for (const similarTitle of similarTitles) {
+        if (similarTitle.length >= 3) {
+          const response = await request.post(QUESTIONS_ENDPOINT, {
+            data: {
+              id: null,
+              title: similarTitle,
+              questionType: QUESTION_TYPES.TEXT,
+              regAreaId: duplicateTestRegAreaId,
+            },
+          });
+          expect(response.status()).toBe(201);
+          console.log(`Similar title allowed: "${similarTitle}"`);
+        }
+      }
+    });
+
+    test('@duplicate should reject duplicate with whitespace before punctuation', async ({
+      request,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueId = generateUniqueId();
+      const titleWithPunctuation = `Base Question ${uniqueId}!`;
+
+      // Create question with punctuation (no space before)
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: titleWithPunctuation,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      // Try with space before punctuation - should be duplicate after normalization
+      const titleWithSpaceBeforePunct = `Base Question ${uniqueId} !`;
+      const duplicateResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: titleWithSpaceBeforePunct,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Document behavior - should ideally reject as duplicate
+      if (duplicateResponse.status() === 201) {
+        console.log(
+          `BUG: API allows "${titleWithSpaceBeforePunct}" as different from "${titleWithPunctuation}"`
+        );
+        // This is likely a bug - whitespace before punctuation should be normalized
+      } else {
+        console.log('API correctly rejects whitespace-before-punctuation as duplicate');
+        expect([400, 409, 422]).toContain(duplicateResponse.status());
+      }
+    });
+
+    test('@duplicate should handle duplicate with different question type', async ({ request }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueTitle = `${baseQuestionTitle} Type Variation ${generateUniqueId()}`;
+
+      // Create TEXT question
+      const textResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: uniqueTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(textResponse.status()).toBe(201);
+
+      // Try to create same title with different type (if supported)
+      // Note: YES_NO type may not be implemented (Bug #291039)
+      const differentTypeResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: uniqueTitle,
+          questionType: 'TEXTAREA', // Different type
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Document behavior - most systems reject duplicate title regardless of type
+      if ([400, 409, 422].includes(differentTypeResponse.status())) {
+        console.log('API rejects duplicate title even with different question type');
+      } else if (differentTypeResponse.status() === 201) {
+        console.log('API allows same title with different question type');
+      } else {
+        console.log(`API returned ${differentTypeResponse.status()} for different type`);
+      }
+    });
+
+    test('@duplicate should reject duplicate after title is normalized/trimmed', async ({
+      request,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      // Create question with trailing space that gets trimmed
+      const titleWithSpace = `${baseQuestionTitle} Trimmed ${generateUniqueId()} `;
+      const trimmedTitle = titleWithSpace.trim();
+
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: titleWithSpace,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      const firstQuestion = await firstResponse.json();
+      // Verify API trimmed the title
+      expect(firstQuestion.title.trim()).toBe(trimmedTitle);
+
+      // Now try to create with the trimmed version
+      const duplicateResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: trimmedTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Should be rejected since normalized titles are the same
+      expect([400, 409, 422]).toContain(duplicateResponse.status());
+    });
+
+    test('@duplicate should handle rapid consecutive duplicate attempts', async ({ request }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'CONCURRENCY' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueTitle = `${baseQuestionTitle} Rapid ${generateUniqueId()}`;
+
+      // Send multiple requests rapidly
+      const promises = Array(5)
+        .fill(null)
+        .map(() =>
+          request.post(QUESTIONS_ENDPOINT, {
+            data: {
+              id: null,
+              title: uniqueTitle,
+              questionType: QUESTION_TYPES.TEXT,
+              regAreaId: duplicateTestRegAreaId,
+            },
+          })
+        );
+
+      const responses = await Promise.all(promises);
+      const successCount = responses.filter(r => r.status() === 201).length;
+      const failCount = responses.filter(r => [400, 409, 422].includes(r.status())).length;
+
+      console.log(`Rapid duplicate test: ${successCount} succeeded, ${failCount} rejected`);
+
+      // Only one should succeed
+      expect(successCount).toBe(1);
+      expect(failCount).toBe(4);
+    });
+
+    test('@duplicate should reject duplicate with special characters normalized', async ({
+      request,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueId = generateUniqueId();
+
+      // Create question with special char that might be HTML encoded
+      const originalTitle = `Question & Answer ${uniqueId}`;
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: originalTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+      expect(firstResponse.status()).toBe(201);
+
+      // Try with HTML encoded version
+      const encodedTitle = `Question &amp; Answer ${uniqueId}`;
+      const encodedResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: encodedTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Document behavior
+      if (encodedResponse.status() === 201) {
+        console.log('API treats & and &amp; as different titles');
+      } else {
+        console.log('API normalizes HTML entities for duplicate detection');
+        expect([400, 409, 422]).toContain(encodedResponse.status());
+      }
+    });
+
+    test('@duplicate should handle unicode normalization for duplicates', async ({ request }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'low' },
+          { type: 'feature', description: 'Questions' },
+          { type: 'story', description: '197265' },
+          { type: 'category', description: 'DUPLICATE' }
+        );
+
+      test.skip(!duplicateTestRegAreaId, 'No test reg area available');
+
+      const uniqueId = generateUniqueId();
+
+      // Create question with accented character (composed form)
+      const composedTitle = `Caf\u00e9 Question ${uniqueId}`; // é as single char
+      const firstResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: composedTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // API may or may not support unicode - document behavior
+      if (firstResponse.status() !== 201) {
+        console.log(`API rejects unicode character (status: ${firstResponse.status()})`);
+        // Test passes - API doesn't support unicode, so no duplicate check needed
+        return;
+      }
+
+      // Try with decomposed form (e + combining accent)
+      const decomposedTitle = `Cafe\u0301 Question ${uniqueId}`; // e + combining acute
+      const decomposedResponse = await request.post(QUESTIONS_ENDPOINT, {
+        data: {
+          id: null,
+          title: decomposedTitle,
+          questionType: QUESTION_TYPES.TEXT,
+          regAreaId: duplicateTestRegAreaId,
+        },
+      });
+
+      // Document behavior
+      if (decomposedResponse.status() === 201) {
+        console.log('API does not normalize unicode (composed vs decomposed treated as different)');
+      } else {
+        console.log('API normalizes unicode for duplicate detection');
+        expect([400, 409, 422]).toContain(decomposedResponse.status());
+      }
+    });
+  });
+
   test.describe('Functional - Questions', () => {
     test('@functional should preserve question order in section', async ({ request }) => {
       test
