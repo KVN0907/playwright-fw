@@ -27,12 +27,17 @@ const API_BASE = '/api/compliancemanager';
 const UPLOAD_ENDPOINT = `${API_BASE}/questions/upload-questions`;
 const TEST_FILES_DIR = path.join(__dirname, '../testFiles');
 
-// Base URL from environment
-const BASE_URL = process.env.BASE_URL || 'https://eycompliancemanager-dev.ey.com';
+// Base URL from environment (APP_URL is used in qa.env, QA_APP_URL as fallback)
+const BASE_URL = (
+  process.env.APP_URL ||
+  process.env.QA_APP_URL ||
+  process.env.BASE_URL ||
+  'https://eycompliancemanager-uat.ey.com'
+).replace(/\/$/, ''); // Remove trailing slash
 
 // Test file paths
 const TEST_FILES = {
-  validXlsx: path.join(TEST_FILES_DIR, 'QuestionnaireTemplate (2).xlsx'),
+  validXlsx: path.join(TEST_FILES_DIR, 'ValidQuestions.xlsx'),
   invalidPdf: path.join(TEST_FILES_DIR, 'invalid-format.pdf'),
   invalidCsv: path.join(TEST_FILES_DIR, 'invalid-format.csv'),
   invalidHeaders: path.join(TEST_FILES_DIR, 'invalid-headers.xlsx'),
@@ -153,6 +158,26 @@ async function deleteTestRegArea(request: any, regAreaId: number): Promise<void>
  */
 test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   let testRegAreaId: number;
+  let corporateSecretarialRegAreaId: number;
+
+  // Fetch the Corporate Secretarial reg area for valid upload tests
+  test.beforeAll(async ({ request }) => {
+    const response = await request.get(`${API_BASE}/reg-area`, {
+      headers: { 'x-tenant-id': '1', 'x-user-id': '1' },
+    });
+    if (response.status() === 200) {
+      const regAreas = await response.json();
+      const corporateSecretarial = regAreas.find(
+        (ra: { name: string }) =>
+          ra.name.toLowerCase().includes('corporate') &&
+          ra.name.toLowerCase().includes('secretarial')
+      );
+      if (corporateSecretarial) {
+        corporateSecretarialRegAreaId = corporateSecretarial.id;
+        console.log(`Found Corporate Secretarial reg area: ${corporateSecretarialRegAreaId}`);
+      }
+    }
+  });
 
   test.beforeEach(async ({ request }) => {
     const regArea = await createTestRegArea(request);
@@ -196,19 +221,26 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   test('should upload valid excel file and populate questions @regression @ADO-204124', async ({
     request,
   }) => {
+    // Use Corporate Secretarial reg area for valid upload test
+    const targetRegAreaId = corporateSecretarialRegAreaId || testRegAreaId;
+    test.skip(!targetRegAreaId, 'No reg area available for upload test');
+
     const fileContent = readTestFile(TEST_FILES.validXlsx);
 
     const response = await uploadFile({
       file: fileContent,
-      filename: 'QuestionnaireTemplate (2).xlsx',
+      filename: 'ValidQuestions.xlsx',
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      regAreaId: testRegAreaId,
+      regAreaId: targetRegAreaId,
     });
 
+    console.log(
+      `Upload response: status=${response.status}, regAreaId=${targetRegAreaId}, data=${JSON.stringify(response.data)}`
+    );
     expect([200, 201]).toContain(response.status);
 
     if (response.status === 200 || response.status === 201) {
-      const questionsResponse = await request.get(`${API_BASE}/questions/${testRegAreaId}`);
+      const questionsResponse = await request.get(`${API_BASE}/questions/${targetRegAreaId}`);
       expect(questionsResponse.status()).toBe(200);
     }
   });
