@@ -1,0 +1,75 @@
+{
+  "cookies": [
+    {
+      "name": "AUTH_SESSION_ID",
+      "value": "MGFiNWZmNmMtOGVmNi05NTNlLWY1NDctYzY0ODhjMGEyOGQ4LmRVQkhGT1RfYVo4akN2T01USzdscFowZUFac2lyc29yT19HajFtbEFtRklHTkpTcGx3eExQUk5qTk13SVdEY3dDZzJWeTB5R3otUHlRbmhrT3dLU19B.f36dbd8017f2-20909",
+      "domain": "ctekc.azurewebsites.net",
+      "path": "/auth/realms/master/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KC_AUTH_SESSION_HASH",
+      "value": "SzilhtKwJRLO1olppW47Hn2HMP6SknZhofIppowtISM",
+      "domain": "ctekc.azurewebsites.net",
+      "path": "/auth/realms/master/",
+      "expires": 1766858178.549484,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_IDENTITY",
+      "value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwNTg4OWRkZi1hODVlLTQxYWEtOTJlMS1jNzMzNzZlNzA3YmYifQ.eyJleHAiOjE3NjY4OTQxMjAsImlhdCI6MTc2Njg1ODEyMCwianRpIjoiN2FkZTBlOTItZmYzYS1lOTY2LTUxZjQtOWYzYjY2MTdlZjk1IiwiaXNzIjoiaHR0cHM6Ly9jdGVrYy5henVyZXdlYnNpdGVzLm5ldC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJzdWIiOiI5NjRiYTEzOC00MDc0LTQ4ZjEtOThmZC00MDdmOWQ1OWE2OTciLCJ0eXAiOiJTZXJpYWxpemVkLUlEIiwic2lkIjoiMGFiNWZmNmMtOGVmNi05NTNlLWY1NDctYzY0ODhjMGEyOGQ4Iiwic3RhdGVfY2hlY2tlciI6InVKeFlZeWRJQ2NFV1p1RGVvaFpLOUE3RnhJcXhXOXpQZkJHMVVtRlFsRWsifQ.qsHicXBTWji1bo20geWM4prElf0KRAdT6D8zFNrjcbcTRWWeQ3XWgxX1YZljucRONoyJRvGevPDHpgJRZZEDlw",
+      "domain": "ctekc.azurewebsites.net",
+      "path": "/auth/realms/master/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "KEYCLOAK_SESSION",
+      "value": "SzilhtKwJRLO1olppW47Hn2HMP6SknZhofIppowtISM",
+      "domain": "ctekc.azurewebsites.net",
+      "path": "/auth/realms/master/",
+      "expires": 1766894120.585335,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ASLBSA",
+      "value": "0003b8cb827711ebbbdfd0db1fce38180b379ed384c60c0ec7e8bcaf7a427e409163",
+      "domain": "eycompliancemanager-uat.ey.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ASLBSACORS",
+      "value": "0003b8cb827711ebbbdfd0db1fce38180b379ed384c60c0ec7e8bcaf7a427e409163",
+      "domain": "eycompliancemanager-uat.ey.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "SESSION",
+      "value": "da241f26-d9d1-430f-bd61-c9e7238a998a",
+      "domain": "eycompliancemanager-uat.ey.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

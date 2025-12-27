@@ -1,7 +1,5 @@
-import { test as baseTest, expect, APIRequestContext, chromium } from '@playwright/test';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
-import * as path from 'path';
-import * as fs from 'fs';
 
 /**
  * API Tests for Client Admin & Country Assignment
@@ -9,8 +7,8 @@ import * as fs from 'fs';
  *
  * IMPORTANT: Per acceptance criteria, all operations should be performed as EY Admin
  * - "Given I am logged in as an EY Admin"
- * - EY Admin credentials: sg8@in.ey.com (defined in qa.env as EY_ADMIN_USERNAME)
- * - Tests now run with EY Admin authentication (not Super Admin)
+ * - Uses eyAdminRequest fixture for EY Admin authenticated requests
+ * - Uses superAdminRequest fixture when Super Admin access is needed
  *
  * Endpoints:
  * Client Admin API (via Admin service):
@@ -45,9 +43,6 @@ const CM_API_BASE = '/api/compliancemanager';
 const CLIENT_ADMIN_ENDPOINT = `${ADMIN_API_BASE}/client-admins`;
 const CLIENT_COUNTRY_ENDPOINT = `${CM_API_BASE}/client-country`;
 
-// EY Admin auth file path
-const EY_ADMIN_AUTH_FILE = path.join(__dirname, '../../../ey-admin-auth.json');
-
 const generateUniqueId = () => `${Date.now()}`.slice(-6);
 
 const generateClientAdminData = () => ({
@@ -57,196 +52,18 @@ const generateClientAdminData = () => ({
   designation: faker.person.jobTitle().slice(0, 50),
 });
 
-/**
- * Helper function to authenticate as EY Admin and save auth state
- * Uses Keycloak direct URL to bypass existing sessions
- */
-async function ensureEyAdminAuth(): Promise<void> {
-  // Skip if auth file exists and is recent (less than 30 minutes old)
-  if (fs.existsSync(EY_ADMIN_AUTH_FILE)) {
-    const stats = fs.statSync(EY_ADMIN_AUTH_FILE);
-    const ageInMinutes = (Date.now() - stats.mtimeMs) / (1000 * 60);
-    if (ageInMinutes < 30) {
-      console.log('   Using existing EY Admin auth state');
-      return;
-    }
-  }
-
-  const baseURL =
-    process.env.QA_APP_URL || process.env.APP_URL || 'https://eycompliancemanager-uat.ey.com/';
-  const username = process.env.EY_ADMIN_USERNAME || 'sg8@in.ey.com';
-  const password = process.env.EY_ADMIN_PASSWORD || 'eyadmin';
-
-  console.log('\n🔐 Authenticating as EY Admin...');
-  console.log(`   Username: ${username}`);
-  console.log(`   Base URL: ${baseURL}`);
-
-  const browser = await chromium.launch({ headless: true });
-  // Create a FRESH context - use empty storage state to ensure no cookies
-  const context = await browser.newContext({
-    ignoreHTTPSErrors: true,
-    storageState: { cookies: [], origins: [] },
-  });
-  const page = await context.newPage();
-
-  try {
-    // Navigate to app - since context has no cookies, it should redirect to login
-    console.log('   Navigating to app (fresh context)...');
-    await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 60000 });
-
-    // Wait for either keycloak login page or landing page with login button
-    await page.waitForTimeout(3000);
-
-    let currentUrl = page.url();
-    console.log(`   Current URL: ${currentUrl}`);
-
-    // Check if we're on keycloak login page already
-    if (currentUrl.includes('auth') || currentUrl.includes('keycloak')) {
-      console.log('   Already on Keycloak login page');
-    } else {
-      // We should be on a landing page - look for login button
-      console.log('   Looking for login button on landing page...');
-
-      // Try various login button selectors
-      const loginSelectors = [
-        'button:has-text("Login")',
-        'role=button[name="Login"]',
-        'a:has-text("Login")',
-        '[data-testid="login-button"]',
-        '.login-button',
-        '#login-button',
-        'button[type="submit"]',
-      ];
-
-      let clicked = false;
-      for (const selector of loginSelectors) {
-        try {
-          const element = page.locator(selector).first();
-          if (await element.isVisible({ timeout: 3000 })) {
-            console.log(`   Found login element: ${selector}`);
-            await element.click();
-            clicked = true;
-            await page.waitForLoadState('domcontentloaded');
-            break;
-          }
-        } catch {
-          // Try next selector
-        }
-      }
-
-      if (!clicked) {
-        // Take a screenshot for debugging
-        await page.screenshot({ path: 'test-results/ey-admin-login-debug.png' });
-        console.log('   No login button found. Screenshot saved.');
-        console.log('   Page title:', await page.title());
-      }
-
-      // Wait for redirect to keycloak
-      try {
-        await page.waitForURL(url => url.href.includes('auth') || url.href.includes('keycloak'), {
-          timeout: 15000,
-        });
-      } catch {
-        // Check if already logged in (redirected to dashboard)
-        currentUrl = page.url();
-        console.log(`   After wait URL: ${currentUrl}`);
-        if (currentUrl.includes('user-management') || currentUrl.includes('dashboard')) {
-          // Session might exist from browser caching - need to clear and retry
-          console.log('   Warning: App loaded without login - clearing cookies');
-          await context.clearCookies();
-          await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
-          await page.waitForTimeout(2000);
-        }
-      }
-    }
-
-    currentUrl = page.url();
-    console.log(`   Before login form URL: ${currentUrl}`);
-
-    // Wait for the username field to be visible
-    console.log('   Waiting for login form...');
-    await page.waitForSelector('#username', { state: 'visible', timeout: 30000 });
-
-    // Fill keycloak form
-    console.log('   Filling credentials...');
-    await page.locator('#username').fill(username);
-    await page.locator('#password').fill(password);
-    await page.locator('#kc-login').click();
-
-    // Wait for successful login - redirect away from auth
-    console.log('   Waiting for login completion...');
-    await page.waitForURL(url => !url.href.includes('login') && !url.href.includes('auth'), {
-      timeout: 60000,
-    });
-
-    console.log(`   Login successful, URL: ${page.url()}`);
-
-    // Save auth state
-    await context.storageState({ path: EY_ADMIN_AUTH_FILE });
-    console.log('✅ EY Admin auth state saved');
-  } catch (error) {
-    console.error('❌ EY Admin auth setup failed:', error);
-    // Take a screenshot on failure
-    try {
-      await page.screenshot({ path: 'test-results/ey-admin-auth-failure.png' });
-      console.log('   Failure screenshot saved to test-results/ey-admin-auth-failure.png');
-      console.log('   Current URL at failure:', page.url());
-    } catch {
-      // Ignore screenshot errors
-    }
-    throw error;
-  } finally {
-    await browser.close();
-  }
-}
-
-/**
- * Extended test fixture that uses EY Admin authentication
- */
-const test = baseTest.extend<{ eyAdminRequest: APIRequestContext }>({
-  eyAdminRequest: async ({ playwright }, use) => {
-    // Ensure EY Admin auth exists
-    await ensureEyAdminAuth();
-
-    // Create API context with EY Admin auth state
-    const baseURL =
-      process.env.QA_APP_URL || process.env.APP_URL || 'https://eycompliancemanager-uat.ey.com/';
-    const apiContext = await playwright.request.newContext({
-      baseURL,
-      ignoreHTTPSErrors: true,
-      storageState: EY_ADMIN_AUTH_FILE,
-    });
-
-    await use(apiContext);
-    await apiContext.dispose();
-  },
-});
-
 test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => {
-  const createdClientAdminIds: number[] = [];
   let testClientId: number;
 
-  // Authenticate as EY Admin once before all tests
   test.beforeAll(async () => {
     // Use one of the test clients created earlier (Liverpool FC = 3937, Man Utd = 3938, Chelsea = 3939)
     testClientId = 3937;
     console.log(`Using test client ID: ${testClientId}`);
-
-    // Pre-authenticate as EY Admin
-    await ensureEyAdminAuth();
   });
 
-  test.afterAll(async ({ eyAdminRequest }) => {
-    // Cleanup created client admins
-    for (const id of createdClientAdminIds) {
-      try {
-        await eyAdminRequest.delete(`${CLIENT_ADMIN_ENDPOINT}/${id}`);
-        console.log(`Deleted test client admin: ${id}`);
-      } catch {
-        console.log(`Failed to delete client admin ${id}`);
-      }
-    }
-  });
+  // Note: Client admins are NOT automatically deleted after tests
+  // This allows verifying data in the application UI
+  // To clean up manually, use: DELETE /api/admin/api/client-admins/{id}
 
   test.describe('Client Admin Management - POST/PUT/DELETE /client-admins', () => {
     test('@smoke @ADO-240427 should add a new client admin with valid name and email', async ({
@@ -281,7 +98,6 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect(data.lastName).toBe(clientAdminData.lastName);
       expect(data.username.toLowerCase()).toBe(clientAdminData.username.toLowerCase());
 
-      createdClientAdminIds.push(data.id);
       console.log(`Created client admin: ${data.id} - ${data.username}`);
     });
 
@@ -312,7 +128,6 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       });
       expect([200, 201]).toContain(createResponse.status());
       const created = await createResponse.json();
-      createdClientAdminIds.push(created.id);
 
       // Try to create another client admin with the same email
       const duplicateData = {
@@ -356,7 +171,6 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       const createResponse = await eyAdminRequest.post(CLIENT_ADMIN_ENDPOINT, { data: createData });
       expect([200, 201]).toContain(createResponse.status());
       const created = await createResponse.json();
-      createdClientAdminIds.push(created.id);
 
       // Update the client admin
       const updatedFirstName = `Updated_${faker.person.firstName()}`;
@@ -459,7 +273,6 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       // TODO: Raise bug for missing email validation
       if ([200, 201].includes(response.status())) {
         const data = await response.json();
-        createdClientAdminIds.push(data.id);
         console.log('BUG: API accepted invalid email format. Created client admin:', data.id);
       }
       expect([200, 201, 400, 409, 422]).toContain(response.status());
@@ -805,7 +618,6 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
 
       if ([200, 201].includes(response.status())) {
         const data = await response.json();
-        createdClientAdminIds.push(data.id);
         expect(data.firstName).toBe(requestData.firstName);
         expect(data.lastName).toBe(requestData.lastName);
       } else {
@@ -839,7 +651,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       // Should either accept (if within limits) or reject with validation error
       if ([200, 201].includes(response.status())) {
         const data = await response.json();
-        createdClientAdminIds.push(data.id);
+        console.log(`Created client admin with max length fields: ${data.id}`);
       } else {
         expect([400, 422]).toContain(response.status());
       }
@@ -875,6 +687,55 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       for (const response of responses) {
         expect([200, 201, 400, 409, 500]).toContain(response.status());
       }
+    });
+  });
+
+  test.describe('Cleanup', () => {
+    test('@cleanup should delete all test client admins', async ({ eyAdminRequest }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'low' },
+          { type: 'feature', description: 'Cleanup' }
+        );
+
+      // Get all client admins
+      const response = await eyAdminRequest.get(CLIENT_ADMIN_ENDPOINT);
+      expect(response.status()).toBe(200);
+
+      const clientAdmins = await response.json();
+
+      // Filter test data created by this test suite
+      // Pattern: test.clientadmin.{timestamp}@test.ey.com
+      const testAdminPattern = /^test\.clientadmin\.\d+@test\.ey\.com$/i;
+      const testAdmins = clientAdmins.filter(
+        (admin: { username: string; firstName: string }) =>
+          testAdminPattern.test(admin.username) ||
+          admin.firstName?.startsWith('TestPersist') ||
+          admin.firstName?.startsWith('Updated_') ||
+          admin.firstName?.includes("O'Brien") ||
+          admin.username?.includes('invalid-email')
+      );
+
+      console.log(`Found ${testAdmins.length} test client admins to delete`);
+
+      if (testAdmins.length === 0) {
+        console.log('No test client admins found to clean up');
+        return;
+      }
+
+      let deleted = 0;
+      for (const admin of testAdmins) {
+        const deleteResponse = await eyAdminRequest.delete(`${CLIENT_ADMIN_ENDPOINT}/${admin.id}`);
+        if (deleteResponse.status() === 200 || deleteResponse.status() === 204) {
+          console.log(`Deleted: ${admin.id} - ${admin.username}`);
+          deleted++;
+        } else {
+          console.log(`Failed to delete ${admin.id}: ${deleteResponse.status()}`);
+        }
+      }
+
+      console.log(`\nCleanup complete: ${deleted}/${testAdmins.length} deleted`);
     });
   });
 });
