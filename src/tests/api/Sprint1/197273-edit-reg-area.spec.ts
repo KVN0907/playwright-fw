@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
@@ -37,7 +37,9 @@ const generateRegAreaData = (
 
 test.describe('Story #197273: Edit Reg Area - API Tests', () => {
   test.describe('PUT /reg-area', () => {
-    test('@smoke @ADO-202775 should update an existing regulatory area', async ({ request }) => {
+    test('@smoke @ADO-202775 should update an existing regulatory area', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -74,7 +76,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${created.id}`);
     });
 
-    test('@negative should return 400 when updating with empty name', async ({ request }) => {
+    test('@negative should return 400 when updating with empty name', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -104,7 +108,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative @ADO-202779 should reject update with non-existent ID', async ({ request }) => {
+    test('@negative @ADO-202779 should reject update with non-existent ID', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -124,7 +130,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       expect([404, 422, 500]).toContain(response.status());
     });
 
-    test('@negative @ADO-202776 should reject update to duplicate name', async ({ request }) => {
+    test('@negative @ADO-202776 should reject update to duplicate name', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -162,7 +170,7 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
   });
 
   test.describe('Edge Cases - Update', () => {
-    test('@edge should handle update without ID field', async ({ request }) => {
+    test('@edge should handle update without ID field', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -175,7 +183,7 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle update with null ID', async ({ request }) => {
+    test('@edge should handle update with null ID', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -193,7 +201,7 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle very large ID value', async ({ request }) => {
+    test('@edge should handle very large ID value', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -206,7 +214,7 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       expect([200, 400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle floating point ID', async ({ request }) => {
+    test('@edge should handle floating point ID', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -218,7 +226,7 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       expect([200, 400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle negative ID in update', async ({ request }) => {
+    test('@edge should handle negative ID in update', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -238,7 +246,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
   });
 
   test.describe('Functional - Update', () => {
-    test('@functional should preserve all fields on partial update', async ({ request }) => {
+    test('@functional should preserve all fields on partial update', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -273,7 +283,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${created.id}`);
     });
 
-    test('@functional should not allow updating a deleted record', async ({ request }) => {
+    test('@functional should not allow updating a deleted record', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -304,7 +316,7 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       expect([400, 404, 422]).toContain(updateResponse.status());
     });
 
-    test('@functional should correctly toggle isActive status', async ({ request }) => {
+    test('@functional should correctly toggle isActive status', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -355,7 +367,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${created.id}`);
     });
 
-    test('@functional should handle update with same values (idempotent)', async ({ request }) => {
+    test('@functional should handle update with same values (idempotent)', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -392,7 +406,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${created.id}`);
     });
 
-    test('@functional should handle case sensitivity in name update', async ({ request }) => {
+    test('@functional should handle case sensitivity in name update', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -424,7 +440,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${created.id}`);
     });
 
-    test('@functional should return consistent field types after update', async ({ request }) => {
+    test('@functional should return consistent field types after update', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -469,7 +487,9 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
   });
 
   test.describe('Security - Update', () => {
-    test('@security should handle HTML injection in description on update', async ({ request }) => {
+    test('@security should handle HTML injection in description on update', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -503,7 +523,7 @@ test.describe('Story #197273: Edit Reg Area - API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${created.id}`);
     });
 
-    test('@security should handle XSS in name on update', async ({ request }) => {
+    test('@security should handle XSS in name on update', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(

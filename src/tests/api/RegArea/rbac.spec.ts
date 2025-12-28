@@ -14,7 +14,7 @@
  * or use the multi-user auth state files when configured.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 const API_BASE = process.env.DEV_API_URL || 'https://eycompliancemanager-dev.ey.com/api';
@@ -41,9 +41,9 @@ test.describe('RegArea RBAC Tests', () => {
   const testRegAreaName = `${faker.commerce.department()} RBAC Test ${uniqueId()}`;
 
   test.describe('Super Admin - Full CRUD Access', () => {
-    test('@rbac Super Admin can create reg area', async ({ request }) => {
+    test('@rbac Super Admin can create reg area', async ({ superAdminRequest }) => {
       // Super Admin is already authenticated via global setup
-      const response = await request.post(`${API_BASE}/reg-area`, {
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, {
         data: {
           name: testRegAreaName,
           description: 'Created by Super Admin for RBAC testing',
@@ -57,18 +57,18 @@ test.describe('RegArea RBAC Tests', () => {
       expect(body.name).toBe(testRegAreaName);
     });
 
-    test('@rbac Super Admin can read reg area', async ({ request }) => {
-      const response = await request.get(`${API_BASE}/reg-area`);
+    test('@rbac Super Admin can read reg area', async ({ superAdminRequest }) => {
+      const response = await superAdminRequest.get(`${API_BASE}/reg-area`);
       expect(response.status()).toBe(200);
 
       const body = await response.json();
       expect(Array.isArray(body)).toBe(true);
     });
 
-    test('@rbac Super Admin can update reg area', async ({ request }) => {
+    test('@rbac Super Admin can update reg area', async ({ superAdminRequest }) => {
       test.skip(!testRegAreaId, 'No test reg area created');
 
-      const response = await request.put(`${API_BASE}/reg-area`, {
+      const response = await superAdminRequest.put(`${API_BASE}/reg-area`, {
         data: {
           id: testRegAreaId,
           name: `${testRegAreaName}_Updated`,
@@ -99,13 +99,13 @@ test.describe('RegArea RBAC Tests', () => {
         // These tests are skipped by default - enable when testing specific role
         test.skip(true, `Configure ${role} credentials in dev.env to run`);
 
-        test(`@rbac ${role} can read reg areas`, async ({ request }) => {
-          const response = await request.get(`${API_BASE}/reg-area`);
+        test(`@rbac ${role} can read reg areas`, async ({ superAdminRequest }) => {
+          const response = await superAdminRequest.get(`${API_BASE}/reg-area`);
           expect(response.status()).toBe(200);
         });
 
-        test(`@rbac ${role} cannot create reg area - expect 403`, async ({ request }) => {
-          const response = await request.post(`${API_BASE}/reg-area`, {
+        test(`@rbac ${role} cannot create reg area - expect 403`, async ({ superAdminRequest }) => {
+          const response = await superAdminRequest.post(`${API_BASE}/reg-area`, {
             data: {
               name: `Unauthorized_Create_${role}_${Date.now()}`,
               description: `Should fail - ${role} cannot create`,
@@ -115,10 +115,10 @@ test.describe('RegArea RBAC Tests', () => {
           expect(response.status()).toBe(403);
         });
 
-        test(`@rbac ${role} cannot update reg area - expect 403`, async ({ request }) => {
+        test(`@rbac ${role} cannot update reg area - expect 403`, async ({ superAdminRequest }) => {
           test.skip(!testRegAreaId, 'No test reg area to update');
 
-          const response = await request.put(`${API_BASE}/reg-area`, {
+          const response = await superAdminRequest.put(`${API_BASE}/reg-area`, {
             data: {
               id: testRegAreaId,
               name: `Unauthorized_Update_${role}`,
@@ -129,10 +129,10 @@ test.describe('RegArea RBAC Tests', () => {
           expect(response.status()).toBe(403);
         });
 
-        test(`@rbac ${role} cannot delete reg area - expect 403`, async ({ request }) => {
+        test(`@rbac ${role} cannot delete reg area - expect 403`, async ({ superAdminRequest }) => {
           test.skip(!testRegAreaId, 'No test reg area to delete');
 
-          const response = await request.delete(`${API_BASE}/reg-area/${testRegAreaId}`);
+          const response = await superAdminRequest.delete(`${API_BASE}/reg-area/${testRegAreaId}`);
           expect(response.status()).toBe(403);
         });
       });
@@ -146,8 +146,8 @@ test.describe('RegArea RBAC Tests', () => {
     const eyAdminTestName = `EYAdmin_Test_${Date.now()}`;
     let eyAdminRegAreaId: number;
 
-    test('@rbac EY Admin can create reg area', async ({ request }) => {
-      const response = await request.post(`${API_BASE}/reg-area`, {
+    test('@rbac EY Admin can create reg area', async ({ superAdminRequest }) => {
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, {
         data: {
           name: eyAdminTestName,
           description: 'Created by EY Admin',
@@ -161,10 +161,10 @@ test.describe('RegArea RBAC Tests', () => {
       eyAdminRegAreaId = body.id;
     });
 
-    test('@rbac EY Admin can update reg area', async ({ request }) => {
+    test('@rbac EY Admin can update reg area', async ({ superAdminRequest }) => {
       test.skip(!eyAdminRegAreaId, 'No reg area created');
 
-      const response = await request.put(`${API_BASE}/reg-area`, {
+      const response = await superAdminRequest.put(`${API_BASE}/reg-area`, {
         data: {
           id: eyAdminRegAreaId,
           name: `${eyAdminTestName}_Updated`,
@@ -176,19 +176,19 @@ test.describe('RegArea RBAC Tests', () => {
       expect(response.status()).toBe(200);
     });
 
-    test('@rbac EY Admin can delete reg area', async ({ request }) => {
+    test('@rbac EY Admin can delete reg area', async ({ superAdminRequest }) => {
       test.skip(!eyAdminRegAreaId, 'No reg area to delete');
 
-      const response = await request.delete(`${API_BASE}/reg-area/${eyAdminRegAreaId}`);
+      const response = await superAdminRequest.delete(`${API_BASE}/reg-area/${eyAdminRegAreaId}`);
       expect(response.status()).toBe(200);
     });
   });
 
   // Cleanup
-  test.afterAll(async ({ request }) => {
+  test.afterAll(async ({ superAdminRequest }) => {
     // Clean up test data created by super admin
     if (testRegAreaId) {
-      await request.delete(`${API_BASE}/reg-area/${testRegAreaId}`).catch(() => {});
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${testRegAreaId}`).catch(() => {});
     }
   });
 });

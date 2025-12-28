@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
@@ -58,7 +58,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   let testRegAreaId: number;
   let testRegAreaName: string;
 
-  test.beforeAll(async ({ request }) => {
+  test.beforeAll(async ({ superAdminRequest }) => {
     // Create a test reg area for question tests
     testRegAreaName = generateRegAreaName();
     const createResponse = await request.post(REG_AREA_ENDPOINT, {
@@ -79,7 +79,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
     }
   });
 
-  test.afterAll(async ({ request }) => {
+  test.afterAll(async ({ superAdminRequest }) => {
     // Cleanup test reg area
     if (testRegAreaId) {
       await request.delete(`${REG_AREA_ENDPOINT}/${testRegAreaId}`);
@@ -324,7 +324,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   });
 
   test.describe('GET /questions - Fetch Questions', () => {
-    test('@smoke should fetch all questions', async ({ request }) => {
+    test('@smoke should fetch all questions', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -339,7 +339,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(Array.isArray(data)).toBe(true);
     });
 
-    test('@smoke should fetch questions by reg area id', async ({ request }) => {
+    test('@smoke should fetch questions by reg area id', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -356,7 +356,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(Array.isArray(data)).toBe(true);
     });
 
-    test('@negative should handle non-existent reg area id', async ({ request }) => {
+    test('@negative should handle non-existent reg area id', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -380,7 +380,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   test.describe('PUT /questions - Edit Questions', () => {
     let createdQuestionId: number;
 
-    test.beforeAll(async ({ request }) => {
+    test.beforeAll(async ({ superAdminRequest }) => {
       // Create a question for edit tests
       if (testRegAreaId) {
         const createResponse = await request.post(QUESTIONS_ENDPOINT, {
@@ -400,7 +400,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@smoke @ADO-202772 should edit question text via API', async ({ request }) => {
+    test('@smoke @ADO-202772 should edit question text via API', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -428,7 +428,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(data.title).toBe(updatedTitle);
     });
 
-    test('@smoke @ADO-202773 should edit question title and description', async ({ request }) => {
+    test('@smoke @ADO-202773 should edit question title and description', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -573,7 +575,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   });
 
   test.describe('Edge Cases - Questions', () => {
-    test('@edge should handle empty title', async ({ request }) => {
+    test('@edge should handle empty title', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -594,7 +596,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle whitespace-only title', async ({ request }) => {
+    test('@edge should handle whitespace-only title', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -615,7 +617,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@security should handle XSS in question title', async ({ request }) => {
+    test('@security should handle XSS in question title', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -644,7 +646,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@security should handle SQL injection in title', async ({ request }) => {
+    test('@security should handle SQL injection in title', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -667,7 +669,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([201, 400, 422]).toContain(response.status());
     });
 
-    test('@edge should handle unicode characters in title', async ({ request }) => {
+    test('@edge should handle unicode characters in title', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -693,7 +695,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@edge should handle missing questionType', async ({ request }) => {
+    test('@edge should handle missing questionType', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -714,7 +716,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 422]).toContain(response.status());
     });
 
-    test('@edge should handle missing regAreaId', async ({ request }) => {
+    test('@edge should handle missing regAreaId', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -739,7 +741,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
     let secondRegAreaId: number;
     const baseQuestionTitle = `Duplicate Test Question`;
 
-    test.beforeAll(async ({ request }) => {
+    test.beforeAll(async ({ superAdminRequest }) => {
       // Create two reg areas for duplicate testing across sections
       const regArea1Response = await request.post(REG_AREA_ENDPOINT, {
         data: {
@@ -770,7 +772,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test.afterAll(async ({ request }) => {
+    test.afterAll(async ({ superAdminRequest }) => {
       // Cleanup
       if (duplicateTestRegAreaId) {
         await request.delete(`${REG_AREA_ENDPOINT}/${duplicateTestRegAreaId}`);
@@ -780,7 +782,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should reject exact duplicate title in same reg area', async ({ request }) => {
+    test('@duplicate should reject exact duplicate title in same reg area', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -819,7 +823,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 409, 422]).toContain(duplicateResponse.status());
     });
 
-    test('@duplicate should allow same title in different reg areas', async ({ request }) => {
+    test('@duplicate should allow same title in different reg areas', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -1148,7 +1154,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should handle duplicate with different question type', async ({ request }) => {
+    test('@duplicate should handle duplicate with different question type', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -1240,7 +1248,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 409, 422]).toContain(duplicateResponse.status());
     });
 
-    test('@duplicate should handle rapid consecutive duplicate attempts', async ({ request }) => {
+    test('@duplicate should handle rapid consecutive duplicate attempts', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -1327,7 +1337,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should handle unicode normalization for duplicates', async ({ request }) => {
+    test('@duplicate should handle unicode normalization for duplicates', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -1381,7 +1393,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   });
 
   test.describe('Functional - Questions', () => {
-    test('@functional should preserve question order in section', async ({ request }) => {
+    test('@functional should preserve question order in section', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(

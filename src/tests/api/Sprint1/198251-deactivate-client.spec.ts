@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
@@ -33,7 +33,7 @@ async function createTestClient(request: any) {
     description: faker.company.catchPhrase(),
   };
 
-  const response = await request.post(CLIENTS_ENDPOINT, { data: clientData });
+  const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: clientData });
   if (response.ok()) {
     return response.json();
   }
@@ -54,12 +54,12 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
       return;
     }
 
-    const response = await request.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
+    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
 
     expect(response.ok()).toBe(true);
 
     // Verify client is deactivated
-    const getResponse = await request.get(`${CLIENTS_ENDPOINT}/${client.id}`);
+    const getResponse = await superAdminRequest.get(`${CLIENTS_ENDPOINT}/${client.id}`);
     if (getResponse.ok()) {
       const clientData = await getResponse.json();
       expect(clientData.isActive === false || clientData.status === 'INACTIVE').toBe(true);
@@ -70,10 +70,12 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204441
    * API – Deactivate Client – Client Not Found
    */
-  test('should return 404 for non-existent client @regression @ADO-204441', async ({ request }) => {
+  test('should return 404 for non-existent client @regression @ADO-204441', async ({
+    superAdminRequest,
+  }) => {
     const nonExistentId = 999999999;
 
-    const response = await request.put(`${CLIENTS_ENDPOINT}/${nonExistentId}/deactivate`);
+    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${nonExistentId}/deactivate`);
 
     expect([404]).toContain(response.status());
   });
@@ -92,11 +94,15 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
     }
 
     // First deactivation
-    const firstDeactivate = await request.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
+    const firstDeactivate = await superAdminRequest.put(
+      `${CLIENTS_ENDPOINT}/${client.id}/deactivate`
+    );
     expect(firstDeactivate.ok()).toBe(true);
 
     // Second deactivation attempt
-    const secondDeactivate = await request.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
+    const secondDeactivate = await superAdminRequest.put(
+      `${CLIENTS_ENDPOINT}/${client.id}/deactivate`
+    );
 
     // Should either succeed (idempotent) or return appropriate error
     expect([200, 204, 400, 409]).toContain(secondDeactivate.status());
@@ -115,7 +121,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
       return;
     }
 
-    const response = await request.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`, {
+    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`, {
       headers: {
         'X-User-Role': 'EY_ADMIN', // Not super admin
       },
@@ -138,7 +144,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
     }
 
     // Try to deactivate client (which may have active users)
-    const response = await request.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
+    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
 
     // Either succeeds and cascades deactivation, or returns warning/error about active users
     expect([200, 204, 400, 409]).toContain(response.status());
@@ -172,7 +178,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
 
     const clientIds = validClients.map(c => c.id);
 
-    const response = await request.put(`${CLIENTS_ENDPOINT}/bulk/deactivate`, {
+    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/bulk/deactivate`, {
       data: { clientIds },
     });
 
@@ -195,7 +201,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
 
     const clientIds = [validClient.id, 999999999]; // Mix of valid and invalid IDs
 
-    const response = await request.put(`${CLIENTS_ENDPOINT}/bulk/deactivate`, {
+    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/bulk/deactivate`, {
       data: { clientIds },
     });
 
@@ -235,7 +241,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
     expect(successCount).toBeGreaterThanOrEqual(1);
 
     // Verify final state - client should be deactivated
-    const getResponse = await request.get(`${CLIENTS_ENDPOINT}/${client.id}`);
+    const getResponse = await superAdminRequest.get(`${CLIENTS_ENDPOINT}/${client.id}`);
     if (getResponse.ok()) {
       const clientData = await getResponse.json();
       expect(clientData.isActive === false || clientData.status === 'INACTIVE').toBe(true);

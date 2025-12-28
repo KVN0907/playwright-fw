@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
@@ -61,10 +61,12 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201683
    * Create EY Admin User - Success
    */
-  test('should create EY Admin user successfully @regression @ADO-201683', async ({ request }) => {
+  test('should create EY Admin user successfully @regression @ADO-201683', async ({
+    superAdminRequest,
+  }) => {
     const userData = generateTestUser();
 
-    const response = await request.post(EY_ADMINS_ENDPOINT, {
+    const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: userData,
     });
 
@@ -81,10 +83,10 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Create EY Admin User - Missing Required Fields
    */
   test('should reject user creation with missing required fields @regression @ADO-201684', async ({
-    request,
+    superAdminRequest,
   }) => {
     // Missing firstName
-    const missingFirstName = await request.post(EY_ADMINS_ENDPOINT, {
+    const missingFirstName = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         lastName: 'TestLast',
         username: generateTestEmail('missing.first'),
@@ -93,7 +95,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     expect([400, 422]).toContain(missingFirstName.status());
 
     // Missing lastName
-    const missingLastName = await request.post(EY_ADMINS_ENDPOINT, {
+    const missingLastName = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: 'TestFirst',
         username: generateTestEmail('missing.last'),
@@ -102,7 +104,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     expect([400, 422]).toContain(missingLastName.status());
 
     // Missing username
-    const missingUsername = await request.post(EY_ADMINS_ENDPOINT, {
+    const missingUsername = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: 'TestFirst',
         lastName: 'TestLast',
@@ -115,8 +117,10 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201685
    * Create EY Admin User - Non-EY Email Domain
    */
-  test('should reject non-EY email domain @regression @ADO-201685', async ({ request }) => {
-    const response = await request.post(EY_ADMINS_ENDPOINT, {
+  test('should reject non-EY email domain @regression @ADO-201685', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: 'TestFirst',
         lastName: 'TestLast',
@@ -131,7 +135,9 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201686
    * Create EY Admin User - Invalid Email Format
    */
-  test('should reject invalid email format @regression @ADO-201686', async ({ request }) => {
+  test('should reject invalid email format @regression @ADO-201686', async ({
+    superAdminRequest,
+  }) => {
     const invalidUsernames = [
       'invalid-email',
       'test@',
@@ -142,7 +148,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     ];
 
     for (const username of invalidUsernames) {
-      const response = await request.post(EY_ADMINS_ENDPOINT, {
+      const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
         data: {
           firstName: 'TestFirst',
           lastName: 'TestLast',
@@ -157,17 +163,19 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201687
    * Create EY Admin User - Duplicate Username
    */
-  test('should reject duplicate username @regression @ADO-201687', async ({ request }) => {
+  test('should reject duplicate username @regression @ADO-201687', async ({
+    superAdminRequest,
+  }) => {
     const userData = generateTestUser();
 
     // Create first user
-    const firstResponse = await request.post(EY_ADMINS_ENDPOINT, {
+    const firstResponse = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: userData,
     });
 
     if (firstResponse.ok()) {
       // Try to create second user with same username
-      const duplicateResponse = await request.post(EY_ADMINS_ENDPOINT, {
+      const duplicateResponse = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
         data: {
           firstName: 'Different',
           lastName: 'Name',
@@ -183,12 +191,12 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Create EY Admin User - Username Case Insensitive Uniqueness
    */
   test('should treat username as case insensitive for uniqueness @regression @ADO-201688', async ({
-    request,
+    superAdminRequest,
   }) => {
     const baseUsername = generateTestEmail('test.case');
 
     // Create user with lowercase username
-    const firstResponse = await request.post(EY_ADMINS_ENDPOINT, {
+    const firstResponse = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: 'TestFirst',
         lastName: 'TestLast',
@@ -198,7 +206,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
 
     if (firstResponse.ok()) {
       // Try to create with uppercase version
-      const duplicateResponse = await request.post(EY_ADMINS_ENDPOINT, {
+      const duplicateResponse = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
         data: {
           firstName: 'Different',
           lastName: 'Name',
@@ -214,10 +222,10 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Create EY Admin User - Whitespace and Blanks in Required Fields
    */
   test('should reject whitespace-only values in required fields @regression @ADO-201689', async ({
-    request,
+    superAdminRequest,
   }) => {
     // Whitespace firstName
-    const whitespaceFirst = await request.post(EY_ADMINS_ENDPOINT, {
+    const whitespaceFirst = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: '   ',
         lastName: 'TestLast',
@@ -227,7 +235,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     expect([400, 422]).toContain(whitespaceFirst.status());
 
     // Whitespace lastName
-    const whitespaceLast = await request.post(EY_ADMINS_ENDPOINT, {
+    const whitespaceLast = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: 'TestFirst',
         lastName: '   ',
@@ -241,8 +249,10 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201690
    * Create EY Admin User - Leading/Trailing Spaces in Input
    */
-  test('should trim leading/trailing spaces @regression @ADO-201690', async ({ request }) => {
-    const response = await request.post(EY_ADMINS_ENDPOINT, {
+  test('should trim leading/trailing spaces @regression @ADO-201690', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: '  TestFirst  ',
         lastName: '  TestLast  ',
@@ -264,11 +274,11 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * This test requires a non-super-admin user session to properly test.
    */
   test.skip('should reject user creation without proper privileges @regression @ADO-201691', async ({
-    request,
+    superAdminRequest,
   }) => {
     // This test requires a different auth session with a non-super-admin user
     // Custom headers like X-User-Role are not used for authorization
-    const response = await request.post(EY_ADMINS_ENDPOINT, {
+    const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: generateTestUser(),
     });
 
@@ -279,11 +289,13 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201692
    * EY Admin User Listing - Newly Created User Appears
    */
-  test('should show newly created user in listing @regression @ADO-201692', async ({ request }) => {
+  test('should show newly created user in listing @regression @ADO-201692', async ({
+    superAdminRequest,
+  }) => {
     const userData = generateTestUser();
 
     // Create user
-    const createResponse = await request.post(EY_ADMINS_ENDPOINT, {
+    const createResponse = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: userData,
     });
 
@@ -291,7 +303,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
       const createdUser = await createResponse.json();
 
       // Get user list
-      const listResponse = await request.get(EY_ADMINS_ENDPOINT);
+      const listResponse = await superAdminRequest.get(EY_ADMINS_ENDPOINT);
       expect(listResponse.ok()).toBe(true);
 
       const listData = await listResponse.json();
@@ -309,10 +321,15 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * EY Admin User Listing - Pagination Support
    * Note: Pagination uses POST /ey-admins/paginated with filter body
    */
-  test('should support pagination in user listing @regression @ADO-201693', async ({ request }) => {
-    const response = await request.post(`${EY_ADMINS_ENDPOINT}/paginated?page=0&size=10`, {
-      data: { activeStatus: 'All' },
-    });
+  test('should support pagination in user listing @regression @ADO-201693', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.post(
+      `${EY_ADMINS_ENDPOINT}/paginated?page=0&size=10`,
+      {
+        data: { activeStatus: 'All' },
+      }
+    );
     expect(response.ok()).toBe(true);
 
     const data = await response.json();
@@ -327,9 +344,9 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Note: No search endpoint exists - this test validates the list endpoint returns data
    */
   test('should list users and validate response structure @regression @ADO-201694', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const response = await request.get(EY_ADMINS_ENDPOINT);
+    const response = await superAdminRequest.get(EY_ADMINS_ENDPOINT);
     expect(response.ok()).toBe(true);
 
     const users = await response.json();
@@ -350,7 +367,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Create EY Admin User - Parallel Requests (Race Condition Test)
    */
   test('should handle parallel creation requests safely @regression @ADO-201695', async ({
-    request,
+    superAdminRequest,
   }) => {
     const username = generateTestEmail('race.test');
     const requests = [];
@@ -358,7 +375,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     // Send multiple parallel requests with same username
     for (let i = 0; i < 5; i++) {
       requests.push(
-        request.post(EY_ADMINS_ENDPOINT, {
+        superAdminRequest.post(EY_ADMINS_ENDPOINT, {
           data: {
             firstName: `First${i}`,
             lastName: `Last${i}`,
@@ -379,10 +396,12 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201697
    * Create EY Admin User - Input Field Maximum Lengths
    */
-  test('should enforce maximum field lengths @regression @ADO-201697', async ({ request }) => {
+  test('should enforce maximum field lengths @regression @ADO-201697', async ({
+    superAdminRequest,
+  }) => {
     const veryLongName = 'A'.repeat(500);
 
-    const response = await request.post(EY_ADMINS_ENDPOINT, {
+    const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: veryLongName,
         lastName: 'TestLast',
@@ -397,8 +416,10 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201698
    * Create EY Admin User - Special Characters Handling
    */
-  test('should handle special characters in names @regression @ADO-201698', async ({ request }) => {
-    const response = await request.post(EY_ADMINS_ENDPOINT, {
+  test('should handle special characters in names @regression @ADO-201698', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: "O'Brien",
         lastName: 'García-López',
@@ -414,9 +435,11 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201699
    * Create EY Admin User - Malicious Data Injection Protection
    */
-  test('should protect against injection attacks @ADO-201699 @security', async ({ request }) => {
+  test('should protect against injection attacks @ADO-201699 @security', async ({
+    superAdminRequest,
+  }) => {
     // SQL Injection attempt
-    const sqlInjection = await request.post(EY_ADMINS_ENDPOINT, {
+    const sqlInjection = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: "Robert'); DROP TABLE users;--",
         lastName: 'TestLast',
@@ -426,7 +449,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     expect([200, 201, 400, 422]).toContain(sqlInjection.status());
 
     // XSS attempt
-    const xssInjection = await request.post(EY_ADMINS_ENDPOINT, {
+    const xssInjection = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: {
         firstName: '<script>alert("XSS")</script>',
         lastName: 'TestLast',
@@ -445,8 +468,10 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201700
    * Create EY Admin User - Expired Token or Session
    */
-  test('should reject requests with expired token @regression @ADO-201700', async ({ request }) => {
-    const response = await request.post(EY_ADMINS_ENDPOINT, {
+  test('should reject requests with expired token @regression @ADO-201700', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
       data: generateTestUser(),
       headers: {
         Authorization: 'Bearer expired_invalid_token_12345',
@@ -462,14 +487,14 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Note: Reduced to 10 requests to avoid timeouts. Tests API handles concurrent requests.
    */
   test('should handle concurrent requests gracefully @regression @ADO-201702', async ({
-    request,
+    superAdminRequest,
   }) => {
     const requests = [];
 
     // Send fewer requests to avoid timeouts
     for (let i = 0; i < 10; i++) {
       requests.push(
-        request.post(EY_ADMINS_ENDPOINT, {
+        superAdminRequest.post(EY_ADMINS_ENDPOINT, {
           data: {
             firstName: `RateTest${i}`,
             lastName: 'User',
@@ -506,5 +531,109 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
   test.skip('@ADO-201701 should handle backend unavailability gracefully', async () => {
     // Requires infrastructure testing
     test.skip();
+  });
+
+  /**
+   * ============================================================
+   * EY Admin Role - Access Denied Tests
+   * ============================================================
+   * These tests verify that EY Admin users cannot access
+   * EY Admin management endpoints (Super Admin only).
+   * BUG #291276: Expected behavior is 401/403, but currently API allows access.
+   * Related: Bug #291261 (EY Admin access to Reg Area endpoints)
+   */
+  test.describe('EY Admin Role - Access Denied Tests @rbac @eyAdmin @bug-291276', () => {
+    /**
+     * RBAC Test: EY Admin should NOT be able to list EY Admins
+     */
+    test('EY Admin should be denied GET /ey-admins access @rbac @eyAdmin', async ({
+      eyAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC - EY Admin Restrictions' },
+          { type: 'category', description: 'security' }
+        );
+
+      const response = await eyAdminRequest.get(EY_ADMINS_ENDPOINT);
+
+      // EY Admin should NOT have access to list EY Admins
+      // Expected: 401 Unauthorized or 403 Forbidden
+      // BUG: If this test fails (200), it means EY Admin can list other EY Admins
+      expect([401, 403]).toContain(response.status());
+    });
+
+    /**
+     * RBAC Test: EY Admin should NOT be able to create EY Admins
+     */
+    test('EY Admin should be denied POST /ey-admins access @rbac @eyAdmin', async ({
+      eyAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC - EY Admin Restrictions' },
+          { type: 'category', description: 'security' }
+        );
+
+      const response = await eyAdminRequest.post(EY_ADMINS_ENDPOINT, {
+        data: generateTestUser(),
+      });
+
+      // EY Admin should NOT have access to create EY Admins
+      // Expected: 401 Unauthorized or 403 Forbidden
+      // BUG: If this test fails (201), it means EY Admin can create other EY Admins
+      expect([401, 403]).toContain(response.status());
+    });
+
+    /**
+     * RBAC Test: EY Admin should NOT be able to access paginated EY Admins list
+     */
+    test('EY Admin should be denied POST /ey-admins/paginated access @rbac @eyAdmin', async ({
+      eyAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC - EY Admin Restrictions' },
+          { type: 'category', description: 'security' }
+        );
+
+      const response = await eyAdminRequest.post(`${EY_ADMINS_ENDPOINT}/paginated?page=0&size=10`, {
+        data: { activeStatus: 'All' },
+      });
+
+      // EY Admin should NOT have access to paginated list
+      // Expected: 401 Unauthorized or 403 Forbidden
+      expect([401, 403]).toContain(response.status());
+    });
+
+    /**
+     * RBAC Test: EY Admin should NOT be able to update EY Admin status
+     */
+    test('EY Admin should be denied PUT /ey-admins/{id}/status access @rbac @eyAdmin', async ({
+      eyAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC - EY Admin Restrictions' },
+          { type: 'category', description: 'security' }
+        );
+
+      // Use a known EY Admin ID (1 is typically first EY Admin)
+      const response = await eyAdminRequest.put(`${EY_ADMINS_ENDPOINT}/1/status`, {
+        data: { active: false },
+      });
+
+      // EY Admin should NOT have access to update other EY Admin status
+      // Expected: 401 Unauthorized or 403 Forbidden
+      expect([401, 403]).toContain(response.status());
+    });
   });
 });

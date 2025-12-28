@@ -1,9 +1,13 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
  * API Tests for RegArea - Create Operations
  * Story #197265: Master questionnaire - Create reg area and questions (Backend)
+ *
+ * Tests include:
+ * - Super Admin operations (superAdminRequest fixture)
+ * - EY Admin operations (eyAdminRequest fixture)
  *
  * Related ADO Test Cases:
  * - #202614: API - Create Section with Valid, Unique Name (POST /reg-area)
@@ -36,7 +40,7 @@ const generateRegAreaData = (
 
 test.describe('Story #197265: Create Reg Area - API Tests', () => {
   test.describe('GET /reg-area', () => {
-    test('@smoke should return list of all regulatory areas', async ({ request }) => {
+    test('@smoke should return list of all regulatory areas', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -45,7 +49,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
           { type: 'story', description: '197265' }
         );
 
-      const response = await request.get(`${API_BASE}/reg-area`);
+      const response = await superAdminRequest.get(`${API_BASE}/reg-area`);
       expect(response.status()).toBe(200);
       const data = await response.json();
       expect(Array.isArray(data)).toBe(true);
@@ -53,7 +57,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('POST /reg-area', () => {
-    test('@smoke @ADO-202614 should create a new regulatory area', async ({ request }) => {
+    test('@smoke @ADO-202614 should create a new regulatory area', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -72,7 +78,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isDelete: false,
       };
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect(response.status()).toBe(201);
 
       const data = await response.json();
@@ -81,11 +87,11 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(data.description).toBe(requestData.description);
 
       if (data.id) {
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
     });
 
-    test('@negative should return 400 when name is missing', async ({ request }) => {
+    test('@negative should return 400 when name is missing', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -95,11 +101,11 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         );
 
       const requestData = { description: 'Test description without name', isActive: true };
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when name is empty', async ({ request }) => {
+    test('@negative should return 400 when name is empty', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -109,11 +115,13 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         );
 
       const requestData = { name: '', description: 'Test description', isActive: true };
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect(response.status()).toBe(400);
     });
 
-    test('@validation should return 400 when name exceeds max length', async ({ request }) => {
+    test('@validation should return 400 when name exceeds max length', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -127,11 +135,11 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         description: 'Test description',
         isActive: true,
       };
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect(response.status()).toBe(400);
     });
 
-    test('@negative @ADO-202615 should reject duplicate name', async ({ request }) => {
+    test('@negative @ADO-202615 should reject duplicate name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -147,7 +155,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const firstResponse = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const firstResponse = await superAdminRequest.post(`${API_BASE}/reg-area`, {
+        data: requestData,
+      });
       expect(firstResponse.status()).toBe(201);
       const first = await firstResponse.json();
 
@@ -156,15 +166,17 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         description: 'Duplicate entry',
         isActive: true,
       };
-      const duplicateResponse = await request.post(`${API_BASE}/reg-area`, { data: duplicateData });
+      const duplicateResponse = await superAdminRequest.post(`${API_BASE}/reg-area`, {
+        data: duplicateData,
+      });
       expect([400, 409, 422]).toContain(duplicateResponse.status());
 
-      await request.delete(`${API_BASE}/reg-area/${first.id}`);
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${first.id}`);
     });
   });
 
   test.describe('DELETE /reg-area/{id}', () => {
-    test('@smoke should delete a regulatory area by ID', async ({ request }) => {
+    test('@smoke should delete a regulatory area by ID', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -173,17 +185,19 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         );
 
       const createData = generateRegAreaData({ name: generateRegAreaName('Reg Area To Delete') });
-      const createResponse = await request.post(`${API_BASE}/reg-area`, { data: createData });
+      const createResponse = await superAdminRequest.post(`${API_BASE}/reg-area`, {
+        data: createData,
+      });
       expect(createResponse.status()).toBe(201);
       const created = await createResponse.json();
 
-      const response = await request.delete(`${API_BASE}/reg-area/${created.id}`);
+      const response = await superAdminRequest.delete(`${API_BASE}/reg-area/${created.id}`);
       expect(response.status()).toBe(200);
       const data = await response.json();
       expect(data).toBe(true);
     });
 
-    test('@negative should handle non-existent regulatory area', async ({ request }) => {
+    test('@negative should handle non-existent regulatory area', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -192,11 +206,11 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
           { type: 'category', description: 'NEGATIVE' }
         );
 
-      const response = await request.delete(`${API_BASE}/reg-area/999999999`);
+      const response = await superAdminRequest.delete(`${API_BASE}/reg-area/999999999`);
       expect([200, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should return error for invalid ID format', async ({ request }) => {
+    test('@negative should return error for invalid ID format', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -205,13 +219,13 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
           { type: 'category', description: 'VALIDATION' }
         );
 
-      const response = await request.delete(`${API_BASE}/reg-area/invalid-id`);
+      const response = await superAdminRequest.delete(`${API_BASE}/reg-area/invalid-id`);
       expect([400, 500]).toContain(response.status());
     });
   });
 
   test.describe('Edge Cases - Create', () => {
-    test('@edge should reject whitespace-only name', async ({ request }) => {
+    test('@edge should reject whitespace-only name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -220,11 +234,11 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         );
 
       const requestData = { name: '   ', description: 'Whitespace name test', isActive: true };
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle special characters in name', async ({ request }) => {
+    test('@edge should handle special characters in name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -239,17 +253,17 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       if (response.status() === 201) {
         const data = await response.json();
         expect(data.name).not.toContain('<script>');
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       } else {
         expect([400, 422]).toContain(response.status());
       }
     });
 
-    test('@edge should handle SQL injection attempt in name', async ({ request }) => {
+    test('@edge should handle SQL injection attempt in name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -264,16 +278,16 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect([201, 400, 422, 500]).toContain(response.status());
 
       if (response.status() === 201) {
         const data = await response.json();
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
     });
 
-    test('@edge should handle unicode and emoji in name', async ({ request }) => {
+    test('@edge should handle unicode and emoji in name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -288,15 +302,17 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       if (response.status() === 201) {
         const data = await response.json();
         expect(data.name).toContain('日本語');
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
     });
 
-    test('@edge should handle boundary value - exactly 255 chars name', async ({ request }) => {
+    test('@edge should handle boundary value - exactly 255 chars name', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -313,14 +329,14 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         description: 'Boundary test - exactly 255 chars',
         isActive: true,
       };
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect(response.status()).toBe(201);
       const data = await response.json();
       expect(data.name.length).toBe(255);
-      await request.delete(`${API_BASE}/reg-area/${data.id}`);
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
     });
 
-    test('@edge should handle null values in optional fields', async ({ request }) => {
+    test('@edge should handle null values in optional fields', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -330,16 +346,16 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
 
       const timestamp = Date.now();
       const requestData = { name: `Null Test ${timestamp}`, description: null, isActive: true };
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect([201, 400]).toContain(response.status());
 
       if (response.status() === 201) {
         const data = await response.json();
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
     });
 
-    test('@edge should handle empty request body on create', async ({ request }) => {
+    test('@edge should handle empty request body on create', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -347,11 +363,11 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
           { type: 'category', description: 'VALIDATION' }
         );
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: {} });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: {} });
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle array as request body', async ({ request }) => {
+    test('@edge should handle array as request body', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -359,7 +375,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
           { type: 'category', description: 'VALIDATION' }
         );
 
-      const response = await request.post(`${API_BASE}/reg-area`, {
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, {
         data: [{ name: 'Test', description: 'Test' }],
       });
       expect([400, 415, 422, 500]).toContain(response.status());
@@ -367,7 +383,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('Security - Create', () => {
-    test('@security should not allow tenantId manipulation on create', async ({ request }) => {
+    test('@security should not allow tenantId manipulation on create', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -383,15 +401,15 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       if (response.status() === 201) {
         const data = await response.json();
         expect(data.tenantId).not.toBe(99999);
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
     });
 
-    test('@security should not allow isDelete flag manipulation', async ({ request }) => {
+    test('@security should not allow isDelete flag manipulation', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -407,17 +425,19 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       if (response.status() === 201) {
         const data = await response.json();
         expect(data.isDelete).toBe(false);
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
     });
   });
 
   test.describe('Functional - Create', () => {
-    test('@functional should trim whitespace from name on create', async ({ request }) => {
+    test('@functional should trim whitespace from name on create', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -432,14 +452,16 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const response = await request.post(`${API_BASE}/reg-area`, { data: requestData });
+      const response = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
       expect(response.status()).toBe(201);
       const data = await response.json();
       expect(data.name).toBe(`Whitespace Test ${timestamp}`);
-      await request.delete(`${API_BASE}/reg-area/${data.id}`);
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
     });
 
-    test('@functional should not show deleted records in GET all', async ({ request }) => {
+    test('@functional should not show deleted records in GET all', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -454,19 +476,21 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isActive: true,
       };
 
-      const createResponse = await request.post(`${API_BASE}/reg-area`, { data: createData });
+      const createResponse = await superAdminRequest.post(`${API_BASE}/reg-area`, {
+        data: createData,
+      });
       expect(createResponse.status()).toBe(201);
       const created = await createResponse.json();
 
-      await request.delete(`${API_BASE}/reg-area/${created.id}`);
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${created.id}`);
 
-      const getResponse = await request.get(`${API_BASE}/reg-area`);
+      const getResponse = await superAdminRequest.get(`${API_BASE}/reg-area`);
       const allRecords = await getResponse.json();
       const deletedRecord = allRecords.find((r: { id: number }) => r.id === created.id);
       expect(deletedRecord).toBeUndefined();
     });
 
-    test('@functional should auto-generate unique IDs', async ({ request }) => {
+    test('@functional should auto-generate unique IDs', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -478,8 +502,8 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       const data1 = { name: `ID Test 1 ${timestamp}`, description: 'First', isActive: true };
       const data2 = { name: `ID Test 2 ${timestamp}`, description: 'Second', isActive: true };
 
-      const response1 = await request.post(`${API_BASE}/reg-area`, { data: data1 });
-      const response2 = await request.post(`${API_BASE}/reg-area`, { data: data2 });
+      const response1 = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: data1 });
+      const response2 = await superAdminRequest.post(`${API_BASE}/reg-area`, { data: data2 });
 
       expect(response1.status()).toBe(201);
       expect(response2.status()).toBe(201);
@@ -491,11 +515,13 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(created2.id).toBeDefined();
       expect(created1.id).not.toBe(created2.id);
 
-      await request.delete(`${API_BASE}/reg-area/${created1.id}`);
-      await request.delete(`${API_BASE}/reg-area/${created2.id}`);
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${created1.id}`);
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${created2.id}`);
     });
 
-    test('@functional should handle concurrent duplicate creates', async ({ request }) => {
+    test('@functional should handle concurrent duplicate creates', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -511,8 +537,8 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       };
 
       const [response1, response2] = await Promise.all([
-        request.post(`${API_BASE}/reg-area`, { data: requestData }),
-        request.post(`${API_BASE}/reg-area`, { data: requestData }),
+        superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData }),
+        superAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData }),
       ]);
 
       const statuses = [response1.status(), response2.status()];
@@ -520,17 +546,17 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
 
       if (response1.status() === 201) {
         const data = await response1.json();
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
       if (response2.status() === 201) {
         const data = await response2.json();
-        await request.delete(`${API_BASE}/reg-area/${data.id}`);
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
       }
     });
   });
 
   test.describe('CRUD Operations - Full Flow', () => {
-    test('@smoke should perform complete CRUD operations', async ({ request }) => {
+    test('@smoke should perform complete CRUD operations', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -550,13 +576,15 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isDelete: false,
       };
 
-      const createResponse = await request.post(`${API_BASE}/reg-area`, { data: createData });
+      const createResponse = await superAdminRequest.post(`${API_BASE}/reg-area`, {
+        data: createData,
+      });
       expect(createResponse.status()).toBe(201);
       const created = await createResponse.json();
       expect(created.id).toBeDefined();
 
       // READ
-      const readResponse = await request.get(`${API_BASE}/reg-area`);
+      const readResponse = await superAdminRequest.get(`${API_BASE}/reg-area`);
       expect(readResponse.status()).toBe(200);
       const allRegAreas = await readResponse.json();
       const foundCreated = allRegAreas.find((ra: { id: number }) => ra.id === created.id);
@@ -572,18 +600,159 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
         isDelete: false,
       };
 
-      const updateResponse = await request.put(`${API_BASE}/reg-area`, { data: updateData });
+      const updateResponse = await superAdminRequest.put(`${API_BASE}/reg-area`, {
+        data: updateData,
+      });
       expect(updateResponse.status()).toBe(200);
 
       // DELETE
-      const deleteResponse = await request.delete(`${API_BASE}/reg-area/${created.id}`);
+      const deleteResponse = await superAdminRequest.delete(`${API_BASE}/reg-area/${created.id}`);
       expect(deleteResponse.status()).toBe(200);
 
       // VERIFY DELETION
-      const verifyResponse = await request.get(`${API_BASE}/reg-area`);
+      const verifyResponse = await superAdminRequest.get(`${API_BASE}/reg-area`);
       const afterDelete = await verifyResponse.json();
       const shouldNotExist = afterDelete.find((ra: { id: number }) => ra.id === created.id);
       expect(shouldNotExist).toBeUndefined();
+    });
+  });
+
+  /**
+   * EY Admin Role-Based Access Control Tests
+   * Reg Area operations should be restricted to Super Admin only
+   * EY Admin should NOT have access to these endpoints
+   *
+   * BUG #291261: EY Admin currently has full access - these tests document the bug
+   * Tests will FAIL until bug is fixed - this is expected behavior
+   */
+  test.describe('EY Admin Role - Access Denied Tests', () => {
+    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from listing regulatory areas', async ({
+      eyAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Regulatory Area' },
+          { type: 'role', description: 'EY Admin' },
+          { type: 'category', description: 'RBAC' },
+          { type: 'bug', description: '291261' }
+        );
+
+      const response = await eyAdminRequest.get(`${API_BASE}/reg-area`);
+
+      // BUG #291261: EY Admin should be denied access (401 or 403)
+      expect([401, 403]).toContain(response.status());
+    });
+
+    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from creating regulatory area', async ({
+      eyAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Regulatory Area' },
+          { type: 'role', description: 'EY Admin' },
+          { type: 'category', description: 'RBAC' },
+          { type: 'bug', description: '291261' }
+        );
+
+      const requestData = {
+        name: generateRegAreaName('EY Admin Denied'),
+        description: faker.lorem.sentence(),
+        isActive: true,
+        isApproved: true,
+        isDelete: false,
+      };
+
+      const response = await eyAdminRequest.post(`${API_BASE}/reg-area`, { data: requestData });
+
+      // Cleanup if created due to bug
+      if ([200, 201].includes(response.status())) {
+        const data = await response.json();
+        if (data.id) {
+          await eyAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
+        }
+      }
+
+      // BUG #291261: EY Admin should be denied access (401 or 403)
+      expect([401, 403]).toContain(response.status());
+    });
+
+    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from updating regulatory area', async ({
+      eyAdminRequest,
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Regulatory Area' },
+          { type: 'role', description: 'EY Admin' },
+          { type: 'category', description: 'RBAC' },
+          { type: 'bug', description: '291261' }
+        );
+
+      // Create reg area as Super Admin first
+      const createData = generateRegAreaData({ name: generateRegAreaName('RBAC Update Test') });
+      const createResponse = await superAdminRequest.post(`${API_BASE}/reg-area`, {
+        data: createData,
+      });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Try to update as EY Admin - should be denied
+      const updateData = {
+        id: created.id,
+        name: `EY Admin Attempt ${Date.now()}`,
+        description: 'Should not be allowed',
+        isActive: true,
+        isApproved: true,
+        isDelete: false,
+      };
+
+      const response = await eyAdminRequest.put(`${API_BASE}/reg-area`, { data: updateData });
+
+      // Cleanup as Super Admin
+      await superAdminRequest.delete(`${API_BASE}/reg-area/${created.id}`);
+
+      // BUG #291261: EY Admin should be denied access (401 or 403)
+      expect([401, 403]).toContain(response.status());
+    });
+
+    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from deleting regulatory area', async ({
+      eyAdminRequest,
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Regulatory Area' },
+          { type: 'role', description: 'EY Admin' },
+          { type: 'category', description: 'RBAC' },
+          { type: 'bug', description: '291261' }
+        );
+
+      // Create reg area as Super Admin first
+      const createData = generateRegAreaData({ name: generateRegAreaName('RBAC Delete Test') });
+      const createResponse = await superAdminRequest.post(`${API_BASE}/reg-area`, {
+        data: createData,
+      });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Try to delete as EY Admin - should be denied
+      const response = await eyAdminRequest.delete(`${API_BASE}/reg-area/${created.id}`);
+
+      // Cleanup as Super Admin if not deleted due to bug
+      if (response.status() !== 200) {
+        await superAdminRequest.delete(`${API_BASE}/reg-area/${created.id}`);
+      }
+
+      // BUG #291261: EY Admin should be denied access (401 or 403)
+      expect([401, 403]).toContain(response.status());
     });
   });
 });

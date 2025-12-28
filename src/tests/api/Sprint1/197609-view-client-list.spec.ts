@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 
 /**
  * Sprint 1 API Tests - View Client List: EY Super Admin
@@ -34,7 +34,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
   test('should return client list for EY Super Admin @regression @ADO-202535', async ({
     request,
   }) => {
-    const response = await request.get(CLIENTS_ENDPOINT);
+    const response = await superAdminRequest.get(CLIENTS_ENDPOINT);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -47,8 +47,10 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202536
    * API – Get Clients – Invalid/Missing Token
    */
-  test('should reject requests with invalid token @regression @ADO-202536', async ({ request }) => {
-    const response = await request.get(CLIENTS_ENDPOINT, {
+  test('should reject requests with invalid token @regression @ADO-202536', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.get(CLIENTS_ENDPOINT, {
       headers: {
         Authorization: 'Bearer invalid_token_12345',
       },
@@ -61,8 +63,10 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202537
    * API – Get Clients – Unauthorized Role
    */
-  test('should reject unauthorized role access @regression @ADO-202537', async ({ request }) => {
-    const response = await request.get(CLIENTS_ENDPOINT, {
+  test('should reject unauthorized role access @regression @ADO-202537', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.get(CLIENTS_ENDPOINT, {
       headers: {
         'X-User-Role': 'CLIENT_USER', // Not EY Super Admin
       },
@@ -78,7 +82,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
   test('should return paginated results by default @regression @ADO-202539', async ({
     request,
   }) => {
-    const response = await request.get(CLIENTS_ENDPOINT);
+    const response = await superAdminRequest.get(CLIENTS_ENDPOINT);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -102,7 +106,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
     const page = 0;
     const size = 5;
 
-    const response = await request.get(`${CLIENTS_ENDPOINT}?page=${page}&size=${size}`);
+    const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?page=${page}&size=${size}`);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -117,10 +121,12 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202541
    * API – Get Clients – Search Filter (by Name)
    */
-  test('should filter clients by search term @regression @ADO-202541', async ({ request }) => {
+  test('should filter clients by search term @regression @ADO-202541', async ({
+    superAdminRequest,
+  }) => {
     const searchTerm = 'Test';
 
-    const response = await request.get(`${CLIENTS_ENDPOINT}?searchTerm=${searchTerm}`);
+    const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?searchTerm=${searchTerm}`);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -145,7 +151,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
   }) => {
     const searchTerm = 'ZZZZNONEXISTENT12345';
 
-    const response = await request.get(`${CLIENTS_ENDPOINT}?searchTerm=${searchTerm}`);
+    const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?searchTerm=${searchTerm}`);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -158,8 +164,10 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202543
    * API – Get Clients – Filter by Status (Active)
    */
-  test('should filter active clients only @regression @ADO-202543', async ({ request }) => {
-    const response = await request.get(`${CLIENTS_ENDPOINT}?status=ACTIVE`);
+  test('should filter active clients only @regression @ADO-202543', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?status=ACTIVE`);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -176,8 +184,10 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202544
    * API – Get Clients – Filter by Status (Inactive)
    */
-  test('should filter inactive clients only @regression @ADO-202544', async ({ request }) => {
-    const response = await request.get(`${CLIENTS_ENDPOINT}?status=INACTIVE`);
+  test('should filter inactive clients only @regression @ADO-202544', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?status=INACTIVE`);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -194,9 +204,9 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202545
    * API – Get Clients – Sort by Name
    */
-  test('should sort clients by name @regression @ADO-202545', async ({ request }) => {
+  test('should sort clients by name @regression @ADO-202545', async ({ superAdminRequest }) => {
     // Ascending
-    const ascResponse = await request.get(`${CLIENTS_ENDPOINT}?sort=name,asc`);
+    const ascResponse = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?sort=name,asc`);
     expect(ascResponse.ok()).toBe(true);
 
     const ascData = await ascResponse.json();
@@ -215,7 +225,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
     }
 
     // Descending
-    const descResponse = await request.get(`${CLIENTS_ENDPOINT}?sort=name,desc`);
+    const descResponse = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?sort=name,desc`);
     expect(descResponse.ok()).toBe(true);
   });
 
@@ -223,8 +233,10 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202546
    * API – Get Clients – Sort by Created Date
    */
-  test('should sort clients by created date @regression @ADO-202546', async ({ request }) => {
-    const response = await request.get(`${CLIENTS_ENDPOINT}?sort=createdAt,desc`);
+  test('should sort clients by created date @regression @ADO-202546', async ({
+    superAdminRequest,
+  }) => {
+    const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?sort=createdAt,desc`);
 
     expect(response.ok()).toBe(true);
     const data = await response.json();
@@ -246,8 +258,8 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202547
    * API – Get Clients – Combined Filters (Search + Status + Sort)
    */
-  test('should support combined filters @regression @ADO-202547', async ({ request }) => {
-    const response = await request.get(
+  test('should support combined filters @regression @ADO-202547', async ({ superAdminRequest }) => {
+    const response = await superAdminRequest.get(
       `${CLIENTS_ENDPOINT}?searchTerm=Test&status=ACTIVE&sort=name,asc&page=0&size=10`
     );
 
@@ -267,7 +279,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
   }) => {
     const startTime = Date.now();
 
-    const response = await request.get(`${CLIENTS_ENDPOINT}?size=100`);
+    const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?size=100`);
 
     const endTime = Date.now();
     const responseTime = endTime - startTime;
@@ -285,7 +297,9 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
     request,
   }) => {
     // Use a filter that likely returns no results
-    const response = await request.get(`${CLIENTS_ENDPOINT}?searchTerm=DEFINITELY_NO_CLIENT_12345`);
+    const response = await superAdminRequest.get(
+      `${CLIENTS_ENDPOINT}?searchTerm=DEFINITELY_NO_CLIENT_12345`
+    );
 
     expect(response.ok()).toBe(true);
     const data = await response.json();

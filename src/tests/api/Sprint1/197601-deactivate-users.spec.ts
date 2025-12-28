@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
@@ -34,7 +34,7 @@ async function createTestUser(request: any) {
     email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${uniqueId}@ey.com`,
   };
 
-  const response = await request.post(USERS_ENDPOINT, { data: userData });
+  const response = await superAdminRequest.post(USERS_ENDPOINT, { data: userData });
   if (response.ok()) {
     return response.json();
   }
@@ -55,12 +55,12 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
       return;
     }
 
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
 
     expect(response.ok()).toBe(true);
 
     // Verify user is deactivated
-    const getResponse = await request.get(`${USERS_ENDPOINT}/${user.id}`);
+    const getResponse = await superAdminRequest.get(`${USERS_ENDPOINT}/${user.id}`);
     if (getResponse.ok()) {
       const userData = await getResponse.json();
       expect(userData.isActive === false || userData.status === 'INACTIVE').toBe(true);
@@ -71,10 +71,12 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202526
    * API – Deactivate User Not Found
    */
-  test('should return 404 for non-existent user @regression @ADO-202526', async ({ request }) => {
+  test('should return 404 for non-existent user @regression @ADO-202526', async ({
+    superAdminRequest,
+  }) => {
     const nonExistentId = 999999999;
 
-    const response = await request.put(`${USERS_ENDPOINT}/${nonExistentId}/deactivate`);
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${nonExistentId}/deactivate`);
 
     expect([404]).toContain(response.status());
   });
@@ -93,11 +95,11 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
     }
 
     // First deactivation
-    const firstDeactivate = await request.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
+    const firstDeactivate = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
     expect(firstDeactivate.ok()).toBe(true);
 
     // Second deactivation attempt
-    const secondDeactivate = await request.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
+    const secondDeactivate = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
 
     // Should either succeed (idempotent) or return appropriate error
     expect([200, 204, 400, 409]).toContain(secondDeactivate.status());
@@ -116,7 +118,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
       return;
     }
 
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}/deactivate`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}/deactivate`, {
       headers: {
         'X-User-Role': 'EY_ADMIN', // Not super admin
       },
@@ -129,15 +131,19 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202529
    * API – Deactivate EY Super Admin (Self-Deactivation Guard)
    */
-  test('should prevent self-deactivation @regression @ADO-202529', async ({ request }) => {
+  test('should prevent self-deactivation @regression @ADO-202529', async ({
+    superAdminRequest,
+  }) => {
     // Get current user info
-    const meResponse = await request.get(`${API_BASE}/me`);
+    const meResponse = await superAdminRequest.get(`${API_BASE}/me`);
 
     if (meResponse.ok()) {
       const currentUser = await meResponse.json();
 
       // Try to deactivate self
-      const response = await request.put(`${USERS_ENDPOINT}/${currentUser.id}/deactivate`);
+      const response = await superAdminRequest.put(
+        `${USERS_ENDPOINT}/${currentUser.id}/deactivate`
+      );
 
       // Should not allow self-deactivation
       expect([400, 403]).toContain(response.status());
@@ -148,7 +154,9 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202530
    * API – Deactivate Bulk EY Admins
    */
-  test('should deactivate multiple users in bulk @regression @ADO-202530', async ({ request }) => {
+  test('should deactivate multiple users in bulk @regression @ADO-202530', async ({
+    superAdminRequest,
+  }) => {
     // Create multiple users
     const users = await Promise.all([
       createTestUser(request),
@@ -164,7 +172,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
 
     const userIds = validUsers.map(u => u.id);
 
-    const response = await request.put(`${USERS_ENDPOINT}/bulk/deactivate`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/bulk/deactivate`, {
       data: { userIds },
     });
 
@@ -187,7 +195,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
 
     const userIds = [validUser.id, 999999999]; // Mix of valid and invalid IDs
 
-    const response = await request.put(`${USERS_ENDPOINT}/bulk/deactivate`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/bulk/deactivate`, {
       data: { userIds },
     });
 
@@ -228,7 +236,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
     expect(successCount).toBeGreaterThanOrEqual(1);
 
     // Verify final state - user should be deactivated
-    const getResponse = await request.get(`${USERS_ENDPOINT}/${user.id}`);
+    const getResponse = await superAdminRequest.get(`${USERS_ENDPOINT}/${user.id}`);
     if (getResponse.ok()) {
       const userData = await getResponse.json();
       expect(userData.isActive === false || userData.status === 'INACTIVE').toBe(true);
@@ -250,7 +258,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
     const CHANGE_STATUS_ENDPOINT = '/api/admin/api/ey-admins/change-active-status';
 
     // Step 1: Get an existing EY Admin
-    const adminsResponse = await request.get(EY_ADMINS_ENDPOINT);
+    const adminsResponse = await superAdminRequest.get(EY_ADMINS_ENDPOINT);
     console.log(`EY Admins status: ${adminsResponse.status()}`);
     if (!adminsResponse.ok()) {
       console.log(`EY Admins error: ${await adminsResponse.text()}`);
@@ -269,7 +277,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
     console.log(`Selected EY Admin: ${JSON.stringify(eyAdminToAssign)}`);
 
     // Step 2: Get a valid city ID (POST with search data)
-    const citiesResponse = await request.post(CITIES_ENDPOINT, {
+    const citiesResponse = await superAdminRequest.post(CITIES_ENDPOINT, {
       data: { name: 'a' }, // Search for cities containing 'a'
     });
     console.log(`Cities status: ${citiesResponse.status()}`);
@@ -297,7 +305,9 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
       assignedEyAdminId: [eyAdminToAssign.id],
     };
 
-    const createClientResponse = await request.post(CLIENTS_ENDPOINT, { data: clientPayload });
+    const createClientResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, {
+      data: clientPayload,
+    });
     console.log(`Create client status: ${createClientResponse.status()}`);
 
     if (createClientResponse.status() !== 201) {
@@ -315,7 +325,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
       const deactivateUrl = `${CHANGE_STATUS_ENDPOINT}/${eyAdminToAssign.id}`;
       console.log(`Changing EY Admin status at: ${deactivateUrl}`);
 
-      const deactivateResponse = await request.get(deactivateUrl);
+      const deactivateResponse = await superAdminRequest.get(deactivateUrl);
       console.log(`Change status response code: ${deactivateResponse.status()}`);
 
       const responseBody = await deactivateResponse.text();
@@ -330,7 +340,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
     } finally {
       // Cleanup: Delete the test client
       if (createdClient?.id) {
-        await request.delete(`${CLIENTS_ENDPOINT}/${createdClient.id}`);
+        await superAdminRequest.delete(`${CLIENTS_ENDPOINT}/${createdClient.id}`);
       }
     }
   });

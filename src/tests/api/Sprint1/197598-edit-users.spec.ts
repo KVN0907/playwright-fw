@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
@@ -34,7 +34,7 @@ async function createTestUser(request: any) {
     email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${uniqueId}@ey.com`,
   };
 
-  const response = await request.post(USERS_ENDPOINT, { data: userData });
+  const response = await superAdminRequest.post(USERS_ENDPOINT, { data: userData });
   if (response.ok()) {
     return response.json();
   }
@@ -62,7 +62,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
       email: user.email, // Keep same email
     };
 
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}`, {
       data: updatedData,
     });
 
@@ -86,7 +86,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
     }
 
     // Missing firstName
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}`, {
       data: {
         id: user.id,
         lastName: 'UpdatedLast',
@@ -113,7 +113,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
     const invalidEmails = ['invalid-email', 'test@', '@ey.com', 'test@@ey.com'];
 
     for (const email of invalidEmails) {
-      const response = await request.put(`${USERS_ENDPOINT}/${user.id}`, {
+      const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}`, {
         data: {
           id: user.id,
           firstName: user.firstName,
@@ -130,7 +130,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202517
    * API – Attempt to Update EY Admin Email to One Already Used by Another User
    */
-  test('should reject duplicate email on edit @regression @ADO-202517', async ({ request }) => {
+  test('should reject duplicate email on edit @regression @ADO-202517', async ({
+    superAdminRequest,
+  }) => {
     // Create two users
     const user1 = await createTestUser(request);
     const user2 = await createTestUser(request);
@@ -141,7 +143,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
     }
 
     // Try to update user2's email to user1's email
-    const response = await request.put(`${USERS_ENDPOINT}/${user2.id}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user2.id}`, {
       data: {
         id: user2.id,
         firstName: user2.firstName,
@@ -157,10 +159,12 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202518
    * API – Attempt to Edit Non-Existent EY Admin User
    */
-  test('should return 404 for non-existent user @regression @ADO-202518', async ({ request }) => {
+  test('should return 404 for non-existent user @regression @ADO-202518', async ({
+    superAdminRequest,
+  }) => {
     const nonExistentId = 999999999;
 
-    const response = await request.put(`${USERS_ENDPOINT}/${nonExistentId}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${nonExistentId}`, {
       data: {
         id: nonExistentId,
         firstName: 'Test',
@@ -185,7 +189,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
       return;
     }
 
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}`, {
       data: {
         id: user.id,
         firstName: 'Unauthorized',
@@ -204,7 +208,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202520
    * API – Successfully Edit an Inactive EY Admin User
    */
-  test('should allow editing inactive user @regression @ADO-202520', async ({ request }) => {
+  test('should allow editing inactive user @regression @ADO-202520', async ({
+    superAdminRequest,
+  }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -212,10 +218,10 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
     }
 
     // First deactivate the user
-    await request.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
+    await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}/deactivate`);
 
     // Now try to edit
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}`, {
       data: {
         id: user.id,
         firstName: 'InactiveEdited',
@@ -232,7 +238,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202522
    * API – Attempt to Edit EY Admin With Excessively Long Field Data
    */
-  test('should reject excessively long field data @regression @ADO-202522', async ({ request }) => {
+  test('should reject excessively long field data @regression @ADO-202522', async ({
+    superAdminRequest,
+  }) => {
     const user = await createTestUser(request);
     if (!user) {
       test.skip();
@@ -241,7 +249,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
 
     const veryLongName = 'A'.repeat(1000);
 
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}`, {
       data: {
         id: user.id,
         firstName: veryLongName,
@@ -266,7 +274,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
       return;
     }
 
-    const response = await request.put(`${USERS_ENDPOINT}/${user.id}`, {
+    const response = await superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}`, {
       data: {
         id: user.id,
         firstName: 'CompleteResponse',

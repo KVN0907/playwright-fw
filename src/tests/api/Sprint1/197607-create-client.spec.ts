@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
@@ -87,10 +87,10 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   };
 
   // Setup: Fetch valid test data
-  test.beforeAll(async ({ request }) => {
+  test.beforeAll(async ({ superAdminRequest }) => {
     // Get a valid city ID
     try {
-      const cityResponse = await request.post(CITIES_SEARCH_ENDPOINT, {
+      const cityResponse = await superAdminRequest.post(CITIES_SEARCH_ENDPOINT, {
         data: { name: 'a' }, // Search for cities containing 'a'
       });
       if (cityResponse.ok()) {
@@ -105,7 +105,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
 
     // Get all available EY Admin IDs for random selection
     try {
-      const adminsResponse = await request.get(EY_ADMINS_ENDPOINT);
+      const adminsResponse = await superAdminRequest.get(EY_ADMINS_ENDPOINT);
       if (adminsResponse.ok()) {
         const admins = await adminsResponse.json();
         if (admins && admins.length > 0) {
@@ -124,10 +124,10 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   });
 
   // Cleanup: Delete created test clients
-  test.afterAll(async ({ request }) => {
+  test.afterAll(async ({ superAdminRequest }) => {
     for (const clientId of createdClientIds) {
       try {
-        await request.delete(`${CLIENTS_ENDPOINT}/${clientId}`);
+        await superAdminRequest.delete(`${CLIENTS_ENDPOINT}/${clientId}`);
       } catch {
         // Ignore cleanup errors
       }
@@ -139,7 +139,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 1: Create Client - Valid Request (All Fields)
    * Verify successful client creation with all required fields
    */
-  test('ADO-XXXXX1 should create client with valid request (all fields)', async ({ request }) => {
+  test('ADO-XXXXX1 should create client with valid request (all fields)', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -152,7 +154,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data: ClientResponse = await response.json();
@@ -189,7 +191,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: assignedAdmins,
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data: ClientResponse = await response.json();
@@ -228,7 +230,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
     }
 
     // Get the list of EY Admins and check if Super Admin's email exists
-    const adminsResponse = await request.get(EY_ADMINS_ENDPOINT);
+    const adminsResponse = await superAdminRequest.get(EY_ADMINS_ENDPOINT);
     expect(adminsResponse.ok()).toBe(true);
 
     const eyAdmins = await adminsResponse.json();
@@ -248,7 +250,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
         assignedEyAdminId: [superAdminInEyAdmins.id],
       };
 
-      const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+      const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
       // Should succeed since Super Admin is also an EY Admin
       expect(response.status()).toBe(201);
 
@@ -268,14 +270,16 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Verify that only valid EY Admin IDs can be assigned to a client
    * Tests with an ID that is NOT in the EY Admins list
    */
-  test('ADO-XXXXX1d should reject assignment of non-EY Admin user ID', async ({ request }) => {
+  test('ADO-XXXXX1d should reject assignment of non-EY Admin user ID', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
     test.info().annotations.push({ type: 'category', description: 'NEGATIVE' });
 
     // Get the list of valid EY Admin IDs
-    const adminsResponse = await request.get(EY_ADMINS_ENDPOINT);
+    const adminsResponse = await superAdminRequest.get(EY_ADMINS_ENDPOINT);
     const validAdminIds: number[] = [];
     if (adminsResponse.ok()) {
       const admins = await adminsResponse.json();
@@ -296,7 +300,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [nonEyAdminId], // Try to assign a non-EY Admin ID
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject - only valid EY Admin IDs should be assignable
     expect([400, 403, 409, 422]).toContain(response.status());
@@ -332,7 +336,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [superAdminId], // Try to use Super Admin's ID as EY Admin
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
     const status = response.status();
 
     // Expected behavior depends on whether Super Admin is also an EY Admin:
@@ -370,7 +374,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // EY Admin assignment is mandatory - should reject with 400
     expect(response.status()).toBe(400);
@@ -388,7 +392,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 3: Create Client - Invalid Token
    * Verify authentication is required
    */
-  test('ADO-XXXXX3 should reject request with invalid token', async ({ request }) => {
+  test('ADO-XXXXX3 should reject request with invalid token', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Authentication' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
@@ -400,7 +404,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, {
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, {
       data: payload,
       headers: {
         Authorization: 'Bearer invalid_token_12345',
@@ -414,7 +418,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 4: Create Client - Name Too Short (< 3 characters)
    * Verify name minimum length validation
    */
-  test('ADO-XXXXX4 should reject name shorter than 3 characters', async ({ request }) => {
+  test('ADO-XXXXX4 should reject name shorter than 3 characters', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -426,7 +430,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(400);
     const data = await response.json();
@@ -438,7 +442,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 5: Create Client - Name Too Long (> 500 characters)
    * Verify name maximum length validation
    */
-  test('ADO-XXXXX5 should reject name longer than 500 characters', async ({ request }) => {
+  test('ADO-XXXXX5 should reject name longer than 500 characters', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -451,7 +457,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(400);
     const data = await response.json();
@@ -463,7 +469,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 6: Create Client - Empty/Blank Name
    * Verify name cannot be empty or blank
    */
-  test('ADO-XXXXX6 should reject empty or blank name', async ({ request }) => {
+  test('ADO-XXXXX6 should reject empty or blank name', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -476,7 +482,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const emptyResponse = await request.post(CLIENTS_ENDPOINT, { data: emptyPayload });
+    const emptyResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: emptyPayload });
     expect(emptyResponse.status()).toBe(400);
 
     // Test with whitespace only
@@ -486,7 +492,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const blankResponse = await request.post(CLIENTS_ENDPOINT, { data: blankPayload });
+    const blankResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: blankPayload });
     expect(blankResponse.status()).toBe(400);
   });
 
@@ -494,7 +500,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 7: Create Client - Duplicate Name
    * Verify unique name constraint
    */
-  test('ADO-XXXXX7 should reject duplicate client name', async ({ request }) => {
+  test('ADO-XXXXX7 should reject duplicate client name', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -509,7 +515,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const firstResponse = await request.post(CLIENTS_ENDPOINT, { data: firstPayload });
+    const firstResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: firstPayload });
     expect(firstResponse.status()).toBe(201);
 
     const firstData = await firstResponse.json();
@@ -524,7 +530,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const duplicateResponse = await request.post(CLIENTS_ENDPOINT, { data: duplicatePayload });
+    const duplicateResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, {
+      data: duplicatePayload,
+    });
 
     // 409 Conflict or 422 Unprocessable Entity are valid responses for duplicate name
     expect([409, 422]).toContain(duplicateResponse.status());
@@ -537,7 +545,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 8: Create Client - Non-Existent City
    * Verify city existence validation
    */
-  test('ADO-XXXXX8 should reject non-existent city ID', async ({ request }) => {
+  test('ADO-XXXXX8 should reject non-existent city ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -549,7 +557,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // 409 Conflict or 422 Unprocessable Entity are valid for business rule violations
     expect([409, 422]).toContain(response.status());
@@ -562,7 +570,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 9: Create Client - Non-Existent EY Admin
    * Verify EY Admin existence validation
    */
-  test('ADO-XXXXX9 should reject non-existent EY Admin ID', async ({ request }) => {
+  test('ADO-XXXXX9 should reject non-existent EY Admin ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -574,7 +582,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [999999999], // Non-existent admin ID
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // 409 Conflict or 422 Unprocessable Entity are valid for business rule violations
     expect([409, 422]).toContain(response.status());
@@ -587,7 +595,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 10: Create Client - Missing Required Fields
    * Verify all required fields validation
    */
-  test('ADO-XXXXX10 should reject request with missing required fields', async ({ request }) => {
+  test('ADO-XXXXX10 should reject request with missing required fields', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -598,7 +608,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: validCityId,
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const noNameResponse = await request.post(CLIENTS_ENDPOINT, { data: noNamePayload });
+    const noNameResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: noNamePayload });
     expect(noNameResponse.status()).toBe(400);
 
     // Missing cityId
@@ -606,7 +616,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       name: generateUniqueClientName('No City'),
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const noCityResponse = await request.post(CLIENTS_ENDPOINT, { data: noCityPayload });
+    const noCityResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: noCityPayload });
     expect(noCityResponse.status()).toBe(400);
 
     // Missing assignedEyAdminId
@@ -614,7 +624,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       name: generateUniqueClientName('No Admin Field'),
       cityId: validCityId,
     };
-    const noAdminResponse = await request.post(CLIENTS_ENDPOINT, { data: noAdminPayload });
+    const noAdminResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, {
+      data: noAdminPayload,
+    });
     expect(noAdminResponse.status()).toBe(400);
   });
 
@@ -622,7 +634,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 11: Create Client - Multiple EY Admins
    * Verify client can be assigned multiple EY Admins
    */
-  test('ADO-XXXXX11 should create client with multiple EY Admins', async ({ request }) => {
+  test('ADO-XXXXX11 should create client with multiple EY Admins', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -635,7 +649,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: getRandomEyAdminIds(2),
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data: ClientResponse = await response.json();
@@ -654,7 +668,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 12: Create Client - Name with Special Characters
    * Verify name can contain special characters
    */
-  test('ADO-XXXXX12 should accept name with special characters', async ({ request }) => {
+  test('ADO-XXXXX12 should accept name with special characters', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -667,7 +681,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data: ClientResponse = await response.json();
@@ -682,7 +696,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 13: Create Client - Name with Leading/Trailing Spaces
    * Verify name is trimmed
    */
-  test('ADO-XXXXX13 should trim leading and trailing spaces from name', async ({ request }) => {
+  test('ADO-XXXXX13 should trim leading and trailing spaces from name', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -696,7 +712,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data: ClientResponse = await response.json();
@@ -713,7 +729,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 14: Create Client - Response Validation
    * Verify complete response structure
    */
-  test('ADO-XXXXX14 should return complete response structure', async ({ request }) => {
+  test('ADO-XXXXX14 should return complete response structure', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -726,7 +742,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data: ClientResponse = await response.json();
@@ -760,7 +776,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 15: Boundary - Name exactly 3 characters (minimum valid)
    */
-  test('ADO-EDGE1 should accept name with exactly 3 characters', async ({ request }) => {
+  test('ADO-EDGE1 should accept name with exactly 3 characters', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -772,7 +788,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data = await response.json();
@@ -782,7 +798,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 16: Boundary - Name exactly 500 characters (maximum valid)
    */
-  test('ADO-EDGE2 should accept name with exactly 500 characters', async ({ request }) => {
+  test('ADO-EDGE2 should accept name with exactly 500 characters', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -795,7 +813,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     expect(response.status()).toBe(201);
     const data = await response.json();
@@ -805,7 +823,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 17: SQL Injection attempt in name field
    */
-  test('ADO-EDGE3 should handle SQL injection attempt safely', async ({ request }) => {
+  test('ADO-EDGE3 should handle SQL injection attempt safely', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
@@ -818,7 +836,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either create safely or reject, but not cause server error
     expect([201, 400, 422]).toContain(response.status());
@@ -833,7 +851,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 18: XSS attempt in name field
    */
-  test('ADO-EDGE4 should handle XSS attempt safely', async ({ request }) => {
+  test('ADO-EDGE4 should handle XSS attempt safely', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
@@ -846,7 +864,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either sanitize and create, or reject
     expect([201, 400, 422]).toContain(response.status());
@@ -861,7 +879,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 19: Negative city ID
    */
-  test('ADO-EDGE5 should reject negative city ID', async ({ request }) => {
+  test('ADO-EDGE5 should reject negative city ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -873,7 +891,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject with 400 or 422, not 500
     expect([400, 409, 422]).toContain(response.status());
@@ -883,7 +901,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 20: Zero city ID
    */
-  test('ADO-EDGE6 should reject zero city ID', async ({ request }) => {
+  test('ADO-EDGE6 should reject zero city ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -895,7 +913,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject with 400 or 422, not 500
     expect([400, 409, 422]).toContain(response.status());
@@ -905,7 +923,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 21: Negative EY Admin ID
    */
-  test('ADO-EDGE7 should reject negative EY Admin ID', async ({ request }) => {
+  test('ADO-EDGE7 should reject negative EY Admin ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -917,7 +935,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [-1],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject with 400 or 422, not 500
     expect([400, 409, 422]).toContain(response.status());
@@ -927,7 +945,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 22: Duplicate admin IDs in array
    */
-  test('ADO-EDGE8 should handle duplicate admin IDs in array', async ({ request }) => {
+  test('ADO-EDGE8 should handle duplicate admin IDs in array', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -942,7 +960,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       })(), // Same ID 3 times
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either deduplicate and succeed, or reject - not crash
     expect([201, 400, 422]).toContain(response.status());
@@ -959,7 +977,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 23: Case sensitivity - duplicate name with different case
    */
-  test('ADO-EDGE9 should handle case-insensitive duplicate name check', async ({ request }) => {
+  test('ADO-EDGE9 should handle case-insensitive duplicate name check', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -973,7 +993,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: validCityId,
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const firstResponse = await request.post(CLIENTS_ENDPOINT, { data: firstPayload });
+    const firstResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: firstPayload });
     expect(firstResponse.status()).toBe(201);
     const firstData = await firstResponse.json();
     if (firstData.id) createdClientIds.push(firstData.id);
@@ -984,7 +1004,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: validCityId,
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const secondResponse = await request.post(CLIENTS_ENDPOINT, { data: secondPayload });
+    const secondResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: secondPayload });
 
     // Either reject (case-insensitive) or allow (case-sensitive) - document behavior
     if (secondResponse.status() === 201) {
@@ -998,7 +1018,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 24: Unicode characters in name
    */
-  test('ADO-EDGE10 should handle unicode characters in name', async ({ request }) => {
+  test('ADO-EDGE10 should handle unicode characters in name', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1011,7 +1031,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should handle unicode gracefully
     expect([201, 400]).toContain(response.status());
@@ -1026,7 +1046,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 25: Emoji in name
    */
-  test('ADO-EDGE11 should handle emoji in name', async ({ request }) => {
+  test('ADO-EDGE11 should handle emoji in name', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1039,7 +1059,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should handle emoji gracefully - either accept or reject, not crash
     expect([201, 400]).toContain(response.status());
@@ -1054,7 +1074,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 26: Very large admin ID (potential overflow)
    */
-  test('ADO-EDGE12 should handle very large admin ID', async ({ request }) => {
+  test('ADO-EDGE12 should handle very large admin ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1066,7 +1086,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [9007199254740991], // Max safe integer
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject gracefully, not crash
     expect([400, 409, 422]).toContain(response.status());
@@ -1076,7 +1096,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 27: Null values in request
    */
-  test('ADO-EDGE13 should reject null values', async ({ request }) => {
+  test('ADO-EDGE13 should reject null values', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1087,7 +1107,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: validCityId,
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const nullNameResponse = await request.post(CLIENTS_ENDPOINT, { data: nullNamePayload });
+    const nullNameResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, {
+      data: nullNamePayload,
+    });
     expect(nullNameResponse.status()).toBe(400);
 
     const nullCityPayload = {
@@ -1095,14 +1117,16 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: null as any,
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const nullCityResponse = await request.post(CLIENTS_ENDPOINT, { data: nullCityPayload });
+    const nullCityResponse = await superAdminRequest.post(CLIENTS_ENDPOINT, {
+      data: nullCityPayload,
+    });
     expect(nullCityResponse.status()).toBe(400);
   });
 
   /**
    * Test Case 28: String instead of number for cityId
    */
-  test('ADO-EDGE14 should reject string cityId', async ({ request }) => {
+  test('ADO-EDGE14 should reject string cityId', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1114,7 +1138,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject with 400, not 500
     expect(response.status()).toBe(400);
@@ -1123,13 +1147,13 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 29: Empty request body
    */
-  test('ADO-EDGE15 should reject empty request body', async ({ request }) => {
+  test('ADO-EDGE15 should reject empty request body', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
     test.info().annotations.push({ type: 'category', description: 'EDGE' });
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: {} });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: {} });
 
     expect(response.status()).toBe(400);
   });
@@ -1137,7 +1161,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case: Create client with empty name
    */
-  test('ADO-EDGE20 should reject client with empty name @regression', async ({ request }) => {
+  test('ADO-EDGE20 should reject client with empty name @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1149,7 +1175,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Empty name should be rejected with 400, not 500
     expect(response.status()).toBe(400);
@@ -1158,7 +1184,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 30: Name with only numbers
    */
-  test('ADO-EDGE16 should accept name with only numbers', async ({ request }) => {
+  test('ADO-EDGE16 should accept name with only numbers', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1171,7 +1197,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Numeric-only names should be valid
     expect(response.status()).toBe(201);
@@ -1182,7 +1208,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 31: Name with newline characters
    */
-  test('ADO-EDGE17 should handle name with newline characters', async ({ request }) => {
+  test('ADO-EDGE17 should handle name with newline characters', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1195,7 +1221,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either sanitize newlines or reject - not crash
     expect([201, 400]).toContain(response.status());
@@ -1210,7 +1236,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 32: Large number of admin IDs
    */
-  test('ADO-EDGE18 should handle large array of admin IDs', async ({ request }) => {
+  test('ADO-EDGE18 should handle large array of admin IDs', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1226,7 +1252,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: manyAdminIds,
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either process or reject gracefully - not timeout or crash
     expect([201, 400, 409, 422]).toContain(response.status());
@@ -1236,7 +1262,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 33: Concurrent creation with same name
    */
-  test('ADO-EDGE19 should handle concurrent creation with same name', async ({ request }) => {
+  test('ADO-EDGE19 should handle concurrent creation with same name', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1279,7 +1307,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Whitespace-only name
    */
-  test('ADO-EDGE21 should reject whitespace-only name @regression', async ({ request }) => {
+  test('ADO-EDGE21 should reject whitespace-only name @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1291,7 +1321,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Whitespace-only should be rejected with 400, not 500
     expect(response.status()).toBe(400);
@@ -1315,7 +1345,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either accept (after trimming) or reject - not crash
     expect([201, 400]).toContain(response.status());
@@ -1332,7 +1362,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Null name value
    */
-  test('ADO-EDGE23 should reject null name @regression', async ({ request }) => {
+  test('ADO-EDGE23 should reject null name @regression', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1344,7 +1374,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Null name should return 400, not 500
     expect(response.status()).toBe(400);
@@ -1354,7 +1384,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Negative cityId
    */
-  test('ADO-EDGE24 should reject negative cityId @regression', async ({ request }) => {
+  test('ADO-EDGE24 should reject negative cityId @regression', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1366,7 +1396,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Negative cityId should return 400, not 500
     expect(response.status()).toBe(400);
@@ -1376,7 +1406,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Zero cityId
    */
-  test('ADO-EDGE25 should reject zero cityId @regression', async ({ request }) => {
+  test('ADO-EDGE25 should reject zero cityId @regression', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1388,7 +1418,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Zero cityId should return 400, not 500
     expect(response.status()).toBe(400);
@@ -1398,7 +1428,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Non-existent cityId
    */
-  test('ADO-EDGE26 should reject non-existent cityId @regression', async ({ request }) => {
+  test('ADO-EDGE26 should reject non-existent cityId @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1410,7 +1442,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Non-existent cityId should return 400/404, not 500
     expect([400, 404, 422]).toContain(response.status());
@@ -1421,7 +1453,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: Empty admin ID array - EY Admin is mandatory
    * BUG: Currently API auto-assigns first EY Admin instead of rejecting
    */
-  test('ADO-EDGE27 should reject empty admin ID array @regression', async ({ request }) => {
+  test('ADO-EDGE27 should reject empty admin ID array @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1433,7 +1467,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // EY Admin assignment is mandatory - should reject with 400
     expect(response.status()).toBe(400);
@@ -1448,7 +1482,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Duplicate admin IDs in array
    */
-  test('ADO-EDGE28 should handle duplicate admin IDs in array @regression', async ({ request }) => {
+  test('ADO-EDGE28 should handle duplicate admin IDs in array @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1463,7 +1499,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       })(),
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either deduplicate or reject - not crash
     expect([201, 400, 422]).toContain(response.status());
@@ -1478,7 +1514,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Null value in admin ID array
    */
-  test('ADO-EDGE29 should reject null in admin ID array @regression', async ({ request }) => {
+  test('ADO-EDGE29 should reject null in admin ID array @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1490,7 +1528,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId(), null, getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Null in array should return 400, not 500
     expect([400, 422]).toContain(response.status());
@@ -1500,7 +1538,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Invalid admin ID format
    */
-  test('ADO-EDGE30 should reject invalid admin ID format @regression', async ({ request }) => {
+  test('ADO-EDGE30 should reject invalid admin ID format @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1512,7 +1552,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: ['not-a-valid-id', 'another-invalid'] as any,
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Invalid admin ID format should return 400, not 500
     expect([400, 404, 422]).toContain(response.status());
@@ -1536,7 +1576,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either accept (safely escaped) or reject - never execute SQL
     expect([201, 400]).toContain(response.status());
@@ -1551,7 +1591,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: XSS attempt in name field
    */
-  test('ADO-EDGE32 should handle XSS attempt in name @regression', async ({ request }) => {
+  test('ADO-EDGE32 should handle XSS attempt in name @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
@@ -1563,7 +1605,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either accept (safely encoded) or reject
     expect([201, 400]).toContain(response.status());
@@ -1580,7 +1622,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Unicode/emoji in name field
    */
-  test('ADO-EDGE33 should handle unicode and emoji in name @regression', async ({ request }) => {
+  test('ADO-EDGE33 should handle unicode and emoji in name @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1592,7 +1636,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either accept unicode or reject gracefully
     expect([201, 400]).toContain(response.status());
@@ -1607,7 +1651,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Special characters only in name
    */
-  test('ADO-EDGE34 should handle special characters only name @regression', async ({ request }) => {
+  test('ADO-EDGE34 should handle special characters only name @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1619,7 +1665,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either accept or reject gracefully
     expect([201, 400]).toContain(response.status());
@@ -1651,7 +1697,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       nestedUnknown: { deep: 'value' },
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either ignore extra fields or reject - not crash
     expect([201, 400]).toContain(response.status());
@@ -1666,7 +1712,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Array type for name field (type coercion)
    */
-  test('ADO-EDGE36 should reject array type for name field @regression', async ({ request }) => {
+  test('ADO-EDGE36 should reject array type for name field @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1678,7 +1726,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Wrong type should return 400, not 500
     expect(response.status()).toBe(400);
@@ -1688,7 +1736,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Object type for name field
    */
-  test('ADO-EDGE37 should reject object type for name field @regression', async ({ request }) => {
+  test('ADO-EDGE37 should reject object type for name field @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1700,7 +1750,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Wrong type should return 400, not 500
     expect(response.status()).toBe(400);
@@ -1710,7 +1760,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Boolean type for cityId
    */
-  test('ADO-EDGE38 should reject boolean type for cityId @regression', async ({ request }) => {
+  test('ADO-EDGE38 should reject boolean type for cityId @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1722,7 +1774,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Wrong type should return 400, not 500
     expect(response.status()).toBe(400);
@@ -1732,7 +1784,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Float/decimal cityId
    */
-  test('ADO-EDGE39 should handle float cityId @regression', async ({ request }) => {
+  test('ADO-EDGE39 should handle float cityId @regression', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1744,7 +1796,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should either truncate to int or reject - not crash
     expect([201, 400]).toContain(response.status());
@@ -1759,7 +1811,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: String value for assignedEyAdminId (not array)
    */
-  test('ADO-EDGE40 should reject string for assignedEyAdminId @regression', async ({ request }) => {
+  test('ADO-EDGE40 should reject string for assignedEyAdminId @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1771,7 +1825,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: getRandomEyAdminId(), // number instead of array
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Wrong type should return 400, not 500
     expect(response.status()).toBe(400);
@@ -1781,7 +1835,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Very long admin ID string
    */
-  test('ADO-EDGE41 should handle very long admin ID string @regression', async ({ request }) => {
+  test('ADO-EDGE41 should handle very long admin ID string @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1794,7 +1850,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [longAdminId] as any,
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject with 400, not crash with 500
     expect([400, 404, 422]).toContain(response.status());
@@ -1804,7 +1860,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Integer overflow for cityId
    */
-  test('ADO-EDGE42 should handle integer overflow for cityId @regression', async ({ request }) => {
+  test('ADO-EDGE42 should handle integer overflow for cityId @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1816,7 +1874,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Should reject gracefully, not crash
     expect([400, 404, 422]).toContain(response.status());
@@ -1826,7 +1884,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Missing required cityId field
    */
-  test('ADO-EDGE43 should reject missing cityId field @regression', async ({ request }) => {
+  test('ADO-EDGE43 should reject missing cityId field @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1837,7 +1897,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       assignedEyAdminId: [getRandomEyAdminId()],
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Missing required field should return 400
     expect(response.status()).toBe(400);
@@ -1860,7 +1920,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: validCityId,
     };
 
-    const response = await request.post(CLIENTS_ENDPOINT, { data: payload });
+    const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload });
 
     // Missing required field should return 400
     expect(response.status()).toBe(400);
@@ -1886,7 +1946,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: validCityId,
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const response1 = await request.post(CLIENTS_ENDPOINT, { data: payload1 });
+    const response1 = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload1 });
     expect(response1.status()).toBe(201);
     const data1 = await response1.json();
     if (data1.id) createdClientIds.push(data1.id);
@@ -1897,7 +1957,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
       cityId: validCityId,
       assignedEyAdminId: [getRandomEyAdminId()],
     };
-    const response2 = await request.post(CLIENTS_ENDPOINT, { data: payload2 });
+    const response2 = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload2 });
 
     // Should either allow (case-sensitive) or reject (case-insensitive) - document behavior
     expect([201, 409]).toContain(response2.status());

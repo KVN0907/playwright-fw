@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/advancedFixtures';
+import { test, expect } from '../../fixtures/apiRoleFixtures';
 import * as path from 'path';
 import * as fs from 'fs';
 import axios, { AxiosResponse } from 'axios';
@@ -161,7 +161,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   let corporateSecretarialRegAreaId: number;
 
   // Fetch the Corporate Secretarial reg area for valid upload tests
-  test.beforeAll(async ({ request }) => {
+  test.beforeAll(async ({ superAdminRequest }) => {
     const response = await request.get(`${API_BASE}/reg-area`, {
       headers: { 'x-tenant-id': '1', 'x-user-id': '1' },
     });
@@ -179,12 +179,12 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
     }
   });
 
-  test.beforeEach(async ({ request }) => {
+  test.beforeEach(async ({ superAdminRequest }) => {
     const regArea = await createTestRegArea(request);
     testRegAreaId = regArea.id;
   });
 
-  test.afterEach(async ({ request }) => {
+  test.afterEach(async ({ superAdminRequest }) => {
     if (testRegAreaId) {
       await deleteTestRegArea(request, testRegAreaId);
     }
@@ -459,7 +459,9 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204136
    * Audit Log Updated on Successful and Failed Upload Attempts
    */
-  test('should track upload in audit log @regression @ADO-204136', async ({ request }) => {
+  test('should track upload in audit log @regression @ADO-204136', async ({
+    superAdminRequest,
+  }) => {
     await uploadFile({
       file: Buffer.from('PK'),
       filename: 'audit_test.xlsx',
