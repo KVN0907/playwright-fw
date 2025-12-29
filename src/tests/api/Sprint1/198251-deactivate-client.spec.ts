@@ -24,7 +24,7 @@ const API_BASE = '/api/admin';
 const CLIENTS_ENDPOINT = `${API_BASE}/clients`;
 
 // Helper to create a test client using faker
-async function createTestClient(request: any) {
+async function createTestClient(superAdminRequest: any) {
   const companyName = faker.company.name();
   const uniqueId = `${Date.now()}`.slice(-6);
   const clientData = {
@@ -46,9 +46,9 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * API – Deactivate Single Client
    */
   test('should deactivate single client successfully @regression @ADO-204440', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const client = await createTestClient(request);
+    const client = await createTestClient(superAdminRequest);
     if (!client) {
       test.skip();
       return;
@@ -85,9 +85,9 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * API – Deactivate Client – Already Deactivated Client
    */
   test('should handle already deactivated client gracefully @regression @ADO-204442', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const client = await createTestClient(request);
+    const client = await createTestClient(superAdminRequest);
     if (!client) {
       test.skip();
       return;
@@ -113,9 +113,9 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * API – Deactivate Client – Insufficient Permissions
    */
   test('should reject deactivation without proper permissions @regression @ADO-204443', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const client = await createTestClient(request);
+    const client = await createTestClient(superAdminRequest);
     if (!client) {
       test.skip();
       return;
@@ -135,9 +135,9 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * API – Deactivate Client – With Active Users
    */
   test('should handle client deactivation with active users @regression @ADO-204444', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const client = await createTestClient(request);
+    const client = await createTestClient(superAdminRequest);
     if (!client) {
       test.skip();
       return;
@@ -161,13 +161,13 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * API – Deactivate Multiple Clients (Bulk)
    */
   test('should deactivate multiple clients in bulk @regression @ADO-204445', async ({
-    request,
+    superAdminRequest,
   }) => {
     // Create multiple clients
     const clients = await Promise.all([
-      createTestClient(request),
-      createTestClient(request),
-      createTestClient(request),
+      createTestClient(superAdminRequest),
+      createTestClient(superAdminRequest),
+      createTestClient(superAdminRequest),
     ]);
 
     const validClients = clients.filter(c => c !== null);
@@ -191,9 +191,9 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * API – Deactivate Multiple Clients Partial Success
    */
   test('should handle partial success in bulk deactivation @regression @ADO-204446', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const validClient = await createTestClient(request);
+    const validClient = await createTestClient(superAdminRequest);
     if (!validClient) {
       test.skip();
       return;
@@ -219,9 +219,9 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * API – Concurrent Client Deactivation Requests
    */
   test('should handle concurrent deactivation requests safely @regression @ADO-204448', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const client = await createTestClient(request);
+    const client = await createTestClient(superAdminRequest);
     if (!client) {
       test.skip();
       return;
@@ -230,7 +230,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
     // Send multiple concurrent deactivation requests
     const requests = [];
     for (let i = 0; i < 5; i++) {
-      requests.push(request.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`));
+      requests.push(superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`));
     }
 
     const responses = await Promise.all(requests);

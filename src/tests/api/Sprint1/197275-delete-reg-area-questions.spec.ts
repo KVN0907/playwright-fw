@@ -212,9 +212,7 @@ test.describe('Story #197275: Delete Reg Area and Questions API Tests', () => {
       expect([404, 400, 500]).toContain(invalidDeleteResponse.status());
     });
 
-    test('@edge should reject delete with invalid question ID format', async ({
-      superAdminRequest,
-    }) => {
+    test('@edge should reject delete with invalid question ID format', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -272,9 +270,7 @@ test.describe('Story #197275: Delete Reg Area and Questions API Tests', () => {
   });
 
   test.describe('DELETE /reg-area/{id} - Delete Regulatory Areas', () => {
-    test('@smoke @ADO-202729 should delete empty regulatory area via API', async ({
-      superAdminRequest,
-    }) => {
+    test('@smoke @ADO-202729 should delete empty regulatory area via API', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -311,9 +307,7 @@ test.describe('Story #197275: Delete Reg Area and Questions API Tests', () => {
       expect(found).toBeUndefined();
     });
 
-    test('@smoke should delete regulatory area with questions (cascade)', async ({
-      superAdminRequest,
-    }) => {
+    test('@smoke should delete regulatory area with questions (cascade)', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -464,9 +458,7 @@ test.describe('Story #197275: Delete Reg Area and Questions API Tests', () => {
       expect([404, 400, 500]).toContain(invalidDeleteResponse.status());
     });
 
-    test('@edge should reject delete with invalid reg area ID format', async ({
-      superAdminRequest,
-    }) => {
+    test('@edge should reject delete with invalid reg area ID format', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -571,9 +563,7 @@ test.describe('Story #197275: Delete Reg Area and Questions API Tests', () => {
       expect([400, 404, 500]).toContain(sqlInjectionResponse2.status());
     });
 
-    test('@security should prevent path traversal in delete path', async ({
-      superAdminRequest,
-    }) => {
+    test('@security should prevent path traversal in delete path', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -598,9 +588,7 @@ test.describe('Story #197275: Delete Reg Area and Questions API Tests', () => {
   });
 
   test.describe('Concurrency - Delete Operations', () => {
-    test('@concurrency should handle concurrent delete of same question', async ({
-      superAdminRequest,
-    }) => {
+    test('@concurrency should handle concurrent delete of same question', async ({ request }) => {
       test
         .info()
         .annotations.push(

@@ -175,7 +175,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Verify EY Super Admin can create a client and assign multiple EY Admins
    */
   test('ADO-XXXXX1b should create client as EY Super Admin with multiple EY Admins assigned', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -214,7 +214,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * and therefore cannot be assigned as an EY Admin to a client
    */
   test('ADO-XXXXX1c should verify Super Admin email is not assignable as EY Admin', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -318,7 +318,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Super Admin ID: 1101 (Keerthivasan.Rc@in.ey.com)
    */
   test('ADO-XXXXX1e should reject assignment of Super Admin ID as EY Admin', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -360,7 +360,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * BUG: Currently API auto-assigns first EY Admin instead of rejecting
    */
   test('ADO-XXXXX2 should reject client creation without EY Admin assignment', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -1279,9 +1279,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
 
     // Send multiple requests concurrently
     const responses = await Promise.all([
-      request.post(CLIENTS_ENDPOINT, { data: payload }),
-      request.post(CLIENTS_ENDPOINT, { data: payload }),
-      request.post(CLIENTS_ENDPOINT, { data: payload }),
+      superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload }),
+      superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload }),
+      superAdminRequest.post(CLIENTS_ENDPOINT, { data: payload }),
     ]);
 
     // Exactly one should succeed, others should fail with conflict
@@ -1332,7 +1332,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: Name with leading/trailing whitespace
    */
   test('ADO-EDGE22 should trim or reject name with leading/trailing whitespace @regression', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -1563,7 +1563,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: SQL injection in name field
    */
   test('ADO-EDGE31 should handle SQL injection attempt in name @regression', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -1681,7 +1681,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: Extra unknown fields in request
    */
   test('ADO-EDGE35 should ignore or reject extra unknown fields @regression', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -1908,7 +1908,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: Missing required assignedEyAdminId field
    */
   test('ADO-EDGE44 should reject missing assignedEyAdminId field @regression', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
@@ -1931,7 +1931,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: Case sensitivity - create clients with same name different case
    */
   test('ADO-EDGE45 should handle case sensitivity for client names @regression', async ({
-    request,
+    superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });

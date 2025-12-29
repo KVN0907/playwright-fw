@@ -459,9 +459,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204136
    * Audit Log Updated on Successful and Failed Upload Attempts
    */
-  test('should track upload in audit log @regression @ADO-204136', async ({
-    superAdminRequest,
-  }) => {
+  test('should track upload in audit log @regression @ADO-204136', async ({ request }) => {
     await uploadFile({
       file: Buffer.from('PK'),
       filename: 'audit_test.xlsx',

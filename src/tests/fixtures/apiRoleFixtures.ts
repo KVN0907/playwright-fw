@@ -26,6 +26,8 @@ const CLIENT_ADMIN_AUTH = path.join(AUTH_DIR, 'auth-client-admin.json');
  * Role-based fixture types
  */
 export type RoleFixtures = {
+  /** Unauthenticated API request context (for login/auth endpoints) */
+  request: APIRequestContext;
   /** API request context authenticated as Super Admin (default from global setup) */
   superAdminRequest: APIRequestContext;
   /** API request context authenticated as EY Admin */
@@ -66,6 +68,18 @@ async function createAuthenticatedContext(
  * Extended test with role-based API fixtures
  */
 export const test = base.extend<RoleFixtures>({
+  // Unauthenticated request - for login/auth endpoints
+  request: async ({ playwright }, use) => {
+    const baseURL =
+      process.env.QA_APP_URL || process.env.APP_URL || 'https://eycompliancemanager-uat.ey.com/';
+    const context = await playwright.request.newContext({
+      baseURL,
+      ignoreHTTPSErrors: true,
+    });
+    await use(context);
+    await context.dispose();
+  },
+
   // Super Admin - uses default auth.json from global setup
   superAdminRequest: async ({ playwright }, use) => {
     const context = await createAuthenticatedContext(playwright, SUPER_ADMIN_AUTH, 'Super Admin');

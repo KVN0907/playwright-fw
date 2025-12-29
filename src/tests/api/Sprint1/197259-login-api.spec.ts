@@ -103,9 +103,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204236
    * Verify Error Message for Invalid Password on Web Application
    */
-  test('should show error for invalid password @regression @ADO-204236', async ({
-    superAdminRequest,
-  }) => {
+  test('should show error for invalid password @regression @ADO-204236', async ({ request }) => {
     const response = await request.post(LOGIN_ENDPOINT, {
       data: {
         username: VALID_USERNAME,
@@ -433,9 +431,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204244
    * Verify Logout and Session Timeout on Web Application
    */
-  test('should invalidate session on logout @regression @ADO-204244', async ({
-    superAdminRequest,
-  }) => {
+  test('should invalidate session on logout @regression @ADO-204244', async ({ request }) => {
     // Login first
     const loginResponse = await request.post(LOGIN_ENDPOINT, {
       data: {
@@ -469,9 +465,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204245
    * Verify Audit Log Generation for Login Events
    */
-  test.skip('@ADO-204245 should generate audit logs for login events', async ({
-    superAdminRequest,
-  }) => {
+  test.skip('@ADO-204245 should generate audit logs for login events', async ({ request }) => {
     // This test requires access to audit logs API
     // Skipped as audit endpoint may not be available
     test.skip();
@@ -481,7 +475,7 @@ test.describe('Story #197259: Username and Password Based Login', () => {
    * ADO Test Case #204253
    * Verify Audit Logging on Login Attempts via API
    */
-  test.skip('@ADO-204253 should log all login attempts', async ({ superAdminRequest }) => {
+  test.skip('@ADO-204253 should log all login attempts', async ({ request }) => {
     // This test requires access to audit logs API
     // Skipped as audit endpoint may not be available
     test.skip();

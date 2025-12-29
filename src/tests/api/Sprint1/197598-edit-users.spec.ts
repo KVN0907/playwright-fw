@@ -24,7 +24,7 @@ const API_BASE = '/api/admin';
 const USERS_ENDPOINT = `${API_BASE}/users`;
 
 // Helper to create a test user for editing using faker
-async function createTestUser(request: any) {
+async function createTestUser(superAdminRequest: any) {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const uniqueId = `${Date.now()}`.slice(-6);
@@ -47,9 +47,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * API – Successfully Edit an Existing EY Admin User by EY Super Admin
    */
   test('should successfully edit an existing EY Admin user @regression @ADO-202514', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -77,9 +77,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * API – Attempt to Edit EY Admin with Missing Field
    */
   test('should reject edit with missing required field @regression @ADO-202515', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -102,9 +102,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * API – Attempt to Edit EY Admin with Invalid Email Format
    */
   test('should reject invalid email format on edit @regression @ADO-202516', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -181,9 +181,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * API – Unauthorized Role Attempts to Edit EY Admin
    */
   test('should reject unauthorized user edit attempts @regression @ADO-202519', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -266,9 +266,9 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * API – API Response Contains Updated User Fields, Status, and Client Info
    */
   test('should return complete user data in response @regression @ADO-202523', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;

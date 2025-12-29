@@ -511,9 +511,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * ADO Test Case #202772
    * Edit Question Text via API
    */
-  test('should edit question text via API @regression @ADO-202772', async ({
-    superAdminRequest,
-  }) => {
+  test('should edit question text via API @regression @ADO-202772', async ({ request }) => {
     const regArea = await createTestRegArea(request);
     const question = await createTestQuestion(request, regArea.id, 'Original Question Text');
 
@@ -746,9 +744,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
    * Reject Edit by Unauthorized User
    * Note: This test requires authentication context with different user roles
    */
-  test.skip('@ADO-202780 @RBAC should reject edit by unauthorized user', async ({
-    superAdminRequest,
-  }) => {
+  test.skip('@ADO-202780 @RBAC should reject edit by unauthorized user', async ({ request }) => {
     // This test requires:
     // 1. Authentication as a user WITHOUT EY Super Admin role
     // 2. Attempt to edit a reg area or question
@@ -1013,9 +1009,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
 
   // Additional edit tests
   test.describe('Additional Edit Operations', () => {
-    test('@smoke should preserve fields not included in partial update', async ({
-      superAdminRequest,
-    }) => {
+    test('@smoke should preserve fields not included in partial update', async ({ request }) => {
       const regArea = await createTestRegArea(request);
       const question = await createTestQuestion(request, regArea.id, 'Partial Update Test');
 
@@ -1046,9 +1040,7 @@ test.describe('Story #197273: Edit Reg Area and Questions', () => {
       }
     });
 
-    test('@edge should handle boundary value edits (500 char title)', async ({
-      superAdminRequest,
-    }) => {
+    test('@edge should handle boundary value edits (500 char title)', async ({ request }) => {
       const regArea = await createTestRegArea(request);
       const question = await createTestQuestion(request, regArea.id);
 
@@ -1183,9 +1175,7 @@ test.describe('Security Tests', () => {
       }
     });
 
-    test('@security should prevent SQL injection via various fields', async ({
-      superAdminRequest,
-    }) => {
+    test('@security should prevent SQL injection via various fields', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {
@@ -1295,9 +1285,7 @@ test.describe('Security Tests', () => {
       }
     });
 
-    test('@security should prevent path traversal in API endpoints', async ({
-      superAdminRequest,
-    }) => {
+    test('@security should prevent path traversal in API endpoints', async ({ request }) => {
       const pathTraversalPayloads = [
         '../../../etc/passwd',
         '..\\..\\..\\windows\\system32\\config\\sam',
@@ -1381,9 +1369,7 @@ test.describe('Security Tests', () => {
       }
     });
 
-    test('@security should not allow privilege escalation via update', async ({
-      superAdminRequest,
-    }) => {
+    test('@security should not allow privilege escalation via update', async ({ request }) => {
       const regArea = await createTestRegArea(request);
       const question = await createTestQuestion(request, regArea.id);
 
@@ -1416,9 +1402,7 @@ test.describe('Security Tests', () => {
   });
 
   test.describe('IDOR - Insecure Direct Object Reference', () => {
-    test('@security should verify question belongs to accessible reg area', async ({
-      superAdminRequest,
-    }) => {
+    test('@security should verify question belongs to accessible reg area', async ({ request }) => {
       // Create two reg areas
       const regArea1 = await createTestRegArea(request);
       const regArea2 = await createTestRegArea(request);
@@ -1489,9 +1473,7 @@ test.describe('Security Tests', () => {
       // expect(headers['x-content-type-options']).toBe('nosniff');
     });
 
-    test('@security should reject requests with invalid HTTP methods', async ({
-      superAdminRequest,
-    }) => {
+    test('@security should reject requests with invalid HTTP methods', async ({ request }) => {
       // Test unsupported methods
       const traceResponse = await request.fetch(`${API_BASE}/questions`, { method: 'TRACE' });
       expect([400, 405, 501]).toContain(traceResponse.status());
@@ -1501,9 +1483,7 @@ test.describe('Security Tests', () => {
       expect([200, 204, 405]).toContain(optionsResponse.status());
     });
 
-    test('@security should not expose sensitive info in error messages', async ({
-      superAdminRequest,
-    }) => {
+    test('@security should not expose sensitive info in error messages', async ({ request }) => {
       // Trigger errors and check response doesn't leak sensitive info
       const badRequests = [
         { url: `${API_BASE}/questions/invalid-id`, method: 'GET' },
@@ -1579,9 +1559,7 @@ test.describe('Security Tests', () => {
   });
 
   test.describe('Rate Limiting & DoS Prevention', () => {
-    test('@security @performance should handle rapid successive requests', async ({
-      superAdminRequest,
-    }) => {
+    test('@security @performance should handle rapid successive requests', async ({ request }) => {
       const startTime = Date.now();
       const requestCount = 50;
       const responses: number[] = [];
@@ -1645,9 +1623,7 @@ test.describe('Functional Tests - Edge Cases', () => {
       }
     });
 
-    test('@functional should handle undefined values appropriately', async ({
-      superAdminRequest,
-    }) => {
+    test('@functional should handle undefined values appropriately', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {
@@ -1855,9 +1831,7 @@ test.describe('Functional Tests - Edge Cases', () => {
       }
     });
 
-    test('@functional should handle case sensitivity in uniqueness checks', async ({
-      superAdminRequest,
-    }) => {
+    test('@functional should handle case sensitivity in uniqueness checks', async ({ request }) => {
       const timestamp = Date.now();
 
       // Create first reg area
@@ -1949,9 +1923,7 @@ test.describe('Functional Tests - Edge Cases', () => {
   });
 
   test.describe('Boundary Conditions', () => {
-    test('@functional should handle exactly boundary length values', async ({
-      superAdminRequest,
-    }) => {
+    test('@functional should handle exactly boundary length values', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {
@@ -1998,9 +1970,7 @@ test.describe('Functional Tests - Edge Cases', () => {
  */
 test.describe('Business Logic Tests', () => {
   test.describe('State Transitions', () => {
-    test('@business should enforce valid state transitions for isActive', async ({
-      superAdminRequest,
-    }) => {
+    test('@business should enforce valid state transitions for isActive', async ({ request }) => {
       const regArea = await createTestRegArea(request);
       const question = await createTestQuestion(request, regArea.id);
 
@@ -2035,9 +2005,7 @@ test.describe('Business Logic Tests', () => {
       }
     });
 
-    test('@business should enforce valid state transitions for isApproved', async ({
-      superAdminRequest,
-    }) => {
+    test('@business should enforce valid state transitions for isApproved', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {
@@ -2160,9 +2128,7 @@ test.describe('Business Logic Tests', () => {
       }
     });
 
-    test('@business should validate regAreaId exists on question update', async ({
-      superAdminRequest,
-    }) => {
+    test('@business should validate regAreaId exists on question update', async ({ request }) => {
       const regArea = await createTestRegArea(request);
       const question = await createTestQuestion(request, regArea.id);
 
@@ -2281,9 +2247,7 @@ test.describe('Business Logic Tests', () => {
       }
     });
 
-    test('@business should handle question type change validation', async ({
-      superAdminRequest,
-    }) => {
+    test('@business should handle question type change validation', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {
@@ -2375,9 +2339,7 @@ test.describe('Business Logic Tests', () => {
       }
     });
 
-    test('@business should handle order/sequence of questions in reg area', async ({
-      superAdminRequest,
-    }) => {
+    test('@business should handle order/sequence of questions in reg area', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {
@@ -2413,9 +2375,7 @@ test.describe('Business Logic Tests', () => {
   });
 
   test.describe('Workflow Rules', () => {
-    test('@business should check if inactive questions can be used', async ({
-      superAdminRequest,
-    }) => {
+    test('@business should check if inactive questions can be used', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {
@@ -2450,9 +2410,7 @@ test.describe('Business Logic Tests', () => {
       }
     });
 
-    test('@business should check if unapproved questions can be used', async ({
-      superAdminRequest,
-    }) => {
+    test('@business should check if unapproved questions can be used', async ({ request }) => {
       const regArea = await createTestRegArea(request);
 
       try {

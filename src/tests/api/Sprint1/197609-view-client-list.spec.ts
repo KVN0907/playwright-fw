@@ -32,7 +32,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * API – Get Clients – Valid Token (EY Super Admin)
    */
   test('should return client list for EY Super Admin @regression @ADO-202535', async ({
-    request,
+    superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(CLIENTS_ENDPOINT);
 
@@ -80,7 +80,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * API – Get Clients – Default Pagination
    */
   test('should return paginated results by default @regression @ADO-202539', async ({
-    request,
+    superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(CLIENTS_ENDPOINT);
 
@@ -101,7 +101,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * API – Get Clients – Custom Pagination
    */
   test('should support custom pagination parameters @regression @ADO-202540', async ({
-    request,
+    superAdminRequest,
   }) => {
     const page = 0;
     const size = 5;
@@ -147,7 +147,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * API – Get Clients – Search Filter (No Match)
    */
   test('should return empty results for non-matching search @regression @ADO-202542', async ({
-    request,
+    superAdminRequest,
   }) => {
     const searchTerm = 'ZZZZNONEXISTENT12345';
 
@@ -275,7 +275,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * API – Get Clients – Large Dataset Performance
    */
   test('should handle large dataset requests within acceptable time @regression @ADO-202548', async ({
-    request,
+    superAdminRequest,
   }) => {
     const startTime = Date.now();
 
@@ -294,7 +294,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * API – Get Clients – Empty Client List
    */
   test('should handle empty client list gracefully @regression @ADO-202538', async ({
-    request,
+    superAdminRequest,
   }) => {
     // Use a filter that likely returns no results
     const response = await superAdminRequest.get(

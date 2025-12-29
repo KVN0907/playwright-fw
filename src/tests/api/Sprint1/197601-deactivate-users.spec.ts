@@ -24,7 +24,7 @@ const API_BASE = '/api/admin';
 const USERS_ENDPOINT = `${API_BASE}/users`;
 
 // Helper to create a test user for deactivation tests using faker
-async function createTestUser(request: any) {
+async function createTestUser(superAdminRequest: any) {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const uniqueId = `${Date.now()}`.slice(-6);
@@ -47,9 +47,9 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * API – Deactivate Single EY Admin
    */
   test('should deactivate single EY Admin successfully @regression @ADO-202525', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -86,9 +86,9 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * API – Deactivate Already Deactivated EY Admin
    */
   test('should handle already deactivated user gracefully @regression @ADO-202527', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -110,9 +110,9 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * API – Deactivate with Insufficient Permissions
    */
   test('should reject deactivation without proper permissions @regression @ADO-202528', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -185,9 +185,9 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * API – Deactivate Bulk EY Admins Partial Success
    */
   test('should handle partial success in bulk deactivation @regression @ADO-202531', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const validUser = await createTestUser(request);
+    const validUser = await createTestUser(superAdminRequest);
     if (!validUser) {
       test.skip();
       return;
@@ -214,9 +214,9 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * API – Concurrent Deactivation of Same User
    */
   test('should handle concurrent deactivation requests safely @regression @ADO-202533', async ({
-    request,
+    superAdminRequest,
   }) => {
-    const user = await createTestUser(request);
+    const user = await createTestUser(superAdminRequest);
     if (!user) {
       test.skip();
       return;
@@ -225,7 +225,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
     // Send multiple concurrent deactivation requests
     const requests = [];
     for (let i = 0; i < 5; i++) {
-      requests.push(request.put(`${USERS_ENDPOINT}/${user.id}/deactivate`));
+      requests.push(superAdminRequest.put(`${USERS_ENDPOINT}/${user.id}/deactivate`));
     }
 
     const responses = await Promise.all(requests);
@@ -250,7 +250,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * Linked Bug: #290349
    */
   test('should prevent deactivation of EY Admin assigned to a client @regression @ADO-202535', async ({
-    request,
+    superAdminRequest,
   }) => {
     const CLIENTS_ENDPOINT = '/api/admin/api/clients';
     const EY_ADMINS_ENDPOINT = '/api/admin/api/ey-admins';
