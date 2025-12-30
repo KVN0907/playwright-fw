@@ -51,7 +51,7 @@ const generateRegAreaData = (
 
 test.describe('RegAreaResource API Tests', () => {
   test.describe('GET /reg-area', () => {
-    test('@smoke should return list of all regulatory areas', async ({ request }) => {
+    test('@api @smoke should return list of all regulatory areas', async ({ request }) => {
       // Given no parameters required
 
       // When fetching all regulatory areas
@@ -68,7 +68,7 @@ test.describe('RegAreaResource API Tests', () => {
 
   test.describe('POST /reg-area', () => {
     // ADO Test Case #202614: API - Create Section with Valid, Unique Name
-    test('@smoke @ADO-202614 should create a new regulatory area', async ({ request }) => {
+    test('@api @smoke @ADO-202614 should create a new regulatory area', async ({ request }) => {
       // Given valid regulatory area data
       const regAreaName = generateRegAreaName();
       const requestData = {
@@ -98,7 +98,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@negative should return 400 when name is missing', async ({ request }) => {
+    test('@api @negative should return 400 when name is missing', async ({ request }) => {
       // Given request data without required name field
       const requestData = {
         description: 'Test description without name',
@@ -112,7 +112,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when name is empty', async ({ request }) => {
+    test('@api @negative should return 400 when name is empty', async ({ request }) => {
       // Given request data with empty name
       const requestData = {
         name: '',
@@ -127,7 +127,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@validation should return 400 when name exceeds max length', async ({ request }) => {
+    test('@api @validation should return 400 when name exceeds max length', async ({ request }) => {
       // Given request data with name exceeding 255 characters
       const requestData = {
         name: 'A'.repeat(256),
@@ -144,7 +144,7 @@ test.describe('RegAreaResource API Tests', () => {
   });
 
   test.describe('PUT /reg-area', () => {
-    test('@smoke should update an existing regulatory area', async ({ request }) => {
+    test('@api @smoke should update an existing regulatory area', async ({ request }) => {
       // Given: First create a regulatory area to update
       const createData = generateRegAreaData({ name: generateRegAreaName('Reg Area To Update') });
 
@@ -179,7 +179,7 @@ test.describe('RegAreaResource API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${created.id}`);
     });
 
-    test('@negative should return 400 when updating with empty name', async ({ request }) => {
+    test('@api @negative should return 400 when updating with empty name', async ({ request }) => {
       // Given update data with empty name
       const updateData = {
         id: 1,
@@ -194,7 +194,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@validation should return 400 when updating name exceeds max length', async ({
+    test('@api @validation should return 400 when updating name exceeds max length', async ({
       request,
     }) => {
       // Given update data with name exceeding 255 characters
@@ -213,7 +213,7 @@ test.describe('RegAreaResource API Tests', () => {
   });
 
   test.describe('DELETE /reg-area/{id}', () => {
-    test('@smoke should delete a regulatory area by ID', async ({ request }) => {
+    test('@api @smoke should delete a regulatory area by ID', async ({ request }) => {
       // Given: First create a regulatory area to delete
       const createData = generateRegAreaData({ name: generateRegAreaName('Reg Area To Delete') });
 
@@ -231,7 +231,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect(data).toBe(true);
     });
 
-    test('@negative should handle non-existent regulatory area', async ({ request }) => {
+    test('@api @negative should handle non-existent regulatory area', async ({ request }) => {
       // Given a non-existent regulatory area ID
       const nonExistentId = 999999999;
 
@@ -242,7 +242,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([200, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should return error for invalid ID format', async ({ request }) => {
+    test('@api @negative should return error for invalid ID format', async ({ request }) => {
       // Given an invalid ID format
       const invalidId = 'invalid-id';
 
@@ -255,7 +255,7 @@ test.describe('RegAreaResource API Tests', () => {
   });
 
   test.describe('Edge Cases - Bug Hunting', () => {
-    test('@edge should reject whitespace-only name', async ({ request }) => {
+    test('@api @edge should reject whitespace-only name', async ({ request }) => {
       // Given request with whitespace-only name
       const requestData = {
         name: '   ',
@@ -270,7 +270,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle special characters in name', async ({ request }) => {
+    test('@api @edge should handle special characters in name', async ({ request }) => {
       // Given request with special characters
       const timestamp = Date.now();
       const requestData = {
@@ -294,7 +294,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle SQL injection attempt in name', async ({ request }) => {
+    test('@api @edge should handle SQL injection attempt in name', async ({ request }) => {
       // Given request with SQL injection attempt
       const timestamp = Date.now();
       const requestData = {
@@ -316,7 +316,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle unicode and emoji in name', async ({ request }) => {
+    test('@api @edge should handle unicode and emoji in name', async ({ request }) => {
       // Given request with unicode/emoji
       const timestamp = Date.now();
       const requestData = {
@@ -337,7 +337,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should reject duplicate name', async ({ request }) => {
+    test('@api @edge should reject duplicate name', async ({ request }) => {
       // Given an existing regulatory area
       const timestamp = Date.now();
       const requestData = {
@@ -365,7 +365,9 @@ test.describe('RegAreaResource API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${first.id}`);
     });
 
-    test('@edge should handle boundary value - exactly 255 chars name', async ({ request }) => {
+    test('@api @edge should handle boundary value - exactly 255 chars name', async ({
+      request,
+    }) => {
       // Given request with exactly 255 character name (max allowed)
       const timestamp = Date.now();
       const baseName = `Boundary${timestamp}`;
@@ -389,7 +391,7 @@ test.describe('RegAreaResource API Tests', () => {
       await request.delete(`${API_BASE}/reg-area/${data.id}`);
     });
 
-    test('@edge should handle null values in optional fields', async ({ request }) => {
+    test('@api @edge should handle null values in optional fields', async ({ request }) => {
       // Given request with null description
       const timestamp = Date.now();
       const requestData = {
@@ -410,7 +412,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should reject update with non-existent ID', async ({ request }) => {
+    test('@api @edge should reject update with non-existent ID', async ({ request }) => {
       // Given update data for non-existent ID
       const updateData = {
         id: 999999999,
@@ -426,7 +428,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle very long description', async ({ request }) => {
+    test('@api @edge should handle very long description', async ({ request }) => {
       // Given request with very long description (10000 chars)
       const timestamp = Date.now();
       const requestData = {
@@ -447,7 +449,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle HTML in description', async ({ request }) => {
+    test('@api @edge should handle HTML in description', async ({ request }) => {
       // Given request with HTML in description
       const timestamp = Date.now();
       const requestData = {
@@ -469,7 +471,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle negative ID in delete', async ({ request }) => {
+    test('@api @edge should handle negative ID in delete', async ({ request }) => {
       // Given a negative ID
       const negativeId = -1;
 
@@ -480,7 +482,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle zero ID in delete', async ({ request }) => {
+    test('@api @edge should handle zero ID in delete', async ({ request }) => {
       // Given zero ID
       const zeroId = 0;
 
@@ -491,7 +493,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle create with pre-set ID', async ({ request }) => {
+    test('@api @edge should handle create with pre-set ID', async ({ request }) => {
       // Given request with pre-set ID (should be auto-generated)
       const timestamp = Date.now();
       const requestData = {
@@ -557,7 +559,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle update without ID field', async ({ request }) => {
+    test('@api @edge should handle update without ID field', async ({ request }) => {
       // Given update request without ID
       const updateData = {
         name: 'Update Without ID',
@@ -572,7 +574,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle update with null ID', async ({ request }) => {
+    test('@api @edge should handle update with null ID', async ({ request }) => {
       // Given update request with null ID
       const updateData = {
         id: null,
@@ -588,7 +590,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle very large ID value', async ({ request }) => {
+    test('@api @edge should handle very large ID value', async ({ request }) => {
       // Given extremely large ID (potential overflow) - use string to avoid JS precision loss
       const largeId = '9223372036854775807'; // Max Long value as string
 
@@ -599,7 +601,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([200, 400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle floating point ID', async ({ request }) => {
+    test('@api @edge should handle floating point ID', async ({ request }) => {
       // Given floating point ID
       const floatId = 1.5;
 
@@ -610,7 +612,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([200, 400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle newlines in name', async ({ request }) => {
+    test('@api @edge should handle newlines in name', async ({ request }) => {
       // Given request with newlines in name (CRLF injection)
       const timestamp = Date.now();
       const requestData = {
@@ -631,7 +633,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle control characters in name', async ({ request }) => {
+    test('@api @edge should handle control characters in name', async ({ request }) => {
       // Given request with control characters
       const timestamp = Date.now();
       const requestData = {
@@ -652,7 +654,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle path traversal in name', async ({ request }) => {
+    test('@api @edge should handle path traversal in name', async ({ request }) => {
       // Given request with path traversal attempt
       const timestamp = Date.now();
       const requestData = {
@@ -673,7 +675,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle boolean type coercion', async ({ request }) => {
+    test('@api @edge should handle boolean type coercion', async ({ request }) => {
       // Given request with string boolean values
       const timestamp = Date.now();
       const requestData = {
@@ -696,7 +698,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle JSON injection in description', async ({ request }) => {
+    test('@api @edge should handle JSON injection in description', async ({ request }) => {
       // Given request with JSON payload in description
       const timestamp = Date.now();
       const requestData = {
@@ -741,7 +743,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle concurrent duplicate creates', async ({ request }) => {
+    test('@api @edge should handle concurrent duplicate creates', async ({ request }) => {
       // Given same name for concurrent requests
       const timestamp = Date.now();
       const requestData = {
@@ -771,7 +773,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle extremely long description', async ({ request }) => {
+    test('@api @edge should handle extremely long description', async ({ request }) => {
       // Given request with 100KB description
       const timestamp = Date.now();
       const requestData = {
@@ -792,7 +794,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle empty request body on create', async ({ request }) => {
+    test('@api @edge should handle empty request body on create', async ({ request }) => {
       // Given empty request body
       const response = await request.post(`${API_BASE}/reg-area`, { data: {} });
 
@@ -800,7 +802,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle array as request body', async ({ request }) => {
+    test('@api @edge should handle array as request body', async ({ request }) => {
       // Given array instead of object
       const response = await request.post(`${API_BASE}/reg-area`, {
         data: [{ name: 'Test', description: 'Test' }],
@@ -810,7 +812,7 @@ test.describe('RegAreaResource API Tests', () => {
       expect([400, 415, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle special regex characters in name', async ({ request }) => {
+    test('@api @edge should handle special regex characters in name', async ({ request }) => {
       // Given request with regex special characters
       const timestamp = Date.now();
       const specialChars = '.*+?^${}()|[]\\/';
@@ -831,7 +833,7 @@ test.describe('RegAreaResource API Tests', () => {
       }
     });
 
-    test('@edge should handle template literal injection', async ({ request }) => {
+    test('@api @edge should handle template literal injection', async ({ request }) => {
       // Given request with template literal syntax
       const timestamp = Date.now();
       const requestData = {
@@ -1458,7 +1460,7 @@ test.describe('RegAreaResource API Tests', () => {
   });
 
   test.describe('CRUD Operations - Full Flow', () => {
-    test('@smoke should perform complete CRUD operations on regulatory area', async ({
+    test('@api @smoke should perform complete CRUD operations on regulatory area', async ({
       request,
     }) => {
       const timestamp = Date.now();

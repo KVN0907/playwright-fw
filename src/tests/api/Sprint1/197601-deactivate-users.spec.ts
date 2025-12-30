@@ -46,7 +46,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202525
    * API – Deactivate Single EY Admin
    */
-  test('should deactivate single EY Admin successfully @regression @ADO-202525', async ({
+  test('should deactivate single EY Admin successfully @api @regression @ADO-202525', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -71,7 +71,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202526
    * API – Deactivate User Not Found
    */
-  test('should return 404 for non-existent user @regression @ADO-202526', async ({
+  test('should return 404 for non-existent user @api @regression @ADO-202526', async ({
     superAdminRequest,
   }) => {
     const nonExistentId = 999999999;
@@ -85,7 +85,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202527
    * API – Deactivate Already Deactivated EY Admin
    */
-  test('should handle already deactivated user gracefully @regression @ADO-202527', async ({
+  test('should handle already deactivated user gracefully @api @regression @ADO-202527', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -109,7 +109,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202528
    * API – Deactivate with Insufficient Permissions
    */
-  test('should reject deactivation without proper permissions @regression @ADO-202528', async ({
+  test('should reject deactivation without proper permissions @api @regression @ADO-202528', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -131,7 +131,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202529
    * API – Deactivate EY Super Admin (Self-Deactivation Guard)
    */
-  test('should prevent self-deactivation @regression @ADO-202529', async ({
+  test('should prevent self-deactivation @api @regression @ADO-202529', async ({
     superAdminRequest,
   }) => {
     // Get current user info
@@ -154,7 +154,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202530
    * API – Deactivate Bulk EY Admins
    */
-  test('should deactivate multiple users in bulk @regression @ADO-202530', async ({
+  test('should deactivate multiple users in bulk @api @regression @ADO-202530', async ({
     superAdminRequest,
   }) => {
     // Create multiple users
@@ -184,7 +184,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202531
    * API – Deactivate Bulk EY Admins Partial Success
    */
-  test('should handle partial success in bulk deactivation @regression @ADO-202531', async ({
+  test('should handle partial success in bulk deactivation @api @regression @ADO-202531', async ({
     superAdminRequest,
   }) => {
     const validUser = await createTestUser(superAdminRequest);
@@ -213,7 +213,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * ADO Test Case #202533
    * API – Concurrent Deactivation of Same User
    */
-  test('should handle concurrent deactivation requests safely @regression @ADO-202533', async ({
+  test('should handle concurrent deactivation requests safely @api @regression @ADO-202533', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -249,7 +249,7 @@ test.describe('Story #197601: Deactivate Users - EY Super Admin', () => {
    * An EY Admin who is assigned to an active client cannot be deactivated
    * Linked Bug: #290349
    */
-  test('should prevent deactivation of EY Admin assigned to a client @regression @ADO-202535', async ({
+  test('should prevent deactivation of EY Admin assigned to a client @api @regression @ADO-202535', async ({
     superAdminRequest,
   }) => {
     const CLIENTS_ENDPOINT = '/api/admin/api/clients';

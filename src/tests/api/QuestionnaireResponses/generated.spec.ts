@@ -16,7 +16,9 @@ const API_BASE = '/api/compliancemanager';
 
 test.describe('QuestionnaireResponseResource API Tests', () => {
   test.describe('POST /questionnaire-responses', () => {
-    test('@negative should return 400 when clientCountryId is missing', async ({ request }) => {
+    test('@api @negative should return 400 when clientCountryId is missing', async ({
+      request,
+    }) => {
       // Given request data without clientCountryId
       const requestData = {
         answers: [
@@ -37,7 +39,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should return 400 when answers is missing', async ({ request }) => {
+    test('@api @negative should return 400 when answers is missing', async ({ request }) => {
       // Given request data without answers
       const requestData = {
         clientCountryId: 1,
@@ -52,7 +54,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should handle empty answers array', async ({ request }) => {
+    test('@api @negative should handle empty answers array', async ({ request }) => {
       // Given request data with empty answers
       const requestData = {
         clientCountryId: 1,
@@ -68,7 +70,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should handle non-existent clientCountryId', async ({ request }) => {
+    test('@api @negative should handle non-existent clientCountryId', async ({ request }) => {
       // Given non-existent clientCountryId
       const requestData = {
         clientCountryId: 999999999,
@@ -90,7 +92,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should handle non-existent questionAssignmentId', async ({ request }) => {
+    test('@api @negative should handle non-existent questionAssignmentId', async ({ request }) => {
       // Given non-existent questionAssignmentId
       const requestData = {
         clientCountryId: 1,
@@ -112,7 +114,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle empty request body', async ({ request }) => {
+    test('@api @edge should handle empty request body', async ({ request }) => {
       // Given empty request body
       const response = await request.post(`${API_BASE}/questionnaire-responses`, { data: {} });
 
@@ -120,7 +122,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle null clientCountryId', async ({ request }) => {
+    test('@api @edge should handle null clientCountryId', async ({ request }) => {
       // Given null clientCountryId
       const requestData = {
         clientCountryId: null,
@@ -141,7 +143,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle very long answer text', async ({ request }) => {
+    test('@api @edge should handle very long answer text', async ({ request }) => {
       // Given very long answer (10KB)
       const requestData = {
         clientCountryId: 1,
@@ -163,7 +165,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 413, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle XSS in answer', async ({ request }) => {
+    test('@api @edge should handle XSS in answer', async ({ request }) => {
       // Given XSS payload in answer
       const requestData = {
         clientCountryId: 1,
@@ -190,7 +192,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle SQL injection in answer', async ({ request }) => {
+    test('@api @edge should handle SQL injection in answer', async ({ request }) => {
       // Given SQL injection in answer
       const requestData = {
         clientCountryId: 1,
@@ -212,7 +214,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle unicode in answer', async ({ request }) => {
+    test('@api @edge should handle unicode in answer', async ({ request }) => {
       // Given unicode characters in answer
       const requestData = {
         clientCountryId: 1,
@@ -234,7 +236,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle multiple answers', async ({ request }) => {
+    test('@api @edge should handle multiple answers', async ({ request }) => {
       // Given multiple answers
       const requestData = {
         clientCountryId: 1,
@@ -254,7 +256,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle duplicate questionAssignmentId in answers', async ({ request }) => {
+    test('@api @edge should handle duplicate questionAssignmentId in answers', async ({
+      request,
+    }) => {
       // Given duplicate assignment IDs
       const requestData = {
         clientCountryId: 1,
@@ -273,7 +277,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle negative IDs', async ({ request }) => {
+    test('@api @edge should handle negative IDs', async ({ request }) => {
       // Given negative IDs
       const requestData = {
         clientCountryId: -1,
@@ -295,7 +299,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle null answer text', async ({ request }) => {
+    test('@api @edge should handle null answer text', async ({ request }) => {
       // Given null answer
       const requestData = {
         clientCountryId: 1,
@@ -317,7 +321,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle empty answer text', async ({ request }) => {
+    test('@api @edge should handle empty answer text', async ({ request }) => {
       // Given empty answer
       const requestData = {
         clientCountryId: 1,
@@ -339,7 +343,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle whitespace-only answer', async ({ request }) => {
+    test('@api @edge should handle whitespace-only answer', async ({ request }) => {
       // Given whitespace-only answer
       const requestData = {
         clientCountryId: 1,
@@ -361,7 +365,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@security should validate user can only save responses for assigned questions', async ({
+    test('@api @security should validate user can only save responses for assigned questions', async ({
       request,
     }) => {
       // Given potentially unauthorized question assignment
@@ -387,7 +391,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
   });
 
   test.describe('POST /questionnaire-responses/request-info', () => {
-    test('@negative should return 400 when countryQuestionMappingId is missing', async ({
+    test('@api @negative should return 400 when countryQuestionMappingId is missing', async ({
       request,
     }) => {
       // Given request without countryQuestionMappingId
@@ -404,7 +408,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when requestInfoDetails is missing', async ({ request }) => {
+    test('@api @negative should return 400 when requestInfoDetails is missing', async ({
+      request,
+    }) => {
       // Given request without requestInfoDetails
       const requestData = {
         countryQuestionMappingId: 1,
@@ -419,7 +425,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when requestInfoDetails is empty', async ({ request }) => {
+    test('@api @negative should return 400 when requestInfoDetails is empty', async ({
+      request,
+    }) => {
       // Given empty requestInfoDetails
       const requestData = {
         countryQuestionMappingId: 1,
@@ -435,7 +443,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should handle non-existent countryQuestionMappingId', async ({ request }) => {
+    test('@api @negative should handle non-existent countryQuestionMappingId', async ({
+      request,
+    }) => {
       // Given non-existent mapping ID
       const requestData = {
         countryQuestionMappingId: 999999999,
@@ -451,7 +461,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle empty request body', async ({ request }) => {
+    test('@api @edge should handle empty request body', async ({ request }) => {
       // Given empty request body
       const response = await request.post(`${API_BASE}/questionnaire-responses/request-info`, {
         data: {},
@@ -461,7 +471,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle very long requestInfoDetails', async ({ request }) => {
+    test('@api @edge should handle very long requestInfoDetails', async ({ request }) => {
       // Given very long details (10KB)
       const requestData = {
         countryQuestionMappingId: 1,
@@ -477,7 +487,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 413, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle XSS in requestInfoDetails', async ({ request }) => {
+    test('@api @edge should handle XSS in requestInfoDetails', async ({ request }) => {
       // Given XSS payload
       const requestData = {
         countryQuestionMappingId: 1,
@@ -493,7 +503,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle SQL injection in requestInfoDetails', async ({ request }) => {
+    test('@api @edge should handle SQL injection in requestInfoDetails', async ({ request }) => {
       // Given SQL injection
       const requestData = {
         countryQuestionMappingId: 1,
@@ -509,7 +519,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle unicode in requestInfoDetails', async ({ request }) => {
+    test('@api @edge should handle unicode in requestInfoDetails', async ({ request }) => {
       // Given unicode
       const requestData = {
         countryQuestionMappingId: 1,
@@ -525,7 +535,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle negative countryQuestionMappingId', async ({ request }) => {
+    test('@api @edge should handle negative countryQuestionMappingId', async ({ request }) => {
       // Given negative ID
       const requestData = {
         countryQuestionMappingId: -1,
@@ -541,7 +551,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle null values', async ({ request }) => {
+    test('@api @edge should handle null values', async ({ request }) => {
       // Given null values
       const requestData = {
         countryQuestionMappingId: null,
@@ -557,7 +567,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle whitespace-only requestInfoDetails', async ({ request }) => {
+    test('@api @edge should handle whitespace-only requestInfoDetails', async ({ request }) => {
       // Given whitespace-only details
       const requestData = {
         countryQuestionMappingId: 1,
@@ -573,7 +583,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 422]).toContain(response.status());
     });
 
-    test('@security should validate user has permission to request info', async ({ request }) => {
+    test('@api @security should validate user has permission to request info', async ({
+      request,
+    }) => {
       // Given potentially unauthorized request
       const requestData = {
         countryQuestionMappingId: 99999,
@@ -591,7 +603,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
   });
 
   test.describe('POST /questionnaire-responses/request-info-reg-area', () => {
-    test('@negative should return 400 when required fields are missing', async ({ request }) => {
+    test('@api @negative should return 400 when required fields are missing', async ({
+      request,
+    }) => {
       // Given empty request
       const response = await request.post(
         `${API_BASE}/questionnaire-responses/request-info-reg-area`,
@@ -602,7 +616,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle XSS in request details', async ({ request }) => {
+    test('@api @edge should handle XSS in request details', async ({ request }) => {
       // Given XSS payload (assuming structure has requestInfoDetails)
       const requestData = {
         regAreaId: 1,
@@ -620,7 +634,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle non-existent regAreaId', async ({ request }) => {
+    test('@api @edge should handle non-existent regAreaId', async ({ request }) => {
       // Given non-existent regAreaId
       const requestData = {
         regAreaId: 999999999,
@@ -640,7 +654,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
   });
 
   test.describe('GET /questionnaire-responses/request-info-list/{countryQuestionsMappingId}', () => {
-    test('@smoke should return list for valid mapping ID', async ({ request }) => {
+    test('@api @smoke should return list for valid mapping ID', async ({ request }) => {
       // Given a valid mapping ID (assuming one exists)
       const mappingId = 1;
 
@@ -658,7 +672,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       }
     });
 
-    test('@negative should handle non-existent mapping ID', async ({ request }) => {
+    test('@api @negative should handle non-existent mapping ID', async ({ request }) => {
       // Given non-existent mapping ID
       const nonExistentId = 999999999;
 
@@ -675,7 +689,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       }
     });
 
-    test('@negative should return error for invalid mapping ID format', async ({ request }) => {
+    test('@api @negative should return error for invalid mapping ID format', async ({
+      request,
+    }) => {
       // Given invalid ID format
       const invalidId = 'invalid-id';
 
@@ -688,7 +704,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 500]).toContain(response.status());
     });
 
-    test('@edge should handle negative mapping ID', async ({ request }) => {
+    test('@api @edge should handle negative mapping ID', async ({ request }) => {
       // Given negative ID
       const negativeId = -1;
 
@@ -701,7 +717,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 404, 500]).toContain(response.status());
     });
 
-    test('@edge should handle zero mapping ID', async ({ request }) => {
+    test('@api @edge should handle zero mapping ID', async ({ request }) => {
       // Given zero ID
       const zeroId = 0;
 
@@ -714,7 +730,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([400, 404, 500]).toContain(response.status());
     });
 
-    test('@edge should handle very large mapping ID', async ({ request }) => {
+    test('@api @edge should handle very large mapping ID', async ({ request }) => {
       // Given very large ID
       const largeId = '9223372036854775807';
 
@@ -727,7 +743,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([200, 400, 404, 500]).toContain(response.status());
     });
 
-    test('@edge should handle floating point mapping ID', async ({ request }) => {
+    test('@api @edge should handle floating point mapping ID', async ({ request }) => {
       // Given floating point ID
       const floatId = 1.5;
 
@@ -742,7 +758,9 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
   });
 
   test.describe('Security Tests', () => {
-    test('@security should validate IDOR protection on request-info-list', async ({ request }) => {
+    test('@api @security should validate IDOR protection on request-info-list', async ({
+      request,
+    }) => {
       // Given attempt to access another tenant's data
       const otherTenantMappingId = 99999;
 
@@ -761,7 +779,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       }
     });
 
-    test('@security should protect against CSRF in POST endpoints', async ({ request }) => {
+    test('@api @security should protect against CSRF in POST endpoints', async ({ request }) => {
       // Given request without proper CSRF token (if required)
       const requestData = {
         countryQuestionMappingId: 1,
@@ -778,7 +796,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 403, 422, 500]).toContain(response.status());
     });
 
-    test('@security should sanitize HTML in responses', async ({ request }) => {
+    test('@api @security should sanitize HTML in responses', async ({ request }) => {
       // Given HTML content in answer
       const requestData = {
         clientCountryId: 1,
@@ -802,7 +820,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@security should handle JSON injection', async ({ request }) => {
+    test('@api @security should handle JSON injection', async ({ request }) => {
       // Given nested JSON that might confuse parser
       const requestData = {
         clientCountryId: 1,
@@ -826,7 +844,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
   });
 
   test.describe('Edge Cases - Bug Hunting', () => {
-    test('@edge should handle concurrent response submissions', async ({ request }) => {
+    test('@api @edge should handle concurrent response submissions', async ({ request }) => {
       // Given same response data
       const requestData = {
         clientCountryId: 1,
@@ -851,7 +869,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 409, 422, 500]).toContain(response2.status());
     });
 
-    test('@edge should handle very large number of answers', async ({ request }) => {
+    test('@api @edge should handle very large number of answers', async ({ request }) => {
       // Given very large answer array
       const answers = Array.from({ length: 1000 }, (_, i) => ({
         questionAssignmentId: i + 1,
@@ -873,7 +891,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 413, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle newlines in answer', async ({ request }) => {
+    test('@api @edge should handle newlines in answer', async ({ request }) => {
       // Given newlines in answer
       const requestData = {
         clientCountryId: 1,
@@ -895,7 +913,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle special JSON characters in answer', async ({ request }) => {
+    test('@api @edge should handle special JSON characters in answer', async ({ request }) => {
       // Given special JSON characters
       const requestData = {
         clientCountryId: 1,
@@ -917,7 +935,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle answer with only special characters', async ({ request }) => {
+    test('@api @edge should handle answer with only special characters', async ({ request }) => {
       // Given answer with only special characters
       const requestData = {
         clientCountryId: 1,
@@ -939,7 +957,7 @@ test.describe('QuestionnaireResponseResource API Tests', () => {
       expect([201, 400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle mixed valid and invalid answers', async ({ request }) => {
+    test('@api @edge should handle mixed valid and invalid answers', async ({ request }) => {
       // Given mixed answers
       const requestData = {
         clientCountryId: 1,

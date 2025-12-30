@@ -31,7 +31,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202535
    * API – Get Clients – Valid Token (EY Super Admin)
    */
-  test('should return client list for EY Super Admin @regression @ADO-202535', async ({
+  test('should return client list for EY Super Admin @api @regression @ADO-202535', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(CLIENTS_ENDPOINT);
@@ -47,7 +47,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202536
    * API – Get Clients – Invalid/Missing Token
    */
-  test('should reject requests with invalid token @regression @ADO-202536', async ({
+  test('should reject requests with invalid token @api @regression @ADO-202536', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(CLIENTS_ENDPOINT, {
@@ -63,7 +63,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202537
    * API – Get Clients – Unauthorized Role
    */
-  test('should reject unauthorized role access @regression @ADO-202537', async ({
+  test('should reject unauthorized role access @api @regression @ADO-202537', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(CLIENTS_ENDPOINT, {
@@ -79,7 +79,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202539
    * API – Get Clients – Default Pagination
    */
-  test('should return paginated results by default @regression @ADO-202539', async ({
+  test('should return paginated results by default @api @regression @ADO-202539', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(CLIENTS_ENDPOINT);
@@ -100,7 +100,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202540
    * API – Get Clients – Custom Pagination
    */
-  test('should support custom pagination parameters @regression @ADO-202540', async ({
+  test('should support custom pagination parameters @api @regression @ADO-202540', async ({
     superAdminRequest,
   }) => {
     const page = 0;
@@ -121,7 +121,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202541
    * API – Get Clients – Search Filter (by Name)
    */
-  test('should filter clients by search term @regression @ADO-202541', async ({
+  test('should filter clients by search term @api @regression @ADO-202541', async ({
     superAdminRequest,
   }) => {
     const searchTerm = 'Test';
@@ -146,7 +146,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202542
    * API – Get Clients – Search Filter (No Match)
    */
-  test('should return empty results for non-matching search @regression @ADO-202542', async ({
+  test('should return empty results for non-matching search @api @regression @ADO-202542', async ({
     superAdminRequest,
   }) => {
     const searchTerm = 'ZZZZNONEXISTENT12345';
@@ -164,7 +164,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202543
    * API – Get Clients – Filter by Status (Active)
    */
-  test('should filter active clients only @regression @ADO-202543', async ({
+  test('should filter active clients only @api @regression @ADO-202543', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?status=ACTIVE`);
@@ -184,7 +184,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202544
    * API – Get Clients – Filter by Status (Inactive)
    */
-  test('should filter inactive clients only @regression @ADO-202544', async ({
+  test('should filter inactive clients only @api @regression @ADO-202544', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?status=INACTIVE`);
@@ -204,7 +204,9 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202545
    * API – Get Clients – Sort by Name
    */
-  test('should sort clients by name @regression @ADO-202545', async ({ superAdminRequest }) => {
+  test('should sort clients by name @api @regression @ADO-202545', async ({
+    superAdminRequest,
+  }) => {
     // Ascending
     const ascResponse = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?sort=name,asc`);
     expect(ascResponse.ok()).toBe(true);
@@ -233,7 +235,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202546
    * API – Get Clients – Sort by Created Date
    */
-  test('should sort clients by created date @regression @ADO-202546', async ({
+  test('should sort clients by created date @api @regression @ADO-202546', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(`${CLIENTS_ENDPOINT}?sort=createdAt,desc`);
@@ -258,7 +260,9 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202547
    * API – Get Clients – Combined Filters (Search + Status + Sort)
    */
-  test('should support combined filters @regression @ADO-202547', async ({ superAdminRequest }) => {
+  test('should support combined filters @api @regression @ADO-202547', async ({
+    superAdminRequest,
+  }) => {
     const response = await superAdminRequest.get(
       `${CLIENTS_ENDPOINT}?searchTerm=Test&status=ACTIVE&sort=name,asc&page=0&size=10`
     );
@@ -274,7 +278,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202548
    * API – Get Clients – Large Dataset Performance
    */
-  test('should handle large dataset requests within acceptable time @regression @ADO-202548', async ({
+  test('should handle large dataset requests within acceptable time @api @regression @ADO-202548', async ({
     superAdminRequest,
   }) => {
     const startTime = Date.now();
@@ -293,7 +297,7 @@ test.describe('Story #197609: View Client List - EY Super Admin', () => {
    * ADO Test Case #202538
    * API – Get Clients – Empty Client List
    */
-  test('should handle empty client list gracefully @regression @ADO-202538', async ({
+  test('should handle empty client list gracefully @api @regression @ADO-202538', async ({
     superAdminRequest,
   }) => {
     // Use a filter that likely returns no results

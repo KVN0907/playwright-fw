@@ -14,7 +14,7 @@ const APP_URL = process.env.DEV_APP_URL || 'https://eycompliancemanager-dev.ey.c
 
 test.describe('RegArea Network Intercept Tests', () => {
   test.describe('Mock API Responses', () => {
-    test('@network should handle mocked empty reg area list', async ({ page }) => {
+    test('@api @network should handle mocked empty reg area list', async ({ page }) => {
       // Intercept reg-area GET request and return empty array
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         if (route.request().method() === 'GET') {
@@ -33,7 +33,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       // Add assertions based on your UI behavior for empty list
     });
 
-    test('@network should handle mocked reg area list with data', async ({ page }) => {
+    test('@api @network should handle mocked reg area list with data', async ({ page }) => {
       const mockData = [
         { id: 1, name: 'Mock RegArea 1', description: 'Mocked', isActive: true },
         { id: 2, name: 'Mock RegArea 2', description: 'Mocked', isActive: false },
@@ -55,7 +55,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       // Verify UI displays mocked data correctly
     });
 
-    test('@network should handle mocked single reg area', async ({ page }) => {
+    test('@api @network should handle mocked single reg area', async ({ page }) => {
       const mockRegArea = {
         id: 999,
         name: 'Specific Mock RegArea',
@@ -81,7 +81,7 @@ test.describe('RegArea Network Intercept Tests', () => {
   });
 
   test.describe('Error Response Handling', () => {
-    test('@network should handle 500 Internal Server Error', async ({ page }) => {
+    test('@api @network should handle 500 Internal Server Error', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         route.fulfill({
           status: 500,
@@ -97,7 +97,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(response.status()).toBe(500);
     });
 
-    test('@network should handle 503 Service Unavailable', async ({ page }) => {
+    test('@api @network should handle 503 Service Unavailable', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         route.fulfill({
           status: 503,
@@ -113,7 +113,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(response.status()).toBe(503);
     });
 
-    test('@network should handle 401 Unauthorized', async ({ page }) => {
+    test('@api @network should handle 401 Unauthorized', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         route.fulfill({
           status: 401,
@@ -126,7 +126,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(response.status()).toBe(401);
     });
 
-    test('@network should handle 403 Forbidden', async ({ page }) => {
+    test('@api @network should handle 403 Forbidden', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         route.fulfill({
           status: 403,
@@ -139,7 +139,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(response.status()).toBe(403);
     });
 
-    test('@network should handle 404 Not Found', async ({ page }) => {
+    test('@api @network should handle 404 Not Found', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area/99999`, (route: Route) => {
         route.fulfill({
           status: 404,
@@ -152,7 +152,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(response.status()).toBe(404);
     });
 
-    test('@network should handle 400 Bad Request with validation errors', async ({ page }) => {
+    test('@api @network should handle 400 Bad Request with validation errors', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         if (route.request().method() === 'POST') {
           route.fulfill({
@@ -182,7 +182,7 @@ test.describe('RegArea Network Intercept Tests', () => {
   });
 
   test.describe('Network Conditions', () => {
-    test('@network should handle slow network response', async ({ page }) => {
+    test('@api @network should handle slow network response', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, async (route: Route) => {
         // Simulate 3 second delay
         await new Promise(resolve => setTimeout(resolve, 3000));
@@ -201,7 +201,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(duration).toBeGreaterThanOrEqual(3000);
     });
 
-    test('@network should handle network timeout', async ({ page }) => {
+    test('@api @network should handle network timeout', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         route.abort('timedout');
       });
@@ -214,7 +214,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       }
     });
 
-    test('@network should handle connection refused', async ({ page }) => {
+    test('@api @network should handle connection refused', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         route.abort('connectionrefused');
       });
@@ -229,7 +229,7 @@ test.describe('RegArea Network Intercept Tests', () => {
   });
 
   test.describe('Request Monitoring', () => {
-    test('@network should capture and validate request headers', async ({ page }) => {
+    test('@api @network should capture and validate request headers', async ({ page }) => {
       let capturedHeaders: Record<string, string> = {};
 
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
@@ -243,7 +243,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(capturedHeaders['accept']).toContain('application/json');
     });
 
-    test('@network should capture POST request body', async ({ page }) => {
+    test('@api @network should capture POST request body', async ({ page }) => {
       let capturedBody: string | null = null;
 
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
@@ -268,7 +268,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(parsed.name).toBe('Test Capture');
     });
 
-    test('@network should track multiple API calls', async ({ page }) => {
+    test('@api @network should track multiple API calls', async ({ page }) => {
       const apiCalls: Array<{ method: string; url: string; timestamp: number }> = [];
 
       await page.route(`${API_BASE}/**`, (route: Route) => {
@@ -290,7 +290,7 @@ test.describe('RegArea Network Intercept Tests', () => {
   });
 
   test.describe('Response Modification', () => {
-    test('@network should modify response data on the fly', async ({ page }) => {
+    test('@api @network should modify response data on the fly', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, async (route: Route) => {
         // Fetch actual response
         const response = await route.fetch();
@@ -320,7 +320,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(injected).toBeDefined();
     });
 
-    test('@network should filter sensitive data from response', async ({ page }) => {
+    test('@api @network should filter sensitive data from response', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, async (route: Route) => {
         const response = await route.fetch();
         let body = await response.json();
@@ -350,7 +350,7 @@ test.describe('RegArea Network Intercept Tests', () => {
   });
 
   test.describe('Conditional Routing', () => {
-    test('@network should mock only specific endpoints', async ({ page }) => {
+    test('@api @network should mock only specific endpoints', async ({ page }) => {
       // Mock only reg-area, let other APIs pass through
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         route.fulfill({
@@ -366,7 +366,7 @@ test.describe('RegArea Network Intercept Tests', () => {
       expect(regAreaBody[0].name).toBe('Mocked');
     });
 
-    test('@network should apply different mocks based on request method', async ({ page }) => {
+    test('@api @network should apply different mocks based on request method', async ({ page }) => {
       await page.route(`${API_BASE}/reg-area`, (route: Route) => {
         const method = route.request().method();
 

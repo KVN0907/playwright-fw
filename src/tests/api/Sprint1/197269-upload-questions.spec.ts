@@ -194,7 +194,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204122
    * Download Excel Template for Questionnaire Section
    */
-  test('should download excel template for questionnaire section @regression @ADO-204122', async ({
+  test('should download excel template for questionnaire section @api @regression @ADO-204122', async ({
     request,
   }) => {
     const response = await request.get(`${API_BASE}/questions/template`, {
@@ -218,7 +218,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204124
    * Upload Valid Excel File Populates Questions in Selected Section
    */
-  test('should upload valid excel file and populate questions @regression @ADO-204124', async ({
+  test('should upload valid excel file and populate questions @api @regression @ADO-204124', async ({
     request,
   }) => {
     // Use Corporate Secretarial reg area for valid upload test
@@ -249,7 +249,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204125
    * Upload Non-.xlsx File Returns Error and Rejects Upload
    */
-  test('should reject non-xlsx file upload @regression @ADO-204125', async () => {
+  test('should reject non-xlsx file upload @api @regression @ADO-204125', async () => {
     const pdfContent = readTestFile(TEST_FILES.invalidPdf);
 
     const response = await uploadFile({
@@ -266,7 +266,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204125 (Variant)
    * Upload CSV file instead of xlsx Returns Error
    */
-  test('should reject CSV file upload @regression @ADO-204125', async () => {
+  test('should reject CSV file upload @api @regression @ADO-204125', async () => {
     const csvContent = readTestFile(TEST_FILES.invalidCsv);
 
     const response = await uploadFile({
@@ -283,7 +283,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204127
    * Upload Excel File with Missing Headers Returns Header Error
    */
-  test('should reject excel with missing/invalid headers @regression @ADO-204127', async () => {
+  test('should reject excel with missing/invalid headers @api @regression @ADO-204127', async () => {
     const invalidExcelContent = readTestFile(TEST_FILES.invalidHeaders);
 
     const response = await uploadFile({
@@ -300,7 +300,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204128
    * Upload Excel File with Invalid Answer Type Returns Error
    */
-  test('should reject excel with invalid answer type @regression @ADO-204128', async () => {
+  test('should reject excel with invalid answer type @api @regression @ADO-204128', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'invalid_answer_type.xlsx',
@@ -315,7 +315,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204129
    * Upload Excel with Empty or Duplicate Question Rows Returns Error
    */
-  test('should reject excel with empty rows @regression @ADO-204129', async () => {
+  test('should reject excel with empty rows @api @regression @ADO-204129', async () => {
     const emptyRowsContent = readTestFile(TEST_FILES.emptyRows);
 
     const response = await uploadFile({
@@ -332,7 +332,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204130
    * Attempt Upload to Non-Existent or Deleted Section Returns Error
    */
-  test('should reject upload to non-existent regAreaId @regression @ADO-204130', async () => {
+  test('should reject upload to non-existent regAreaId @api @regression @ADO-204130', async () => {
     const nonExistentRegAreaId = 999999999;
 
     const response = await uploadFile({
@@ -349,7 +349,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204131
    * Simultaneous Excel Uploads to Same Section by Multiple Admins
    */
-  test('should handle simultaneous uploads gracefully @regression @ADO-204131', async () => {
+  test('should handle simultaneous uploads gracefully @api @regression @ADO-204131', async () => {
     const fileContent = readTestFile(TEST_FILES.validXlsx);
 
     const uploadPromises = Array(3)
@@ -374,7 +374,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204132
    * Upload Excel File Exceeds Maximum Allowed File Size
    */
-  test('should reject file exceeding max size @regression @ADO-204132', async () => {
+  test('should reject file exceeding max size @api @regression @ADO-204132', async () => {
     const largeFileSize = 10 * 1024 * 1024; // 10MB
     const largeContent = Buffer.alloc(largeFileSize, 'x');
 
@@ -392,7 +392,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204133
    * Upload Excel File with Hidden Macros or Non-Permitted Content
    */
-  test('should reject file with macros (.xlsm) @regression @ADO-204133', async () => {
+  test('should reject file with macros (.xlsm) @api @regression @ADO-204133', async () => {
     const macroFileContent = readTestFile(TEST_FILES.macroFile);
 
     const response = await uploadFile({
@@ -409,7 +409,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204134
    * Upload Attempt Without Proper Authentication or Authorization
    */
-  test('should reject upload without authentication @regression @ADO-204134', async () => {
+  test('should reject upload without authentication @api @regression @ADO-204134', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'questions.xlsx',
@@ -425,7 +425,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204135
    * Direct API Call with Patched/Broken Content Fails Validation
    */
-  test('should reject corrupted file content @regression @ADO-204135', async () => {
+  test('should reject corrupted file content @api @regression @ADO-204135', async () => {
     const corruptedContent = readTestFile(TEST_FILES.corrupted);
 
     const response = await uploadFile({
@@ -442,7 +442,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204135 (Variant)
    * Empty file upload should be rejected
    */
-  test('should reject empty file @regression @ADO-204135', async () => {
+  test('should reject empty file @api @regression @ADO-204135', async () => {
     const emptyContent = readTestFile(TEST_FILES.empty);
 
     const response = await uploadFile({
@@ -459,7 +459,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204136
    * Audit Log Updated on Successful and Failed Upload Attempts
    */
-  test('should track upload in audit log @regression @ADO-204136', async ({ request }) => {
+  test('should track upload in audit log @api @regression @ADO-204136', async ({ request }) => {
     await uploadFile({
       file: Buffer.from('PK'),
       filename: 'audit_test.xlsx',
@@ -482,7 +482,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
    * ADO Test Case #204137
    * Rate Limiting: Multiple Uploads in Short Interval
    */
-  test('should handle rate limiting on rapid uploads @regression @ADO-204137', async () => {
+  test('should handle rate limiting on rapid uploads @api @regression @ADO-204137', async () => {
     const rapidRequests = Array(10)
       .fill(null)
       .map(() =>
@@ -507,7 +507,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Additional Test: Missing required parameter regAreaId
    */
-  test('should reject upload without regAreaId parameter', async () => {
+  test('@api @validation should reject upload without regAreaId parameter', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'questions.xlsx',
@@ -520,7 +520,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Additional Test: Invalid regAreaId format
    */
-  test('should reject invalid regAreaId format', async () => {
+  test('@api @validation should reject invalid regAreaId format', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'questions.xlsx',
@@ -534,7 +534,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Security Test: SQL Injection in regAreaId
    */
-  test('should reject SQL injection in regAreaId', async () => {
+  test('@api @security should reject SQL injection in regAreaId', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'questions.xlsx',
@@ -548,7 +548,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Security Test: XSS in filename
    */
-  test('should sanitize XSS in filename', async () => {
+  test('@api @security should sanitize XSS in filename', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: '<script>alert("xss")</script>.xlsx',
@@ -563,7 +563,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Security Test: Path traversal in filename
    */
-  test('should reject path traversal in filename', async () => {
+  test('@api @security should reject path traversal in filename', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: '../../../etc/passwd.xlsx',
@@ -578,7 +578,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Boundary Test: Negative regAreaId
    */
-  test('should reject negative regAreaId', async () => {
+  test('@api @boundary should reject negative regAreaId', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'questions.xlsx',
@@ -592,7 +592,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Boundary Test: Zero regAreaId
    */
-  test('should reject zero regAreaId', async () => {
+  test('@api @boundary should reject zero regAreaId', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'questions.xlsx',
@@ -606,7 +606,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Boundary Test: Very large regAreaId (integer overflow)
    */
-  test('should handle very large regAreaId', async () => {
+  test('@api @boundary should handle very large regAreaId', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'questions.xlsx',
@@ -620,7 +620,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Edge Case: Very long filename (256+ chars)
    */
-  test('should handle very long filename', async () => {
+  test('@api @edge should handle very long filename', async () => {
     const longFilename = 'a'.repeat(300) + '.xlsx';
 
     const response = await uploadFile({
@@ -637,7 +637,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Edge Case: Special characters in filename
    */
-  test('should handle special characters in filename', async () => {
+  test('@api @edge should handle special characters in filename', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'test@#$%^&()[]{}file.xlsx',
@@ -652,7 +652,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Security Test: Null byte injection in filename
    */
-  test('should reject null byte in filename', async () => {
+  test('@api @security should reject null byte in filename', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'malicious\x00.xlsx',
@@ -667,7 +667,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Security Test: Double extension attack
    */
-  test('should reject double extension file', async () => {
+  test('@api @security should reject double extension file', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'malicious.xlsx.exe',
@@ -682,7 +682,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Edge Case: Unicode/Emoji in filename
    */
-  test('should handle unicode in filename', async () => {
+  test('@api @edge should handle unicode in filename', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: 'тест_文件_🎉.xlsx',
@@ -697,7 +697,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Edge Case: Empty filename
    */
-  test('should reject empty filename', async () => {
+  test('@api @validation should reject empty filename', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: '',
@@ -711,7 +711,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Edge Case: Filename with only extension
    */
-  test('should reject filename with only extension', async () => {
+  test('@api @edge should reject filename with only extension', async () => {
     const response = await uploadFile({
       file: Buffer.from('PK'),
       filename: '.xlsx',
@@ -725,7 +725,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Duplicate Upload Test: Upload same file twice to same regArea
    */
-  test('should handle duplicate upload to same regArea', async () => {
+  test('@api @functional should handle duplicate upload to same regArea', async () => {
     const fileContent = readTestFile(TEST_FILES.validXlsx);
 
     // First upload
@@ -753,7 +753,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Content-Type Mismatch Test: xlsx content with wrong mime type
    */
-  test('should validate content-type matches file content', async () => {
+  test('@api @validation should validate content-type matches file content', async () => {
     const fileContent = readTestFile(TEST_FILES.validXlsx);
 
     const response = await uploadFile({
@@ -770,7 +770,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Wrong Extension Test: Valid xlsx content with wrong extension
    */
-  test('should reject valid xlsx with wrong extension', async () => {
+  test('@api @validation should reject valid xlsx with wrong extension', async () => {
     const fileContent = readTestFile(TEST_FILES.validXlsx);
 
     const response = await uploadFile({
@@ -787,7 +787,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Boundary Test: File with only 1 byte
    */
-  test('should reject 1-byte file', async () => {
+  test('@api @boundary should reject 1-byte file', async () => {
     const response = await uploadFile({
       file: Buffer.from('P'),
       filename: 'tiny.xlsx',
@@ -801,7 +801,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   /**
    * Boundary Test: File with exactly 0 bytes
    */
-  test('should reject 0-byte file', async () => {
+  test('@api @boundary should reject 0-byte file', async () => {
     const response = await uploadFile({
       file: Buffer.alloc(0),
       filename: 'empty.xlsx',

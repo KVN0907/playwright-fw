@@ -88,7 +88,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   });
 
   test.describe('POST /questions - Create Questions', () => {
-    test('@smoke @ADO-202616 should add valid manual text question to section', async ({
+    test('@api @smoke @ADO-202616 should add valid manual text question to section', async ({
       request,
     }) => {
       test
@@ -121,7 +121,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(data.regAreaId).toBe(testRegAreaId);
     });
 
-    test('@smoke @ADO-202617 should add valid question with special characters', async ({
+    test('@api @smoke @ADO-202617 should add valid question with special characters', async ({
       request,
     }) => {
       test
@@ -156,7 +156,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(data.title).toContain('?');
     });
 
-    test('@boundary @ADO-202618 should add question with minimum allowed length (3 characters)', async ({
+    test('@api @boundary @ADO-202618 should add question with minimum allowed length (3 characters)', async ({
       request,
     }) => {
       test
@@ -186,7 +186,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(data.title.length).toBe(3);
     });
 
-    test('@boundary @ADO-202619 should add question with maximum allowed length (500 characters)', async ({
+    test('@api @boundary @ADO-202619 should add question with maximum allowed length (500 characters)', async ({
       request,
     }) => {
       test
@@ -218,7 +218,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(data.title.length).toBe(500);
     });
 
-    test('@negative @ADO-202620 should reject question with too short text (<3 characters)', async ({
+    test('@api @negative @ADO-202620 should reject question with too short text (<3 characters)', async ({
       request,
     }) => {
       test
@@ -244,7 +244,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative @ADO-202621 should reject question with too long text (>500 characters)', async ({
+    test('@api @negative @ADO-202621 should reject question with too long text (>500 characters)', async ({
       request,
     }) => {
       test
@@ -272,7 +272,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative @ADO-202622 should reject question with unsupported type', async ({
+    test('@api @negative @ADO-202622 should reject question with unsupported type', async ({
       request,
     }) => {
       test
@@ -298,7 +298,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 422]).toContain(response.status());
     });
 
-    test('@negative @ADO-202624 should reject question added to non-existent section', async ({
+    test('@api @negative @ADO-202624 should reject question added to non-existent section', async ({
       request,
     }) => {
       test
@@ -324,7 +324,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   });
 
   test.describe('GET /questions - Fetch Questions', () => {
-    test('@smoke should fetch all questions', async ({ request }) => {
+    test('@api @smoke should fetch all questions', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -339,7 +339,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(Array.isArray(data)).toBe(true);
     });
 
-    test('@smoke should fetch questions by reg area id', async ({ request }) => {
+    test('@api @smoke should fetch questions by reg area id', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -356,7 +356,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(Array.isArray(data)).toBe(true);
     });
 
-    test('@negative should handle non-existent reg area id', async ({ request }) => {
+    test('@api @negative should handle non-existent reg area id', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -400,7 +400,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@smoke @ADO-202772 should edit question text via API', async ({ request }) => {
+    test('@api @smoke @ADO-202772 should edit question text via API', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -428,7 +428,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(data.title).toBe(updatedTitle);
     });
 
-    test('@smoke @ADO-202773 should edit question title and description', async ({ request }) => {
+    test('@api @smoke @ADO-202773 should edit question title and description', async ({
+      request,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -469,7 +471,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(updated.title).toBe(newTitle);
     });
 
-    test('@negative @ADO-202777 should reject edit question type to dropdown with no options', async ({
+    test('@api @negative @ADO-202777 should reject edit question type to dropdown with no options', async ({
       request,
     }) => {
       test
@@ -512,7 +514,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 422]).toContain(updateResponse.status());
     });
 
-    test('@negative @ADO-202778 should reject question edit for nonexistent question ID', async ({
+    test('@api @negative @ADO-202778 should reject question edit for nonexistent question ID', async ({
       request,
     }) => {
       test
@@ -536,7 +538,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([404, 422, 500]).toContain(response.status());
     });
 
-    test('@negative @ADO-202781 should reject malformed API request for question edit', async ({
+    test('@api @negative @ADO-202781 should reject malformed API request for question edit', async ({
       request,
     }) => {
       test
@@ -573,7 +575,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   });
 
   test.describe('Edge Cases - Questions', () => {
-    test('@edge should handle empty title', async ({ request }) => {
+    test('@api @edge should handle empty title', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -594,7 +596,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle whitespace-only title', async ({ request }) => {
+    test('@api @edge should handle whitespace-only title', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -615,7 +617,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@security should handle XSS in question title', async ({ request }) => {
+    test('@api @security should handle XSS in question title', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -644,7 +646,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@security should handle SQL injection in title', async ({ request }) => {
+    test('@api @security should handle SQL injection in title', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -667,7 +669,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([201, 400, 422]).toContain(response.status());
     });
 
-    test('@edge should handle unicode characters in title', async ({ request }) => {
+    test('@api @edge should handle unicode characters in title', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -693,7 +695,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@edge should handle missing questionType', async ({ request }) => {
+    test('@api @edge should handle missing questionType', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -714,7 +716,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 422]).toContain(response.status());
     });
 
-    test('@edge should handle missing regAreaId', async ({ request }) => {
+    test('@api @edge should handle missing regAreaId', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -780,7 +782,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should reject exact duplicate title in same reg area', async ({ request }) => {
+    test('@api @duplicate should reject exact duplicate title in same reg area', async ({
+      request,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -819,7 +823,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 409, 422]).toContain(duplicateResponse.status());
     });
 
-    test('@duplicate should allow same title in different reg areas', async ({ request }) => {
+    test('@api @duplicate should allow same title in different reg areas', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -864,7 +868,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(secondQuestion.regAreaId).toBe(secondRegAreaId);
     });
 
-    test('@duplicate should reject duplicate with different case (case-insensitive)', async ({
+    test('@api @duplicate should reject duplicate with different case (case-insensitive)', async ({
       request,
     }) => {
       test
@@ -922,7 +926,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should reject duplicate with leading/trailing whitespace', async ({
+    test('@api @duplicate should reject duplicate with leading/trailing whitespace', async ({
       request,
     }) => {
       test
@@ -996,7 +1000,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should handle duplicate with extra internal whitespace', async ({
+    test('@api @duplicate should handle duplicate with extra internal whitespace', async ({
       request,
     }) => {
       test
@@ -1044,7 +1048,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should allow similar but not identical titles (substring)', async ({
+    test('@api @duplicate should allow similar but not identical titles (substring)', async ({
       request,
     }) => {
       test
@@ -1097,7 +1101,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should reject duplicate with whitespace before punctuation', async ({
+    test('@api @duplicate should reject duplicate with whitespace before punctuation', async ({
       request,
     }) => {
       test
@@ -1148,7 +1152,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should handle duplicate with different question type', async ({ request }) => {
+    test('@api @duplicate should handle duplicate with different question type', async ({
+      request,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -1194,7 +1200,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should reject duplicate after title is normalized/trimmed', async ({
+    test('@api @duplicate should reject duplicate after title is normalized/trimmed', async ({
       request,
     }) => {
       test
@@ -1240,7 +1246,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect([400, 409, 422]).toContain(duplicateResponse.status());
     });
 
-    test('@duplicate should handle rapid consecutive duplicate attempts', async ({ request }) => {
+    test('@api @duplicate should handle rapid consecutive duplicate attempts', async ({
+      request,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -1279,7 +1287,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       expect(failCount).toBe(4);
     });
 
-    test('@duplicate should reject duplicate with special characters normalized', async ({
+    test('@api @duplicate should reject duplicate with special characters normalized', async ({
       request,
     }) => {
       test
@@ -1327,7 +1335,9 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@duplicate should handle unicode normalization for duplicates', async ({ request }) => {
+    test('@api @duplicate should handle unicode normalization for duplicates', async ({
+      request,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -1381,7 +1391,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
   });
 
   test.describe('Functional - Questions', () => {
-    test('@functional should preserve question order in section', async ({ request }) => {
+    test('@api @functional should preserve question order in section', async ({ request }) => {
       test
         .info()
         .annotations.push(
@@ -1422,7 +1432,7 @@ test.describe('Story #197265 & #197273: Questions API Tests', () => {
       }
     });
 
-    test('@functional should update question without affecting other questions', async ({
+    test('@api @functional should update question without affecting other questions', async ({
       request,
     }) => {
       test

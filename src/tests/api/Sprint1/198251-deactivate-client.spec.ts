@@ -45,7 +45,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204440
    * API – Deactivate Single Client
    */
-  test('should deactivate single client successfully @regression @ADO-204440', async ({
+  test('should deactivate single client successfully @api @regression @ADO-204440', async ({
     superAdminRequest,
   }) => {
     const client = await createTestClient(superAdminRequest);
@@ -70,7 +70,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204441
    * API – Deactivate Client – Client Not Found
    */
-  test('should return 404 for non-existent client @regression @ADO-204441', async ({
+  test('should return 404 for non-existent client @api @regression @ADO-204441', async ({
     superAdminRequest,
   }) => {
     const nonExistentId = 999999999;
@@ -84,7 +84,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204442
    * API – Deactivate Client – Already Deactivated Client
    */
-  test('should handle already deactivated client gracefully @regression @ADO-204442', async ({
+  test('should handle already deactivated client gracefully @api @regression @ADO-204442', async ({
     superAdminRequest,
   }) => {
     const client = await createTestClient(superAdminRequest);
@@ -112,7 +112,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204443
    * API – Deactivate Client – Insufficient Permissions
    */
-  test('should reject deactivation without proper permissions @regression @ADO-204443', async ({
+  test('should reject deactivation without proper permissions @api @regression @ADO-204443', async ({
     superAdminRequest,
   }) => {
     const client = await createTestClient(superAdminRequest);
@@ -134,7 +134,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204444
    * API – Deactivate Client – With Active Users
    */
-  test('should handle client deactivation with active users @regression @ADO-204444', async ({
+  test('should handle client deactivation with active users @api @regression @ADO-204444', async ({
     superAdminRequest,
   }) => {
     const client = await createTestClient(superAdminRequest);
@@ -160,7 +160,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204445
    * API – Deactivate Multiple Clients (Bulk)
    */
-  test('should deactivate multiple clients in bulk @regression @ADO-204445', async ({
+  test('should deactivate multiple clients in bulk @api @regression @ADO-204445', async ({
     superAdminRequest,
   }) => {
     // Create multiple clients
@@ -190,7 +190,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204446
    * API – Deactivate Multiple Clients Partial Success
    */
-  test('should handle partial success in bulk deactivation @regression @ADO-204446', async ({
+  test('should handle partial success in bulk deactivation @api @regression @ADO-204446', async ({
     superAdminRequest,
   }) => {
     const validClient = await createTestClient(superAdminRequest);
@@ -218,7 +218,7 @@ test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
    * ADO Test Case #204448
    * API – Concurrent Client Deactivation Requests
    */
-  test('should handle concurrent deactivation requests safely @regression @ADO-204448', async ({
+  test('should handle concurrent deactivation requests safely @api @regression @ADO-204448', async ({
     superAdminRequest,
   }) => {
     const client = await createTestClient(superAdminRequest);

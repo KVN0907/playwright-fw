@@ -66,7 +66,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
   // To clean up manually, use: DELETE /api/admin/api/client-admins/{id}
 
   test.describe('Client Admin Management - POST/PUT/DELETE /client-admins', () => {
-    test('@smoke @ADO-240427 should add a new client admin with valid name and email', async ({
+    test('@api @smoke @ADO-240427 should add a new client admin with valid name and email', async ({
       eyAdminRequest,
     }) => {
       test
@@ -101,7 +101,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       console.log(`Created client admin: ${data.id} - ${data.username}`);
     });
 
-    test('@negative @ADO-240428 should reject duplicate email for same client', async ({
+    test('@api @negative @ADO-240428 should reject duplicate email for same client', async ({
       eyAdminRequest,
     }) => {
       test
@@ -146,7 +146,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect([400, 409, 422]).toContain(duplicateResponse.status());
     });
 
-    test('@smoke @ADO-240429 should edit existing client admin details', async ({
+    test('@api @smoke @ADO-240429 should edit existing client admin details', async ({
       eyAdminRequest,
     }) => {
       test
@@ -196,7 +196,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@smoke @ADO-240430 should delete a client admin', async ({ eyAdminRequest }) => {
+    test('@api @smoke @ADO-240430 should delete a client admin', async ({ eyAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -229,7 +229,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect(getResponse.status()).toBe(404);
     });
 
-    test('@smoke @ADO-240435a should fetch all client admins', async ({ eyAdminRequest }) => {
+    test('@api @smoke @ADO-240435a should fetch all client admins', async ({ eyAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -246,7 +246,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect(Array.isArray(data)).toBe(true);
     });
 
-    test('@negative should reject creating client admin with invalid email format', async ({
+    test('@api @negative should reject creating client admin with invalid email format', async ({
       eyAdminRequest,
     }) => {
       test
@@ -278,7 +278,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect([200, 201, 400, 409, 422]).toContain(response.status());
     });
 
-    test('@negative should reject creating client admin with missing required fields', async ({
+    test('@api @negative should reject creating client admin with missing required fields', async ({
       eyAdminRequest,
     }) => {
       test
@@ -298,7 +298,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect([400, 422]).toContain(response.status());
     });
 
-    test('@negative should reject updating non-existent client admin', async ({
+    test('@api @negative should reject updating non-existent client admin', async ({
       eyAdminRequest,
     }) => {
       test
@@ -333,7 +333,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
      * The story documentation shows simpler format but API has stricter validation.
      * Using /detailed endpoint with CountryStateDTO format for proper testing.
      */
-    test('@smoke @ADO-240431 should assign multiple countries to a client', async ({
+    test('@api @smoke @ADO-240431 should assign multiple countries to a client', async ({
       eyAdminRequest,
     }) => {
       test
@@ -381,7 +381,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@smoke @ADO-240435b should fetch all assigned countries for a client', async ({
+    test('@api @smoke @ADO-240435b should fetch all assigned countries for a client', async ({
       eyAdminRequest,
     }) => {
       test
@@ -408,7 +408,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@smoke @ADO-240432 should remove a country from a client by reassigning without it', async ({
+    test('@api @smoke @ADO-240432 should remove a country from a client by reassigning without it', async ({
       eyAdminRequest,
     }) => {
       test
@@ -459,7 +459,9 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect(countryIds).not.toContain(3);
     });
 
-    test('@negative @ADO-240434 should handle empty country list', async ({ eyAdminRequest }) => {
+    test('@api @negative @ADO-240434 should handle empty country list', async ({
+      eyAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -485,7 +487,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@negative @ADO-240436 should reject country not in master list', async ({
+    test('@api @negative @ADO-240436 should reject country not in master list', async ({
       eyAdminRequest,
     }) => {
       test
@@ -522,7 +524,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@negative should reject country assignment for non-existent client', async ({
+    test('@api @negative should reject country assignment for non-existent client', async ({
       eyAdminRequest,
     }) => {
       test
@@ -545,7 +547,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       expect([200, 201, 400, 404, 422]).toContain(response.status());
     });
 
-    test('@negative should reject invalid clientId type', async ({ eyAdminRequest }) => {
+    test('@api @negative should reject invalid clientId type', async ({ eyAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -566,7 +568,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
   });
 
   test.describe('Validation & Edge Cases', () => {
-    test('@ADO-240433 should validate client admin assignment requirement', async ({
+    test('@api @ADO-240433 should validate client admin assignment requirement', async ({
       eyAdminRequest,
     }) => {
       test
@@ -595,7 +597,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@edge should handle special characters in client admin names', async ({
+    test('@api @edge should handle special characters in client admin names', async ({
       eyAdminRequest,
     }) => {
       test
@@ -626,7 +628,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@edge should handle maximum length fields for client admin', async ({
+    test('@api @edge should handle maximum length fields for client admin', async ({
       eyAdminRequest,
     }) => {
       test
@@ -657,7 +659,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
       }
     });
 
-    test('@edge should handle concurrent country assignments', async ({ eyAdminRequest }) => {
+    test('@api @edge should handle concurrent country assignments', async ({ eyAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -691,7 +693,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
   });
 
   test.describe('Cleanup', () => {
-    test('@cleanup should delete all test client admins', async ({ eyAdminRequest }) => {
+    test('@api @cleanup should delete all test client admins', async ({ eyAdminRequest }) => {
       test
         .info()
         .annotations.push(

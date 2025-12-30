@@ -139,7 +139,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 1: Create Client - Valid Request (All Fields)
    * Verify successful client creation with all required fields
    */
-  test('ADO-XXXXX1 should create client with valid request (all fields)', async ({
+  test('@api @smoke ADO-XXXXX1 should create client with valid request (all fields)', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -174,7 +174,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 1b: Create Client as EY Super Admin with Multiple EY Admins
    * Verify EY Super Admin can create a client and assign multiple EY Admins
    */
-  test('ADO-XXXXX1b should create client as EY Super Admin with multiple EY Admins assigned', async ({
+  test('@api @smoke ADO-XXXXX1b should create client as EY Super Admin with multiple EY Admins assigned', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -213,7 +213,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Verify that the logged-in Super Admin's email is not in the EY Admins list
    * and therefore cannot be assigned as an EY Admin to a client
    */
-  test('ADO-XXXXX1c should verify Super Admin email is not assignable as EY Admin', async ({
+  test('@api @smoke ADO-XXXXX1c should verify Super Admin email is not assignable as EY Admin', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -270,7 +270,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Verify that only valid EY Admin IDs can be assigned to a client
    * Tests with an ID that is NOT in the EY Admins list
    */
-  test('ADO-XXXXX1d should reject assignment of non-EY Admin user ID', async ({
+  test('@api @smoke ADO-XXXXX1d should reject assignment of non-EY Admin user ID', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -317,7 +317,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Verify that the Super Admin's ID cannot be assigned as an EY Admin
    * Super Admin ID: 1101 (Keerthivasan.Rc@in.ey.com)
    */
-  test('ADO-XXXXX1e should reject assignment of Super Admin ID as EY Admin', async ({
+  test('@api @smoke ADO-XXXXX1e should reject assignment of Super Admin ID as EY Admin', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -359,7 +359,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Verify client creation fails when no EY Admin is assigned (EY Admin is mandatory)
    * BUG: Currently API auto-assigns first EY Admin instead of rejecting
    */
-  test('ADO-XXXXX2 should reject client creation without EY Admin assignment', async ({
+  test('@api @smoke ADO-XXXXX2 should reject client creation without EY Admin assignment', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -392,7 +392,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 3: Create Client - Invalid Token
    * Verify authentication is required
    */
-  test('ADO-XXXXX3 should reject request with invalid token', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX3 should reject request with invalid token', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Authentication' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
@@ -418,7 +420,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 4: Create Client - Name Too Short (< 3 characters)
    * Verify name minimum length validation
    */
-  test('ADO-XXXXX4 should reject name shorter than 3 characters', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX4 should reject name shorter than 3 characters', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -442,7 +446,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 5: Create Client - Name Too Long (> 500 characters)
    * Verify name maximum length validation
    */
-  test('ADO-XXXXX5 should reject name longer than 500 characters', async ({
+  test('@api @smoke ADO-XXXXX5 should reject name longer than 500 characters', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
@@ -469,7 +473,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 6: Create Client - Empty/Blank Name
    * Verify name cannot be empty or blank
    */
-  test('ADO-XXXXX6 should reject empty or blank name', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX6 should reject empty or blank name', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -500,7 +506,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 7: Create Client - Duplicate Name
    * Verify unique name constraint
    */
-  test('ADO-XXXXX7 should reject duplicate client name', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX7 should reject duplicate client name', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -545,7 +553,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 8: Create Client - Non-Existent City
    * Verify city existence validation
    */
-  test('ADO-XXXXX8 should reject non-existent city ID', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX8 should reject non-existent city ID', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -570,7 +580,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 9: Create Client - Non-Existent EY Admin
    * Verify EY Admin existence validation
    */
-  test('ADO-XXXXX9 should reject non-existent EY Admin ID', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX9 should reject non-existent EY Admin ID', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -595,7 +607,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 10: Create Client - Missing Required Fields
    * Verify all required fields validation
    */
-  test('ADO-XXXXX10 should reject request with missing required fields', async ({
+  test('@api @smoke ADO-XXXXX10 should reject request with missing required fields', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
@@ -634,7 +646,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 11: Create Client - Multiple EY Admins
    * Verify client can be assigned multiple EY Admins
    */
-  test('ADO-XXXXX11 should create client with multiple EY Admins', async ({
+  test('@api @smoke ADO-XXXXX11 should create client with multiple EY Admins', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -668,7 +680,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 12: Create Client - Name with Special Characters
    * Verify name can contain special characters
    */
-  test('ADO-XXXXX12 should accept name with special characters', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX12 should accept name with special characters', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -696,7 +710,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 13: Create Client - Name with Leading/Trailing Spaces
    * Verify name is trimmed
    */
-  test('ADO-XXXXX13 should trim leading and trailing spaces from name', async ({
+  test('@api @smoke ADO-XXXXX13 should trim leading and trailing spaces from name', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -729,7 +743,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test Case 14: Create Client - Response Validation
    * Verify complete response structure
    */
-  test('ADO-XXXXX14 should return complete response structure', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-XXXXX14 should return complete response structure', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -776,7 +792,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 15: Boundary - Name exactly 3 characters (minimum valid)
    */
-  test('ADO-EDGE1 should accept name with exactly 3 characters', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE1 should accept name with exactly 3 characters', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -798,7 +816,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 16: Boundary - Name exactly 500 characters (maximum valid)
    */
-  test('ADO-EDGE2 should accept name with exactly 500 characters', async ({
+  test('@api @smoke ADO-EDGE2 should accept name with exactly 500 characters', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -823,7 +841,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 17: SQL Injection attempt in name field
    */
-  test('ADO-EDGE3 should handle SQL injection attempt safely', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE3 should handle SQL injection attempt safely', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
@@ -851,7 +871,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 18: XSS attempt in name field
    */
-  test('ADO-EDGE4 should handle XSS attempt safely', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE4 should handle XSS attempt safely', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Security' });
@@ -879,7 +899,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 19: Negative city ID
    */
-  test('ADO-EDGE5 should reject negative city ID', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE5 should reject negative city ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -901,7 +921,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 20: Zero city ID
    */
-  test('ADO-EDGE6 should reject zero city ID', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE6 should reject zero city ID', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -923,7 +943,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 21: Negative EY Admin ID
    */
-  test('ADO-EDGE7 should reject negative EY Admin ID', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE7 should reject negative EY Admin ID', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -945,7 +967,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 22: Duplicate admin IDs in array
    */
-  test('ADO-EDGE8 should handle duplicate admin IDs in array', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE8 should handle duplicate admin IDs in array', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -977,7 +1001,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 23: Case sensitivity - duplicate name with different case
    */
-  test('ADO-EDGE9 should handle case-insensitive duplicate name check', async ({
+  test('@api @smoke ADO-EDGE9 should handle case-insensitive duplicate name check', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1018,7 +1042,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 24: Unicode characters in name
    */
-  test('ADO-EDGE10 should handle unicode characters in name', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE10 should handle unicode characters in name', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1046,7 +1072,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 25: Emoji in name
    */
-  test('ADO-EDGE11 should handle emoji in name', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE11 should handle emoji in name', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1074,7 +1100,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 26: Very large admin ID (potential overflow)
    */
-  test('ADO-EDGE12 should handle very large admin ID', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE12 should handle very large admin ID', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1096,7 +1124,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 27: Null values in request
    */
-  test('ADO-EDGE13 should reject null values', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE13 should reject null values', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1126,7 +1154,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 28: String instead of number for cityId
    */
-  test('ADO-EDGE14 should reject string cityId', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE14 should reject string cityId', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1147,7 +1175,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 29: Empty request body
    */
-  test('ADO-EDGE15 should reject empty request body', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE15 should reject empty request body', async ({ superAdminRequest }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1161,7 +1189,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case: Create client with empty name
    */
-  test('ADO-EDGE20 should reject client with empty name @regression', async ({
+  test('@api @smoke ADO-EDGE20 should reject client with empty name @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
@@ -1184,7 +1212,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 30: Name with only numbers
    */
-  test('ADO-EDGE16 should accept name with only numbers', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE16 should accept name with only numbers', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1208,7 +1238,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 31: Name with newline characters
    */
-  test('ADO-EDGE17 should handle name with newline characters', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE17 should handle name with newline characters', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1236,7 +1268,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 32: Large number of admin IDs
    */
-  test('ADO-EDGE18 should handle large array of admin IDs', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE18 should handle large array of admin IDs', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1262,7 +1296,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test Case 33: Concurrent creation with same name
    */
-  test('ADO-EDGE19 should handle concurrent creation with same name', async ({
+  test('@api @smoke ADO-EDGE19 should handle concurrent creation with same name', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
@@ -1307,7 +1341,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Whitespace-only name
    */
-  test('ADO-EDGE21 should reject whitespace-only name @regression', async ({
+  test('@api @smoke ADO-EDGE21 should reject whitespace-only name @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
@@ -1331,7 +1365,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Name with leading/trailing whitespace
    */
-  test('ADO-EDGE22 should trim or reject name with leading/trailing whitespace @regression', async ({
+  test('@api @smoke ADO-EDGE22 should trim or reject name with leading/trailing whitespace @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1362,7 +1396,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Null name value
    */
-  test('ADO-EDGE23 should reject null name @regression', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE23 should reject null name @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1384,7 +1420,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Negative cityId
    */
-  test('ADO-EDGE24 should reject negative cityId @regression', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE24 should reject negative cityId @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1406,7 +1444,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Zero cityId
    */
-  test('ADO-EDGE25 should reject zero cityId @regression', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE25 should reject zero cityId @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1428,7 +1468,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Non-existent cityId
    */
-  test('ADO-EDGE26 should reject non-existent cityId @regression', async ({
+  test('@api @smoke ADO-EDGE26 should reject non-existent cityId @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1453,7 +1493,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
    * Test: Empty admin ID array - EY Admin is mandatory
    * BUG: Currently API auto-assigns first EY Admin instead of rejecting
    */
-  test('ADO-EDGE27 should reject empty admin ID array @regression', async ({
+  test('@api @smoke ADO-EDGE27 should reject empty admin ID array @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -1482,7 +1522,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Duplicate admin IDs in array
    */
-  test('ADO-EDGE28 should handle duplicate admin IDs in array @regression', async ({
+  test('@api @smoke ADO-EDGE28 should handle duplicate admin IDs in array @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1514,7 +1554,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Null value in admin ID array
    */
-  test('ADO-EDGE29 should reject null in admin ID array @regression', async ({
+  test('@api @smoke ADO-EDGE29 should reject null in admin ID array @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1538,7 +1578,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Invalid admin ID format
    */
-  test('ADO-EDGE30 should reject invalid admin ID format @regression', async ({
+  test('@api @smoke ADO-EDGE30 should reject invalid admin ID format @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1562,7 +1602,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: SQL injection in name field
    */
-  test('ADO-EDGE31 should handle SQL injection attempt in name @regression', async ({
+  test('@api @smoke ADO-EDGE31 should handle SQL injection attempt in name @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -1591,7 +1631,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: XSS attempt in name field
    */
-  test('ADO-EDGE32 should handle XSS attempt in name @regression', async ({
+  test('@api @smoke ADO-EDGE32 should handle XSS attempt in name @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'critical' });
@@ -1622,7 +1662,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Unicode/emoji in name field
    */
-  test('ADO-EDGE33 should handle unicode and emoji in name @regression', async ({
+  test('@api @smoke ADO-EDGE33 should handle unicode and emoji in name @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
@@ -1651,7 +1691,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Special characters only in name
    */
-  test('ADO-EDGE34 should handle special characters only name @regression', async ({
+  test('@api @smoke ADO-EDGE34 should handle special characters only name @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
@@ -1680,7 +1720,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Extra unknown fields in request
    */
-  test('ADO-EDGE35 should ignore or reject extra unknown fields @regression', async ({
+  test('@api @smoke ADO-EDGE35 should ignore or reject extra unknown fields @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
@@ -1712,7 +1752,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Array type for name field (type coercion)
    */
-  test('ADO-EDGE36 should reject array type for name field @regression', async ({
+  test('@api @smoke ADO-EDGE36 should reject array type for name field @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1736,7 +1776,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Object type for name field
    */
-  test('ADO-EDGE37 should reject object type for name field @regression', async ({
+  test('@api @smoke ADO-EDGE37 should reject object type for name field @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1760,7 +1800,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Boolean type for cityId
    */
-  test('ADO-EDGE38 should reject boolean type for cityId @regression', async ({
+  test('@api @smoke ADO-EDGE38 should reject boolean type for cityId @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1784,7 +1824,9 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Float/decimal cityId
    */
-  test('ADO-EDGE39 should handle float cityId @regression', async ({ superAdminRequest }) => {
+  test('@api @smoke ADO-EDGE39 should handle float cityId @regression', async ({
+    superAdminRequest,
+  }) => {
     test.info().annotations.push({ type: 'severity', description: 'low' });
     test.info().annotations.push({ type: 'feature', description: 'Client Management' });
     test.info().annotations.push({ type: 'epic', description: 'Client Onboarding' });
@@ -1811,7 +1853,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: String value for assignedEyAdminId (not array)
    */
-  test('ADO-EDGE40 should reject string for assignedEyAdminId @regression', async ({
+  test('@api @smoke ADO-EDGE40 should reject string for assignedEyAdminId @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1835,7 +1877,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Very long admin ID string
    */
-  test('ADO-EDGE41 should handle very long admin ID string @regression', async ({
+  test('@api @smoke ADO-EDGE41 should handle very long admin ID string @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1860,7 +1902,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Integer overflow for cityId
    */
-  test('ADO-EDGE42 should handle integer overflow for cityId @regression', async ({
+  test('@api @smoke ADO-EDGE42 should handle integer overflow for cityId @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });
@@ -1884,7 +1926,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Missing required cityId field
    */
-  test('ADO-EDGE43 should reject missing cityId field @regression', async ({
+  test('@api @smoke ADO-EDGE43 should reject missing cityId field @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
@@ -1907,7 +1949,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Missing required assignedEyAdminId field
    */
-  test('ADO-EDGE44 should reject missing assignedEyAdminId field @regression', async ({
+  test('@api @smoke ADO-EDGE44 should reject missing assignedEyAdminId field @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'high' });
@@ -1930,7 +1972,7 @@ test.describe('Story #197607: Create New Client - EY Super Admin', () => {
   /**
    * Test: Case sensitivity - create clients with same name different case
    */
-  test('ADO-EDGE45 should handle case sensitivity for client names @regression', async ({
+  test('@api @smoke ADO-EDGE45 should handle case sensitivity for client names @regression', async ({
     superAdminRequest,
   }) => {
     test.info().annotations.push({ type: 'severity', description: 'medium' });

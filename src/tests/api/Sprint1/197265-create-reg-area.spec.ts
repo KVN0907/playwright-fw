@@ -40,7 +40,9 @@ const generateRegAreaData = (
 
 test.describe('Story #197265: Create Reg Area - API Tests', () => {
   test.describe('GET /reg-area', () => {
-    test('@smoke should return list of all regulatory areas', async ({ superAdminRequest }) => {
+    test('@api @smoke should return list of all regulatory areas', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -57,7 +59,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('POST /reg-area', () => {
-    test('@smoke @ADO-202614 should create a new regulatory area', async ({
+    test('@api @smoke @ADO-202614 should create a new regulatory area', async ({
       superAdminRequest,
     }) => {
       test
@@ -91,7 +93,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       }
     });
 
-    test('@negative should return 400 when name is missing', async ({ superAdminRequest }) => {
+    test('@api @negative should return 400 when name is missing', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -105,7 +107,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when name is empty', async ({ superAdminRequest }) => {
+    test('@api @negative should return 400 when name is empty', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -119,7 +121,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@validation should return 400 when name exceeds max length', async ({
+    test('@api @validation should return 400 when name exceeds max length', async ({
       superAdminRequest,
     }) => {
       test
@@ -139,7 +141,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative @ADO-202615 should reject duplicate name', async ({ superAdminRequest }) => {
+    test('@api @negative @ADO-202615 should reject duplicate name', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -176,7 +180,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('DELETE /reg-area/{id}', () => {
-    test('@smoke should delete a regulatory area by ID', async ({ superAdminRequest }) => {
+    test('@api @smoke should delete a regulatory area by ID', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -197,7 +201,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(data).toBe(true);
     });
 
-    test('@negative should handle non-existent regulatory area', async ({ superAdminRequest }) => {
+    test('@api @negative should handle non-existent regulatory area', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -210,7 +216,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect([200, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should return error for invalid ID format', async ({ superAdminRequest }) => {
+    test('@api @negative should return error for invalid ID format', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -225,7 +233,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('Edge Cases - Create', () => {
-    test('@edge should reject whitespace-only name', async ({ superAdminRequest }) => {
+    test('@api @edge should reject whitespace-only name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -238,7 +246,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle special characters in name', async ({ superAdminRequest }) => {
+    test('@api @edge should handle special characters in name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -263,7 +271,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       }
     });
 
-    test('@edge should handle SQL injection attempt in name', async ({ superAdminRequest }) => {
+    test('@api @edge should handle SQL injection attempt in name', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -287,7 +297,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       }
     });
 
-    test('@edge should handle unicode and emoji in name', async ({ superAdminRequest }) => {
+    test('@api @edge should handle unicode and emoji in name', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -310,7 +320,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       }
     });
 
-    test('@edge should handle boundary value - exactly 255 chars name', async ({
+    test('@api @edge should handle boundary value - exactly 255 chars name', async ({
       superAdminRequest,
     }) => {
       test
@@ -336,7 +346,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
     });
 
-    test('@edge should handle null values in optional fields', async ({ superAdminRequest }) => {
+    test('@api @edge should handle null values in optional fields', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -355,7 +367,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       }
     });
 
-    test('@edge should handle empty request body on create', async ({ superAdminRequest }) => {
+    test('@api @edge should handle empty request body on create', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -367,7 +379,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle array as request body', async ({ superAdminRequest }) => {
+    test('@api @edge should handle array as request body', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -383,7 +395,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('Security - Create', () => {
-    test('@security should not allow tenantId manipulation on create', async ({
+    test('@api @security should not allow tenantId manipulation on create', async ({
       superAdminRequest,
     }) => {
       test
@@ -409,7 +421,9 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       }
     });
 
-    test('@security should not allow isDelete flag manipulation', async ({ superAdminRequest }) => {
+    test('@api @security should not allow isDelete flag manipulation', async ({
+      superAdminRequest,
+    }) => {
       test
         .info()
         .annotations.push(
@@ -435,7 +449,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('Functional - Create', () => {
-    test('@functional should trim whitespace from name on create', async ({
+    test('@api @functional should trim whitespace from name on create', async ({
       superAdminRequest,
     }) => {
       test
@@ -459,7 +473,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       await superAdminRequest.delete(`${API_BASE}/reg-area/${data.id}`);
     });
 
-    test('@functional should not show deleted records in GET all', async ({
+    test('@api @functional should not show deleted records in GET all', async ({
       superAdminRequest,
     }) => {
       test
@@ -490,7 +504,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect(deletedRecord).toBeUndefined();
     });
 
-    test('@functional should auto-generate unique IDs', async ({ superAdminRequest }) => {
+    test('@api @functional should auto-generate unique IDs', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -519,7 +533,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       await superAdminRequest.delete(`${API_BASE}/reg-area/${created2.id}`);
     });
 
-    test('@functional should handle concurrent duplicate creates', async ({
+    test('@api @functional should handle concurrent duplicate creates', async ({
       superAdminRequest,
     }) => {
       test
@@ -556,7 +570,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
   });
 
   test.describe('CRUD Operations - Full Flow', () => {
-    test('@smoke should perform complete CRUD operations', async ({ superAdminRequest }) => {
+    test('@api @smoke should perform complete CRUD operations', async ({ superAdminRequest }) => {
       test
         .info()
         .annotations.push(
@@ -626,7 +640,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
    * Tests will FAIL until bug is fixed - this is expected behavior
    */
   test.describe('EY Admin Role - Access Denied Tests', () => {
-    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from listing regulatory areas', async ({
+    test('@api @rbac @eyAdmin @bug-291261 should deny EY Admin from listing regulatory areas', async ({
       eyAdminRequest,
     }) => {
       test
@@ -645,7 +659,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect([401, 403]).toContain(response.status());
     });
 
-    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from creating regulatory area', async ({
+    test('@api @rbac @eyAdmin @bug-291261 should deny EY Admin from creating regulatory area', async ({
       eyAdminRequest,
     }) => {
       test
@@ -680,7 +694,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect([401, 403]).toContain(response.status());
     });
 
-    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from updating regulatory area', async ({
+    test('@api @rbac @eyAdmin @bug-291261 should deny EY Admin from updating regulatory area', async ({
       eyAdminRequest,
       superAdminRequest,
     }) => {
@@ -721,7 +735,7 @@ test.describe('Story #197265: Create Reg Area - API Tests', () => {
       expect([401, 403]).toContain(response.status());
     });
 
-    test('@rbac @eyAdmin @bug-291261 should deny EY Admin from deleting regulatory area', async ({
+    test('@api @rbac @eyAdmin @bug-291261 should deny EY Admin from deleting regulatory area', async ({
       eyAdminRequest,
       superAdminRequest,
     }) => {

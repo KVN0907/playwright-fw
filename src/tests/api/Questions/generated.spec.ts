@@ -70,7 +70,7 @@ async function deleteTestRegArea(request: any, regAreaId: number): Promise<void>
 
 test.describe('QuestionsResource API Tests', () => {
   test.describe('GET /questions', () => {
-    test('@smoke should return list of all questions', async ({ request }) => {
+    test('@api @smoke should return list of all questions', async ({ request }) => {
       // Given no parameters required
 
       // When fetching all questions
@@ -84,7 +84,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect(Array.isArray(data)).toBe(true);
     });
 
-    test('@smoke should return questions with valid structure', async ({ request }) => {
+    test('@api @smoke should return questions with valid structure', async ({ request }) => {
       // Given existing questions in the system
 
       // When fetching all questions
@@ -104,7 +104,7 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('GET /questions/{regAreaId}', () => {
-    test('@smoke should return questions for valid reg area ID', async ({ request }) => {
+    test('@api @smoke should return questions for valid reg area ID', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -121,7 +121,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@negative should handle non-existent reg area ID', async ({ request }) => {
+    test('@api @negative should handle non-existent reg area ID', async ({ request }) => {
       // Given a non-existent reg area ID
       const nonExistentId = 999999999;
 
@@ -136,7 +136,9 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@negative should return error for invalid reg area ID format', async ({ request }) => {
+    test('@api @negative should return error for invalid reg area ID format', async ({
+      request,
+    }) => {
       // Given an invalid ID format
       const invalidId = 'invalid-id';
 
@@ -147,7 +149,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([400, 500]).toContain(response.status());
     });
 
-    test('@edge should handle negative reg area ID', async ({ request }) => {
+    test('@api @edge should handle negative reg area ID', async ({ request }) => {
       // Given a negative ID
       const negativeId = -1;
 
@@ -158,7 +160,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([200, 400, 404, 500]).toContain(response.status());
     });
 
-    test('@edge should handle zero reg area ID', async ({ request }) => {
+    test('@api @edge should handle zero reg area ID', async ({ request }) => {
       // Given zero ID
       const zeroId = 0;
 
@@ -171,7 +173,7 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('GET /questions/{regAreaId}/{clientTenantId}', () => {
-    test('@smoke should return questions for valid reg area and client tenant', async ({
+    test('@api @smoke should return questions for valid reg area and client tenant', async ({
       request,
     }) => {
       // Given a valid reg area
@@ -193,7 +195,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@negative should handle non-existent client tenant ID', async ({ request }) => {
+    test('@api @negative should handle non-existent client tenant ID', async ({ request }) => {
       // Given valid reg area but non-existent client tenant
       const regArea = await createTestRegArea(request);
 
@@ -213,7 +215,7 @@ test.describe('QuestionsResource API Tests', () => {
 
   test.describe('POST /questions', () => {
     // ADO Test Case #202616: API - Add Valid Manual Text Question to Section
-    test('@smoke @ADO-202616 should create a new question', async ({ request }) => {
+    test('@api @smoke @ADO-202616 should create a new question', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -251,7 +253,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@negative should return 400 when title is missing', async ({ request }) => {
+    test('@api @negative should return 400 when title is missing', async ({ request }) => {
       // Given request data without required title field
       const requestData = {
         questionType: 'Text',
@@ -266,7 +268,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when title is empty', async ({ request }) => {
+    test('@api @negative should return 400 when title is empty', async ({ request }) => {
       // Given request data with empty title
       const requestData = {
         title: '',
@@ -282,7 +284,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when questionType is missing', async ({ request }) => {
+    test('@api @negative should return 400 when questionType is missing', async ({ request }) => {
       // Given request data without required questionType field
       const timestamp = Date.now();
       const requestData = {
@@ -298,7 +300,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@negative should return 400 when regAreaId is missing', async ({ request }) => {
+    test('@api @negative should return 400 when regAreaId is missing', async ({ request }) => {
       // Given request data without required regAreaId field
       const timestamp = Date.now();
       const requestData = {
@@ -314,7 +316,9 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@validation should return 400 when title exceeds 255 characters', async ({ request }) => {
+    test('@api @validation should return 400 when title exceeds 255 characters', async ({
+      request,
+    }) => {
       // Given request data with title exceeding 255 characters
       const requestData = {
         title: 'A'.repeat(256),
@@ -330,7 +334,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@validation should return 400 when questionType exceeds 50 characters', async ({
+    test('@api @validation should return 400 when questionType exceeds 50 characters', async ({
       request,
     }) => {
       // Given request data with questionType exceeding 50 characters
@@ -350,7 +354,7 @@ test.describe('QuestionsResource API Tests', () => {
     });
 
     // ADO Test Case #202624: API - Add Question to Non-existent Section
-    test('@negative @ADO-202624 should handle non-existent regAreaId', async ({ request }) => {
+    test('@api @negative @ADO-202624 should handle non-existent regAreaId', async ({ request }) => {
       // Given request with non-existent regAreaId
       const timestamp = Date.now();
       const requestData = {
@@ -371,7 +375,7 @@ test.describe('QuestionsResource API Tests', () => {
   test.describe('PUT /questions', () => {
     // ADO Test Case #202772: Edit Question Text via API
     // ADO Test Case #202773: Edit Question Type and Provide Required Options
-    test('@smoke @ADO-202772 @ADO-202773 should update an existing question', async ({
+    test('@api @smoke @ADO-202772 @ADO-202773 should update an existing question', async ({
       request,
     }) => {
       // Given: First create a reg area and question to update
@@ -422,7 +426,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@negative should return 400 when updating with empty title', async ({ request }) => {
+    test('@api @negative should return 400 when updating with empty title', async ({ request }) => {
       // Given update data with empty title
       const updateData = {
         id: 1,
@@ -439,7 +443,7 @@ test.describe('QuestionsResource API Tests', () => {
     });
 
     // ADO Test Case #202778: Reject Question Edit for Nonexistent Question ID
-    test('@negative @ADO-202778 should return error when updating non-existent question', async ({
+    test('@api @negative @ADO-202778 should return error when updating non-existent question', async ({
       request,
     }) => {
       // Given update data for non-existent ID
@@ -457,7 +461,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@validation should return 400 when updating title exceeds max length', async ({
+    test('@api @validation should return 400 when updating title exceeds max length', async ({
       request,
     }) => {
       // Given update data with title exceeding 255 characters
@@ -477,7 +481,7 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('DELETE /questions/{id}', () => {
-    test('@smoke should delete a question by ID', async ({ request }) => {
+    test('@api @smoke should delete a question by ID', async ({ request }) => {
       // Given: First create a reg area and question to delete
       const regArea = await createTestRegArea(request);
 
@@ -508,7 +512,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@negative should handle non-existent question', async ({ request }) => {
+    test('@api @negative should handle non-existent question', async ({ request }) => {
       // Given a non-existent question ID
       const nonExistentId = 999999999;
 
@@ -519,7 +523,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([200, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@negative should return error for invalid ID format', async ({ request }) => {
+    test('@api @negative should return error for invalid ID format', async ({ request }) => {
       // Given an invalid ID format
       const invalidId = 'invalid-id';
 
@@ -530,7 +534,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([400, 500]).toContain(response.status());
     });
 
-    test('@edge should handle negative ID', async ({ request }) => {
+    test('@api @edge should handle negative ID', async ({ request }) => {
       // Given a negative ID
       const negativeId = -1;
 
@@ -541,7 +545,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle zero ID', async ({ request }) => {
+    test('@api @edge should handle zero ID', async ({ request }) => {
       // Given zero ID
       const zeroId = 0;
 
@@ -554,7 +558,7 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('DELETE /questions (bulk delete)', () => {
-    test('@smoke should delete multiple questions by IDs', async ({ request }) => {
+    test('@api @smoke should delete multiple questions by IDs', async ({ request }) => {
       // Given: Create reg area and multiple questions to delete
       const regArea = await createTestRegArea(request);
 
@@ -587,7 +591,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@negative should handle empty array', async ({ request }) => {
+    test('@api @negative should handle empty array', async ({ request }) => {
       // Given empty array
       const emptyIds: number[] = [];
 
@@ -598,7 +602,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([200, 400]).toContain(response.status());
     });
 
-    test('@negative should handle array with non-existent IDs', async ({ request }) => {
+    test('@api @negative should handle array with non-existent IDs', async ({ request }) => {
       // Given array with non-existent IDs
       const nonExistentIds = [999999997, 999999998, 999999999];
 
@@ -609,7 +613,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([200, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle mixed valid and invalid IDs', async ({ request }) => {
+    test('@api @edge should handle mixed valid and invalid IDs', async ({ request }) => {
       // Given: Create a valid question
       const regArea = await createTestRegArea(request);
 
@@ -638,7 +642,7 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('Edge Cases - Bug Hunting', () => {
-    test('@edge should reject whitespace-only title', async ({ request }) => {
+    test('@api @edge should reject whitespace-only title', async ({ request }) => {
       // Given request with whitespace-only title
       const requestData = {
         title: '   ',
@@ -654,7 +658,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle XSS attempt in title', async ({ request }) => {
+    test('@api @edge should handle XSS attempt in title', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -685,7 +689,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle SQL injection attempt in title', async ({ request }) => {
+    test('@api @edge should handle SQL injection attempt in title', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -714,7 +718,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle unicode and emoji in title', async ({ request }) => {
+    test('@api @edge should handle unicode and emoji in title', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -742,7 +746,9 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle boundary value - exactly 255 chars title', async ({ request }) => {
+    test('@api @edge should handle boundary value - exactly 255 chars title', async ({
+      request,
+    }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -773,7 +779,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle boundary value - exactly 50 chars questionType', async ({
+    test('@api @edge should handle boundary value - exactly 50 chars questionType', async ({
       request,
     }) => {
       // Given a valid reg area
@@ -805,7 +811,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle null values in optional fields', async ({ request }) => {
+    test('@api @edge should handle null values in optional fields', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -835,7 +841,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle create with pre-set ID', async ({ request }) => {
+    test('@api @edge should handle create with pre-set ID', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -895,7 +901,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle update without ID field', async ({ request }) => {
+    test('@api @edge should handle update without ID field', async ({ request }) => {
       // Given update request without ID
       const updateData = {
         title: 'Update Without ID',
@@ -910,7 +916,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([400, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle very large ID value', async ({ request }) => {
+    test('@api @edge should handle very large ID value', async ({ request }) => {
       // Given extremely large ID
       const largeId = '9223372036854775807'; // Max Long value
 
@@ -921,7 +927,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect([200, 400, 404, 422, 500]).toContain(response.status());
     });
 
-    test('@edge should handle newlines in title', async ({ request }) => {
+    test('@api @edge should handle newlines in title', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -950,7 +956,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle control characters in title', async ({ request }) => {
+    test('@api @edge should handle control characters in title', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -979,7 +985,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle concurrent duplicate creates', async ({ request }) => {
+    test('@api @edge should handle concurrent duplicate creates', async ({ request }) => {
       // Given a valid reg area
       const regArea = await createTestRegArea(request);
 
@@ -1017,7 +1023,7 @@ test.describe('QuestionsResource API Tests', () => {
       }
     });
 
-    test('@edge should handle empty request body on create', async ({ request }) => {
+    test('@api @edge should handle empty request body on create', async ({ request }) => {
       // Given empty request body
       const response = await request.post(`${API_BASE}/questions`, { data: {} });
 
@@ -1025,7 +1031,7 @@ test.describe('QuestionsResource API Tests', () => {
       expect(response.status()).toBe(400);
     });
 
-    test('@edge should handle array as request body', async ({ request }) => {
+    test('@api @edge should handle array as request body', async ({ request }) => {
       // Given array instead of object
       const response = await request.post(`${API_BASE}/questions`, {
         data: [{ title: 'Test', questionType: 'Text', regAreaId: 1 }],
@@ -1303,7 +1309,7 @@ test.describe('QuestionsResource API Tests', () => {
   });
 
   test.describe('CRUD Operations - Full Flow', () => {
-    test('@smoke should perform complete CRUD operations on question', async ({ request }) => {
+    test('@api @smoke should perform complete CRUD operations on question', async ({ request }) => {
       // Given: Create a reg area for the question
       const regArea = await createTestRegArea(request);
 

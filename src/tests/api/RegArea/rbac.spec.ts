@@ -41,7 +41,7 @@ test.describe('RegArea RBAC Tests', () => {
   const testRegAreaName = `${faker.commerce.department()} RBAC Test ${uniqueId()}`;
 
   test.describe('Super Admin - Full CRUD Access', () => {
-    test('@rbac Super Admin can create reg area', async ({ superAdminRequest }) => {
+    test('@api @rbac Super Admin can create reg area', async ({ superAdminRequest }) => {
       // Super Admin is already authenticated via global setup
       const response = await superAdminRequest.post(`${API_BASE}/reg-area`, {
         data: {
@@ -57,7 +57,7 @@ test.describe('RegArea RBAC Tests', () => {
       expect(body.name).toBe(testRegAreaName);
     });
 
-    test('@rbac Super Admin can read reg area', async ({ superAdminRequest }) => {
+    test('@api @rbac Super Admin can read reg area', async ({ superAdminRequest }) => {
       const response = await superAdminRequest.get(`${API_BASE}/reg-area`);
       expect(response.status()).toBe(200);
 
@@ -65,7 +65,7 @@ test.describe('RegArea RBAC Tests', () => {
       expect(Array.isArray(body)).toBe(true);
     });
 
-    test('@rbac Super Admin can update reg area', async ({ superAdminRequest }) => {
+    test('@api @rbac Super Admin can update reg area', async ({ superAdminRequest }) => {
       test.skip(!testRegAreaId, 'No test reg area created');
 
       const response = await superAdminRequest.put(`${API_BASE}/reg-area`, {
@@ -146,7 +146,7 @@ test.describe('RegArea RBAC Tests', () => {
     const eyAdminTestName = `EYAdmin_Test_${Date.now()}`;
     let eyAdminRegAreaId: number;
 
-    test('@rbac EY Admin can create reg area', async ({ superAdminRequest }) => {
+    test('@api @rbac EY Admin can create reg area', async ({ superAdminRequest }) => {
       const response = await superAdminRequest.post(`${API_BASE}/reg-area`, {
         data: {
           name: eyAdminTestName,
@@ -161,7 +161,7 @@ test.describe('RegArea RBAC Tests', () => {
       eyAdminRegAreaId = body.id;
     });
 
-    test('@rbac EY Admin can update reg area', async ({ superAdminRequest }) => {
+    test('@api @rbac EY Admin can update reg area', async ({ superAdminRequest }) => {
       test.skip(!eyAdminRegAreaId, 'No reg area created');
 
       const response = await superAdminRequest.put(`${API_BASE}/reg-area`, {
@@ -176,7 +176,7 @@ test.describe('RegArea RBAC Tests', () => {
       expect(response.status()).toBe(200);
     });
 
-    test('@rbac EY Admin can delete reg area', async ({ superAdminRequest }) => {
+    test('@api @rbac EY Admin can delete reg area', async ({ superAdminRequest }) => {
       test.skip(!eyAdminRegAreaId, 'No reg area to delete');
 
       const response = await superAdminRequest.delete(`${API_BASE}/reg-area/${eyAdminRegAreaId}`);

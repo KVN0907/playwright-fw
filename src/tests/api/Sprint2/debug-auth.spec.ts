@@ -4,7 +4,7 @@ import { test, expect } from '../../fixtures/apiRoleFixtures';
  * Debug test to verify role-based authentication
  */
 test.describe('Debug: Verify Authentication', () => {
-  test('Check Super Admin auth', async ({ superAdminRequest }) => {
+  test('@api @debug Check Super Admin auth', async ({ superAdminRequest }) => {
     console.log('\n🔍 Testing Super Admin authentication...');
 
     // Try to get clients - Super Admin should have access
@@ -20,7 +20,7 @@ test.describe('Debug: Verify Authentication', () => {
     expect(response.status()).not.toBe(401);
   });
 
-  test('Check EY Admin auth', async ({ eyAdminRequest }) => {
+  test('@api @debug Check EY Admin auth', async ({ eyAdminRequest }) => {
     console.log('\n🔍 Testing EY Admin authentication...');
 
     // Try to get clients - check if EY Admin has access
@@ -46,7 +46,10 @@ test.describe('Debug: Verify Authentication', () => {
     }
   });
 
-  test('Compare Super Admin vs EY Admin access', async ({ superAdminRequest, eyAdminRequest }) => {
+  test('@api @debug Compare Super Admin vs EY Admin access', async ({
+    superAdminRequest,
+    eyAdminRequest,
+  }) => {
     console.log('\n🔍 Comparing access levels...');
 
     const endpoints = [

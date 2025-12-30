@@ -46,7 +46,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202514
    * API – Successfully Edit an Existing EY Admin User by EY Super Admin
    */
-  test('should successfully edit an existing EY Admin user @regression @ADO-202514', async ({
+  test('should successfully edit an existing EY Admin user @api @regression @ADO-202514', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -76,7 +76,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202515
    * API – Attempt to Edit EY Admin with Missing Field
    */
-  test('should reject edit with missing required field @regression @ADO-202515', async ({
+  test('should reject edit with missing required field @api @regression @ADO-202515', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -101,7 +101,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202516
    * API – Attempt to Edit EY Admin with Invalid Email Format
    */
-  test('should reject invalid email format on edit @regression @ADO-202516', async ({
+  test('should reject invalid email format on edit @api @regression @ADO-202516', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -130,7 +130,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202517
    * API – Attempt to Update EY Admin Email to One Already Used by Another User
    */
-  test('should reject duplicate email on edit @regression @ADO-202517', async ({
+  test('should reject duplicate email on edit @api @regression @ADO-202517', async ({
     superAdminRequest,
   }) => {
     // Create two users
@@ -159,7 +159,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202518
    * API – Attempt to Edit Non-Existent EY Admin User
    */
-  test('should return 404 for non-existent user @regression @ADO-202518', async ({
+  test('should return 404 for non-existent user @api @regression @ADO-202518', async ({
     superAdminRequest,
   }) => {
     const nonExistentId = 999999999;
@@ -180,7 +180,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202519
    * API – Unauthorized Role Attempts to Edit EY Admin
    */
-  test('should reject unauthorized user edit attempts @regression @ADO-202519', async ({
+  test('should reject unauthorized user edit attempts @api @regression @ADO-202519', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);
@@ -208,7 +208,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202520
    * API – Successfully Edit an Inactive EY Admin User
    */
-  test('should allow editing inactive user @regression @ADO-202520', async ({
+  test('should allow editing inactive user @api @regression @ADO-202520', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(request);
@@ -238,7 +238,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202522
    * API – Attempt to Edit EY Admin With Excessively Long Field Data
    */
-  test('should reject excessively long field data @regression @ADO-202522', async ({
+  test('should reject excessively long field data @api @regression @ADO-202522', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(request);
@@ -265,7 +265,7 @@ test.describe('Story #197598: Edit Users - EY Super Admin', () => {
    * ADO Test Case #202523
    * API – API Response Contains Updated User Fields, Status, and Client Info
    */
-  test('should return complete user data in response @regression @ADO-202523', async ({
+  test('should return complete user data in response @api @regression @ADO-202523', async ({
     superAdminRequest,
   }) => {
     const user = await createTestUser(superAdminRequest);

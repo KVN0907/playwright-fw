@@ -61,7 +61,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201683
    * Create EY Admin User - Success
    */
-  test('should create EY Admin user successfully @regression @ADO-201683', async ({
+  test('@api @regression should create EY Admin user successfully @ADO-201683', async ({
     superAdminRequest,
   }) => {
     const userData = generateTestUser();
@@ -82,7 +82,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201684
    * Create EY Admin User - Missing Required Fields
    */
-  test('should reject user creation with missing required fields @regression @ADO-201684', async ({
+  test('@api @regression should reject user creation with missing required fields @ADO-201684', async ({
     superAdminRequest,
   }) => {
     // Missing firstName
@@ -117,7 +117,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201685
    * Create EY Admin User - Non-EY Email Domain
    */
-  test('should reject non-EY email domain @regression @ADO-201685', async ({
+  test('should reject non-EY email domain @api @regression @ADO-201685', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
@@ -135,7 +135,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201686
    * Create EY Admin User - Invalid Email Format
    */
-  test('should reject invalid email format @regression @ADO-201686', async ({
+  test('should reject invalid email format @api @regression @ADO-201686', async ({
     superAdminRequest,
   }) => {
     const invalidUsernames = [
@@ -163,7 +163,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201687
    * Create EY Admin User - Duplicate Username
    */
-  test('should reject duplicate username @regression @ADO-201687', async ({
+  test('should reject duplicate username @api @regression @ADO-201687', async ({
     superAdminRequest,
   }) => {
     const userData = generateTestUser();
@@ -190,7 +190,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201688
    * Create EY Admin User - Username Case Insensitive Uniqueness
    */
-  test('should treat username as case insensitive for uniqueness @regression @ADO-201688', async ({
+  test('should treat username as case insensitive for uniqueness @api @regression @ADO-201688', async ({
     superAdminRequest,
   }) => {
     const baseUsername = generateTestEmail('test.case');
@@ -221,7 +221,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201689
    * Create EY Admin User - Whitespace and Blanks in Required Fields
    */
-  test('should reject whitespace-only values in required fields @regression @ADO-201689', async ({
+  test('should reject whitespace-only values in required fields @api @regression @ADO-201689', async ({
     superAdminRequest,
   }) => {
     // Whitespace firstName
@@ -249,7 +249,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201690
    * Create EY Admin User - Leading/Trailing Spaces in Input
    */
-  test('should trim leading/trailing spaces @regression @ADO-201690', async ({
+  test('should trim leading/trailing spaces @api @regression @ADO-201690', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
@@ -273,7 +273,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Note: RBAC is enforced via auth tokens, not custom headers.
    * This test requires a non-super-admin user session to properly test.
    */
-  test.skip('should reject user creation without proper privileges @regression @ADO-201691', async ({
+  test.skip('should reject user creation without proper privileges @api @regression @ADO-201691', async ({
     superAdminRequest,
   }) => {
     // This test requires a different auth session with a non-super-admin user
@@ -289,7 +289,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201692
    * EY Admin User Listing - Newly Created User Appears
    */
-  test('should show newly created user in listing @regression @ADO-201692', async ({
+  test('should show newly created user in listing @api @regression @ADO-201692', async ({
     superAdminRequest,
   }) => {
     const userData = generateTestUser();
@@ -321,7 +321,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * EY Admin User Listing - Pagination Support
    * Note: Pagination uses POST /ey-admins/paginated with filter body
    */
-  test('should support pagination in user listing @regression @ADO-201693', async ({
+  test('should support pagination in user listing @api @regression @ADO-201693', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.post(
@@ -343,7 +343,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Search EY Admin Users By Name and Client
    * Note: No search endpoint exists - this test validates the list endpoint returns data
    */
-  test('should list users and validate response structure @regression @ADO-201694', async ({
+  test('should list users and validate response structure @api @regression @ADO-201694', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.get(EY_ADMINS_ENDPOINT);
@@ -366,7 +366,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201695
    * Create EY Admin User - Parallel Requests (Race Condition Test)
    */
-  test('should handle parallel creation requests safely @regression @ADO-201695', async ({
+  test('should handle parallel creation requests safely @api @regression @ADO-201695', async ({
     superAdminRequest,
   }) => {
     const username = generateTestEmail('race.test');
@@ -396,7 +396,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201697
    * Create EY Admin User - Input Field Maximum Lengths
    */
-  test('should enforce maximum field lengths @regression @ADO-201697', async ({
+  test('should enforce maximum field lengths @api @regression @ADO-201697', async ({
     superAdminRequest,
   }) => {
     const veryLongName = 'A'.repeat(500);
@@ -416,7 +416,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201698
    * Create EY Admin User - Special Characters Handling
    */
-  test('should handle special characters in names @regression @ADO-201698', async ({
+  test('should handle special characters in names @api @regression @ADO-201698', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
@@ -435,7 +435,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201699
    * Create EY Admin User - Malicious Data Injection Protection
    */
-  test('should protect against injection attacks @ADO-201699 @security', async ({
+  test('should protect against injection attacks @api @ADO-201699 @security', async ({
     superAdminRequest,
   }) => {
     // SQL Injection attempt
@@ -468,7 +468,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * ADO Test Case #201700
    * Create EY Admin User - Expired Token or Session
    */
-  test('should reject requests with expired token @regression @ADO-201700', async ({
+  test('should reject requests with expired token @api @regression @ADO-201700', async ({
     superAdminRequest,
   }) => {
     const response = await superAdminRequest.post(EY_ADMINS_ENDPOINT, {
@@ -486,7 +486,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
    * Create EY Admin User - API Rate Limit Exceeded
    * Note: Reduced to 10 requests to avoid timeouts. Tests API handles concurrent requests.
    */
-  test('should handle concurrent requests gracefully @regression @ADO-201702', async ({
+  test('should handle concurrent requests gracefully @api @regression @ADO-201702', async ({
     superAdminRequest,
   }) => {
     const requests = [];
@@ -546,7 +546,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     /**
      * RBAC Test: EY Admin should NOT be able to list EY Admins
      */
-    test('EY Admin should be denied GET /ey-admins access @rbac @eyAdmin', async ({
+    test('@api @rbac @eyAdmin EY Admin should be denied GET /ey-admins access', async ({
       eyAdminRequest,
     }) => {
       test
@@ -568,7 +568,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     /**
      * RBAC Test: EY Admin should NOT be able to create EY Admins
      */
-    test('EY Admin should be denied POST /ey-admins access @rbac @eyAdmin', async ({
+    test('@api @rbac @eyAdmin EY Admin should be denied POST /ey-admins access', async ({
       eyAdminRequest,
     }) => {
       test
@@ -592,7 +592,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     /**
      * RBAC Test: EY Admin should NOT be able to access paginated EY Admins list
      */
-    test('EY Admin should be denied POST /ey-admins/paginated access @rbac @eyAdmin', async ({
+    test('@api @rbac @eyAdmin EY Admin should be denied POST /ey-admins/paginated access', async ({
       eyAdminRequest,
     }) => {
       test
@@ -615,7 +615,7 @@ test.describe('Story #197592: Create Users - EY Super Admin', () => {
     /**
      * RBAC Test: EY Admin should NOT be able to update EY Admin status
      */
-    test('EY Admin should be denied PUT /ey-admins/{id}/status access @rbac @eyAdmin', async ({
+    test('@api @rbac @eyAdmin EY Admin should be denied PUT /ey-admins/{id}/status access', async ({
       eyAdminRequest,
     }) => {
       test
