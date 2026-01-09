@@ -2,267 +2,492 @@ import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**
- * Sprint 1 API Tests - Deactivate Client: EY Super Admin
+ * API Tests for Story 198251 - Deactivate Client
+ * @description Tests for client deactivation/reactivation functionality
+ * @story 198251 - Deactivate client - Backend
  *
- * ADO Story: #198251 - Deactivate client: EY Super Admin (Backend)
- * Assigned To: Johirul Amin
+ * Acceptance Criteria:
+ * - Soft delete/deactivate clients
+ * - Support reactivation
+ * - Inactive clients shown in separate list
+ * - Revoke access from client users upon deactivation
  *
- * Test Cases:
- * - 204440: API – Deactivate Single Client
- * - 204441: API – Deactivate Client – Client Not Found
- * - 204442: API – Deactivate Client – Already Deactivated Client
- * - 204443: API – Deactivate Client – Insufficient Permissions
- * - 204444: API – Deactivate Client – With Active Users
- * - 204445: API – Deactivate Multiple Clients (Bulk)
- * - 204446: API – Deactivate Multiple Clients Partial Success
- * - 204447: API – Audit Log Entry for Client Deactivation
- * - 204448: API – Concurrent Client Deactivation Requests
- * - 204449: API – Network/API Failure During Client Deactivation
+ * Related ADO Test Cases:
+ * - #202122: API - Deactivate active client
+ * - #202123: API - Reactivate deactivated client
+ * - #202124: API - Return 404 for non-existent client
+ * - #202125: API - Toggle status multiple times
+ * - #202126: API - List only active clients
+ * - #202127: API - List only inactive clients
+ * - #202128: API - List all clients regardless of status
+ * - #202129: API - Handle pagination with status filter
+ * - #202130: API - Preserve client data after deactivation
+ * - #202131: API - Edit restriction on deactivated client
  */
 
-const API_BASE = '/api/admin';
-const CLIENTS_ENDPOINT = `${API_BASE}/clients`;
+const API_BASE = '/api/admin/api/clients';
 
-// Helper to create a test client using faker
-async function createTestClient(superAdminRequest: any) {
-  const companyName = faker.company.name();
+const generateClientName = (): string => {
   const uniqueId = `${Date.now()}`.slice(-6);
-  const clientData = {
-    name: `${companyName} ${uniqueId}`,
-    code: `TC${uniqueId}`,
-    description: faker.company.catchPhrase(),
-  };
+  return `${faker.company.name()} ${uniqueId}`;
+};
 
-  const response = await superAdminRequest.post(CLIENTS_ENDPOINT, { data: clientData });
-  if (response.ok()) {
-    return response.json();
-  }
-  return null;
-}
+const generateClientData = (
+  overrides?: Partial<{
+    name: string;
+    cityId: number;
+    assignedEyAdminId: number[];
+    active: boolean;
+  }>
+) => ({
+  name: generateClientName(),
+  cityId: 1,
+  assignedEyAdminId: [],
+  active: true,
+  ...overrides,
+});
 
-test.describe('Story #198251: Deactivate Client - EY Super Admin', () => {
-  /**
-   * ADO Test Case #204440
-   * API – Deactivate Single Client
-   */
-  test('should deactivate single client successfully @api @regression @ADO-204440', async ({
-    superAdminRequest,
-  }) => {
-    const client = await createTestClient(superAdminRequest);
-    if (!client) {
-      test.skip();
-      return;
-    }
+test.describe('Story #198251: Deactivate Client - API Tests', () => {
+  test.describe('GET /clients/change-active-status/{id} - Deactivate Client', () => {
+    test('@api @smoke @ADO-202122 should deactivate active client', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'story', description: '198251' },
+          { type: 'testcase', description: '202122' }
+        );
 
-    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
 
-    expect(response.ok()).toBe(true);
+      // Create active client
+      const clientData = generateClientData({ cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+      expect(created.active).toBe(true);
 
-    // Verify client is deactivated
-    const getResponse = await superAdminRequest.get(`${CLIENTS_ENDPOINT}/${client.id}`);
-    if (getResponse.ok()) {
-      const clientData = await getResponse.json();
-      expect(clientData.isActive === false || clientData.status === 'INACTIVE').toBe(true);
-    }
-  });
-
-  /**
-   * ADO Test Case #204441
-   * API – Deactivate Client – Client Not Found
-   */
-  test('should return 404 for non-existent client @api @regression @ADO-204441', async ({
-    superAdminRequest,
-  }) => {
-    const nonExistentId = 999999999;
-
-    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${nonExistentId}/deactivate`);
-
-    expect([404]).toContain(response.status());
-  });
-
-  /**
-   * ADO Test Case #204442
-   * API – Deactivate Client – Already Deactivated Client
-   */
-  test('should handle already deactivated client gracefully @api @regression @ADO-204442', async ({
-    superAdminRequest,
-  }) => {
-    const client = await createTestClient(superAdminRequest);
-    if (!client) {
-      test.skip();
-      return;
-    }
-
-    // First deactivation
-    const firstDeactivate = await superAdminRequest.put(
-      `${CLIENTS_ENDPOINT}/${client.id}/deactivate`
-    );
-    expect(firstDeactivate.ok()).toBe(true);
-
-    // Second deactivation attempt
-    const secondDeactivate = await superAdminRequest.put(
-      `${CLIENTS_ENDPOINT}/${client.id}/deactivate`
-    );
-
-    // Should either succeed (idempotent) or return appropriate error
-    expect([200, 204, 400, 409]).toContain(secondDeactivate.status());
-  });
-
-  /**
-   * ADO Test Case #204443
-   * API – Deactivate Client – Insufficient Permissions
-   */
-  test('should reject deactivation without proper permissions @api @regression @ADO-204443', async ({
-    superAdminRequest,
-  }) => {
-    const client = await createTestClient(superAdminRequest);
-    if (!client) {
-      test.skip();
-      return;
-    }
-
-    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`, {
-      headers: {
-        'X-User-Role': 'EY_ADMIN', // Not super admin
-      },
-    });
-
-    expect([401, 403]).toContain(response.status());
-  });
-
-  /**
-   * ADO Test Case #204444
-   * API – Deactivate Client – With Active Users
-   */
-  test('should handle client deactivation with active users @api @regression @ADO-204444', async ({
-    superAdminRequest,
-  }) => {
-    const client = await createTestClient(superAdminRequest);
-    if (!client) {
-      test.skip();
-      return;
-    }
-
-    // Try to deactivate client (which may have active users)
-    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`);
-
-    // Either succeeds and cascades deactivation, or returns warning/error about active users
-    expect([200, 204, 400, 409]).toContain(response.status());
-
-    if (response.status() === 400 || response.status() === 409) {
-      const error = await response.json();
-      // Should indicate why deactivation failed
-      expect(error.message || error.error).toBeDefined();
-    }
-  });
-
-  /**
-   * ADO Test Case #204445
-   * API – Deactivate Multiple Clients (Bulk)
-   */
-  test('should deactivate multiple clients in bulk @api @regression @ADO-204445', async ({
-    superAdminRequest,
-  }) => {
-    // Create multiple clients
-    const clients = await Promise.all([
-      createTestClient(superAdminRequest),
-      createTestClient(superAdminRequest),
-      createTestClient(superAdminRequest),
-    ]);
-
-    const validClients = clients.filter(c => c !== null);
-    if (validClients.length < 2) {
-      test.skip();
-      return;
-    }
-
-    const clientIds = validClients.map(c => c.id);
-
-    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/bulk/deactivate`, {
-      data: { clientIds },
-    });
-
-    // Either bulk endpoint exists and succeeds, or returns appropriate status
-    expect([200, 204, 404, 405]).toContain(response.status());
-  });
-
-  /**
-   * ADO Test Case #204446
-   * API – Deactivate Multiple Clients Partial Success
-   */
-  test('should handle partial success in bulk deactivation @api @regression @ADO-204446', async ({
-    superAdminRequest,
-  }) => {
-    const validClient = await createTestClient(superAdminRequest);
-    if (!validClient) {
-      test.skip();
-      return;
-    }
-
-    const clientIds = [validClient.id, 999999999]; // Mix of valid and invalid IDs
-
-    const response = await superAdminRequest.put(`${CLIENTS_ENDPOINT}/bulk/deactivate`, {
-      data: { clientIds },
-    });
-
-    // Should handle partial success scenario
-    expect([200, 207, 404, 405]).toContain(response.status());
-
-    if (response.status() === 207) {
+      // Deactivate client
+      const response = await superAdminRequest.get(
+        `${API_BASE}/change-active-status/${created.id}`
+      );
+      expect(response.status()).toBe(200);
       const data = await response.json();
-      expect(data.results || data.errors).toBeDefined();
-    }
+      expect(data.active).toBe(false);
+
+      // Cleanup
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`); // Reactivate
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
+
+    test('@api @smoke @ADO-202123 should reactivate deactivated client', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202123' }
+        );
+
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
+
+      // Create and deactivate client
+      const clientData = generateClientData({ cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Deactivate
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+
+      // Verify deactivated
+      const deactivatedResponse = await superAdminRequest.get(`${API_BASE}/${created.id}`);
+      const deactivatedClient = await deactivatedResponse.json();
+      expect(deactivatedClient.active).toBe(false);
+
+      // Reactivate
+      const response = await superAdminRequest.get(
+        `${API_BASE}/change-active-status/${created.id}`
+      );
+      expect(response.status()).toBe(200);
+      const data = await response.json();
+      expect(data.active).toBe(true);
+
+      // Cleanup
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
+
+    test('@api @regression @ADO-202124 should return 404 for non-existent client', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202124' },
+          { type: 'category', description: 'NEGATIVE' }
+        );
+
+      const response = await superAdminRequest.get(`${API_BASE}/change-active-status/999999999`);
+      expect([404, 422]).toContain(response.status());
+    });
+
+    test('@api @regression @ADO-202125 should toggle status multiple times', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202125' },
+          { type: 'category', description: 'FUNCTIONAL' }
+        );
+
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
+
+      // Create active client
+      const clientData = generateClientData({ cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Toggle 1: active -> inactive
+      let response = await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+      expect(response.status()).toBe(200);
+      let data = await response.json();
+      expect(data.active).toBe(false);
+
+      // Toggle 2: inactive -> active
+      response = await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+      expect(response.status()).toBe(200);
+      data = await response.json();
+      expect(data.active).toBe(true);
+
+      // Toggle 3: active -> inactive
+      response = await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+      expect(response.status()).toBe(200);
+      data = await response.json();
+      expect(data.active).toBe(false);
+
+      // Cleanup
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`); // Reactivate
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
   });
 
-  /**
-   * ADO Test Case #204448
-   * API – Concurrent Client Deactivation Requests
-   */
-  test('should handle concurrent deactivation requests safely @api @regression @ADO-204448', async ({
-    superAdminRequest,
-  }) => {
-    const client = await createTestClient(superAdminRequest);
-    if (!client) {
-      test.skip();
-      return;
-    }
+  test.describe('POST /clients/paginated - Filter by Active Status', () => {
+    test('@api @smoke @ADO-202126 should list only active clients', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202126' }
+        );
 
-    // Send multiple concurrent deactivation requests
-    const requests = [];
-    for (let i = 0; i < 5; i++) {
-      requests.push(superAdminRequest.put(`${CLIENTS_ENDPOINT}/${client.id}/deactivate`));
-    }
+      const response = await superAdminRequest.post(`${API_BASE}/paginated?page=0&size=100`, {
+        data: { activeStatus: 'active' },
+      });
 
-    const responses = await Promise.all(requests);
-    const statusCodes = responses.map(r => r.status());
+      expect(response.status()).toBe(200);
+      const data = await response.json();
+      expect(data.content).toBeDefined();
 
-    // At least one should succeed
-    const successCount = statusCodes.filter(code => [200, 204].includes(code)).length;
-    expect(successCount).toBeGreaterThanOrEqual(1);
+      // Verify all returned clients are active
+      for (const client of data.content) {
+        expect(client.active).toBe(true);
+      }
+    });
 
-    // Verify final state - client should be deactivated
-    const getResponse = await superAdminRequest.get(`${CLIENTS_ENDPOINT}/${client.id}`);
-    if (getResponse.ok()) {
-      const clientData = await getResponse.json();
-      expect(clientData.isActive === false || clientData.status === 'INACTIVE').toBe(true);
-    }
+    test('@api @smoke @ADO-202127 should list only inactive clients', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202127' }
+        );
+
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
+
+      // Create and deactivate a client
+      const clientData = generateClientData({ cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Deactivate
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+
+      // List inactive clients
+      const response = await superAdminRequest.post(`${API_BASE}/paginated?page=0&size=100`, {
+        data: { activeStatus: 'inactive' },
+      });
+
+      expect(response.status()).toBe(200);
+      const data = await response.json();
+      expect(data.content).toBeDefined();
+
+      // Verify all returned clients are inactive
+      for (const client of data.content) {
+        expect(client.active).toBe(false);
+      }
+
+      // Verify our deactivated client is in the list
+      const foundClient = data.content.find((c: { id: number }) => c.id === created.id);
+      expect(foundClient).toBeDefined();
+
+      // Cleanup
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`); // Reactivate
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
+
+    test('@api @smoke @ADO-202128 should list all clients regardless of status', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202128' }
+        );
+
+      const response = await superAdminRequest.post(`${API_BASE}/paginated?page=0&size=100`, {
+        data: { activeStatus: 'all' },
+      });
+
+      expect(response.status()).toBe(200);
+      const data = await response.json();
+      expect(data.content).toBeDefined();
+    });
+
+    test('@api @regression @ADO-202129 should handle pagination with status filter', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202129' },
+          { type: 'category', description: 'FUNCTIONAL' }
+        );
+
+      // Request first page
+      const page1Response = await superAdminRequest.post(`${API_BASE}/paginated?page=0&size=5`, {
+        data: { activeStatus: 'all' },
+      });
+
+      expect(page1Response.status()).toBe(200);
+      const page1Data = await page1Response.json();
+      expect(page1Data.content).toBeDefined();
+      expect(page1Data.pageable).toBeDefined();
+      expect(page1Data.totalElements).toBeDefined();
+
+      if (page1Data.totalElements > 5) {
+        // Request second page
+        const page2Response = await superAdminRequest.post(`${API_BASE}/paginated?page=1&size=5`, {
+          data: { activeStatus: 'all' },
+        });
+
+        expect(page2Response.status()).toBe(200);
+        const page2Data = await page2Response.json();
+
+        // Verify different pages have different content
+        if (page2Data.content.length > 0) {
+          expect(page1Data.content[0].id).not.toBe(page2Data.content[0].id);
+        }
+      }
+    });
   });
 
-  /**
-   * ADO Test Case #204447
-   * API – Audit Log Entry for Client Deactivation
-   */
-  test.skip('@ADO-204447 should create audit log entry for deactivation', async () => {
-    // Requires audit log access
-    test.skip();
+  test.describe('Client Data Integrity After Deactivation', () => {
+    test('@api @regression @ADO-202130 should preserve client data after deactivation', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202130' },
+          { type: 'category', description: 'FUNCTIONAL' }
+        );
+
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
+
+      // Create client with full data
+      const clientData = generateClientData({ cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Deactivate
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+
+      // Verify data is preserved
+      const response = await superAdminRequest.get(`${API_BASE}/${created.id}`);
+      expect(response.status()).toBe(200);
+      const data = await response.json();
+
+      expect(data.name).toBe(clientData.name);
+      expect(data.cityId).toBe(clientData.cityId);
+      expect(data.active).toBe(false);
+
+      // Cleanup
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`); // Reactivate
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
+
+    test('@api @regression @ADO-202131 should document edit behavior on deactivated client', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'medium' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'testcase', description: '202131' },
+          { type: 'category', description: 'FUNCTIONAL' }
+        );
+
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
+
+      // Create and deactivate client
+      const clientData = generateClientData({ cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Deactivate
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+
+      // Try to edit - API may allow or restrict based on business rules
+      const updateData = {
+        id: created.id,
+        name: `Edited_${Date.now()}`,
+        cityId: cityId,
+        assignedEyAdminId: [],
+        active: false,
+      };
+
+      const response = await superAdminRequest.put(API_BASE, { data: updateData });
+
+      // Document the behavior - could be allowed (200) or restricted (400/403)
+      expect([200, 400, 403, 422]).toContain(response.status());
+
+      // Cleanup
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`); // Reactivate
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
   });
 
-  /**
-   * ADO Test Case #204449
-   * API – Network/API Failure During Client Deactivation
-   */
-  test.skip('@ADO-204449 should handle network failures gracefully', async () => {
-    // Requires infrastructure testing
-    test.skip();
+  test.describe('Soft Delete Verification', () => {
+    test('@api @regression should verify soft delete does not remove client', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'category', description: 'FUNCTIONAL' }
+        );
+
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
+
+      // Create client
+      const clientData = generateClientData({ cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Deactivate (soft delete)
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+
+      // Client should still be retrievable by ID
+      const response = await superAdminRequest.get(`${API_BASE}/${created.id}`);
+      expect(response.status()).toBe(200);
+      const data = await response.json();
+      expect(data.id).toBe(created.id);
+      expect(data.active).toBe(false);
+
+      // Cleanup
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`); // Reactivate
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
+
+    test('@api @regression should maintain unique name constraint for inactive clients', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'Client Management' },
+          { type: 'category', description: 'FUNCTIONAL' }
+        );
+
+      // Get valid city ID
+      const citiesResponse = await superAdminRequest.get('/api/admin/api/cities');
+      const cities = await citiesResponse.json();
+      const cityId = cities.length > 0 ? cities[0].id : 1;
+
+      const uniqueName = generateClientName();
+
+      // Create first client
+      const clientData = generateClientData({ name: uniqueName, cityId, active: true });
+      const createResponse = await superAdminRequest.post(API_BASE, { data: clientData });
+      expect(createResponse.status()).toBe(201);
+      const created = await createResponse.json();
+
+      // Deactivate first client
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`);
+
+      // Try to create another client with same name
+      const duplicateResponse = await superAdminRequest.post(API_BASE, {
+        data: generateClientData({ name: uniqueName, cityId, active: true }),
+      });
+
+      // Should reject due to unique constraint (even for inactive)
+      expect([400, 409, 422]).toContain(duplicateResponse.status());
+
+      // Cleanup
+      await superAdminRequest.get(`${API_BASE}/change-active-status/${created.id}`); // Reactivate
+      await superAdminRequest.delete(`${API_BASE}/${created.id}`);
+    });
   });
 });

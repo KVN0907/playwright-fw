@@ -2,7 +2,7 @@
   "cookies": [
     {
       "name": "AUTH_SESSION_ID",
-      "value": "NzQ4NGIyOGMtMmU3NC00YjE3LTI0NWItY2I0NGQ1NDhlZTE2LjZWNi01VTVEOVk3ZXV5SHpZU01raWpGQlpCVmttUlJsS0JYdGhLWnkwbnRfcDVkVnVDSVBjTy1YYXVWWEZNak8zM2JZOHVDV01tY2tTT0w5LVRGLXFB.f36dbd8017f2-20909",
+      "value": "YzhiMmMzNWQtZDIyYi03NDIxLTY3ZDItYmQ3MTIyODJhNDE4LlJRMGxPR0JiMEVFX1FuaVE0OUNKa3hhbDRmc1puOTBUaTVaYmdaTlJlWGxyOVNmS2NhVEVNSkpEOEEzcG8yTVBFTi1OSUp0Y1VJYk44dURHVDdrekNR.f36dbd8017f2-20909",
       "domain": "ctekc.azurewebsites.net",
       "path": "/auth/realms/master/",
       "expires": -1,
@@ -12,17 +12,17 @@
     },
     {
       "name": "KC_AUTH_SESSION_HASH",
-      "value": "\"aUMYJMzHkZEGKFQb/hC9JI+WgDr+fk4t3VWAp05qY1s\"",
+      "value": "\"dKD9/6bUVJ79iIe4vKxF7bnquFwsji+0SLfEctVJQVU\"",
       "domain": "ctekc.azurewebsites.net",
       "path": "/auth/realms/master/",
-      "expires": 1767860355.353834,
+      "expires": 1767932044.179016,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "KEYCLOAK_IDENTITY",
-      "value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwNTg4OWRkZi1hODVlLTQxYWEtOTJlMS1jNzMzNzZlNzA3YmYifQ.eyJleHAiOjE3Njc4OTYyOTYsImlhdCI6MTc2Nzg2MDI5NiwianRpIjoiMWY4YTYxZmEtZmNmOS02Yzk5LTg3OTctYmU0OTc5ZDM5NjgwIiwiaXNzIjoiaHR0cHM6Ly9jdGVrYy5henVyZXdlYnNpdGVzLm5ldC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJzdWIiOiI5NjRiYTEzOC00MDc0LTQ4ZjEtOThmZC00MDdmOWQ1OWE2OTciLCJ0eXAiOiJTZXJpYWxpemVkLUlEIiwic2lkIjoiNzQ4NGIyOGMtMmU3NC00YjE3LTI0NWItY2I0NGQ1NDhlZTE2Iiwic3RhdGVfY2hlY2tlciI6Ik4tbW90YjE0dk82NFJ5QWc3Y0NvY1JrTk8xaWlUVTlCY3phZWVRcDQxSzgifQ.2-D67rCT4DpqI-ubev2lkqor9B_i1g7HtEKfYp5iH1adHR3DQubs0miHQVAEavZKnktzmpb_0z_qE7ehSOWZJQ",
+      "value": "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIwNTg4OWRkZi1hODVlLTQxYWEtOTJlMS1jNzMzNzZlNzA3YmYifQ.eyJleHAiOjE3Njc5Njc5ODQsImlhdCI6MTc2NzkzMTk4NCwianRpIjoiYjE0YzE0OWYtMDIyNi00ZDkwLTI5ZjQtZWQ1ZTIxODhjYzJhIiwiaXNzIjoiaHR0cHM6Ly9jdGVrYy5henVyZXdlYnNpdGVzLm5ldC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJzdWIiOiI5NjRiYTEzOC00MDc0LTQ4ZjEtOThmZC00MDdmOWQ1OWE2OTciLCJ0eXAiOiJTZXJpYWxpemVkLUlEIiwic2lkIjoiYzhiMmMzNWQtZDIyYi03NDIxLTY3ZDItYmQ3MTIyODJhNDE4Iiwic3RhdGVfY2hlY2tlciI6InpLZFdxbXpYX05Dako1RG52c09HQWlHeU5nd0tBREJPd2RJU1BjTVdBSmsifQ.nhfuSVQtc6FSiwGbHtRGyu1yRCHIx6ZCnxB_Uz-8LbICJ_N8zB4ARMJura98rCKaWs16XoZ4L30udMa3jAJ0FA",
       "domain": "ctekc.azurewebsites.net",
       "path": "/auth/realms/master/",
       "expires": -1,
@@ -32,10 +32,10 @@
     },
     {
       "name": "KEYCLOAK_SESSION",
-      "value": "aUMYJMzHkZEGKFQb_hC9JI-WgDr-fk4t3VWAp05qY1s",
+      "value": "dKD9_6bUVJ79iIe4vKxF7bnquFwsji-0SLfEctVJQVU",
       "domain": "ctekc.azurewebsites.net",
       "path": "/auth/realms/master/",
-      "expires": 1767896296.356523,
+      "expires": 1767967985.028419,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
@@ -62,7 +62,7 @@
     },
     {
       "name": "SESSION",
-      "value": "201e41b7-4078-4c7e-b204-d1de74cacaa6",
+      "value": "410c659d-4119-4701-a53d-15bc1f2caed2",
       "domain": "eycompliancemanager-uat.ey.com",
       "path": "/",
       "expires": -1,

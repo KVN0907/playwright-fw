@@ -1,5 +1,0 @@
-{
-    "getAccountDetails":"/admin/account",
-    "csrfTokenGateWay":"/csrf-token-gateway",
-    "createLibrary":"/infinityservice/api/location-entity"
-}
