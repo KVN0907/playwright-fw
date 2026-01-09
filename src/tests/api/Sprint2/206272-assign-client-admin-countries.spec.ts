@@ -1253,6 +1253,193 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
     });
   });
 
+  test.describe('RBAC - Super Admin Access Denied Tests', () => {
+    /**
+     * Per story #206272 acceptance criteria: "Given I am logged in as an EY Admin"
+     * These tests verify that Super Admin role should NOT have access to client admin
+     * and client country operations - these are EY Admin-only functions.
+     *
+     * Expected behavior: 403 Forbidden (or 401 Unauthorized if role check happens early)
+     */
+
+    test('@api @rbac @negative should deny Super Admin access to create client admin', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC' },
+          { type: 'story', description: '206272' }
+        );
+
+      const clientAdminData = generateClientAdminData();
+      const requestData = {
+        firstName: clientAdminData.firstName,
+        lastName: clientAdminData.lastName,
+        username: clientAdminData.username,
+        designation: clientAdminData.designation,
+        isActive: true,
+      };
+
+      const response = await superAdminRequest.post(CLIENT_ADMIN_ENDPOINT, { data: requestData });
+
+      // Super Admin should be denied - expect 401 or 403
+      // If API returns 200/201, it's a security issue (role bypass)
+      if ([200, 201].includes(response.status())) {
+        console.log(
+          'SECURITY WARNING: Super Admin was able to create client admin - role check may be missing'
+        );
+        const data = await response.json();
+        console.log(`Created admin ID: ${data.id} - this should NOT be allowed`);
+      }
+      expect([401, 403]).toContain(response.status());
+    });
+
+    test('@api @rbac @negative should deny Super Admin access to update client admin', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC' },
+          { type: 'story', description: '206272' }
+        );
+
+      const updateData = {
+        id: 1, // Any existing ID
+        firstName: 'Unauthorized',
+        lastName: 'Update',
+        username: 'unauthorized@test.ey.com',
+        designation: 'Test',
+        isActive: true,
+      };
+
+      const response = await superAdminRequest.put(CLIENT_ADMIN_ENDPOINT, { data: updateData });
+
+      if (response.status() === 200) {
+        console.log(
+          'SECURITY WARNING: Super Admin was able to update client admin - role check may be missing'
+        );
+      }
+      expect([401, 403, 404]).toContain(response.status());
+    });
+
+    test('@api @rbac @negative should deny Super Admin access to delete client admin', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC' },
+          { type: 'story', description: '206272' }
+        );
+
+      const response = await superAdminRequest.delete(`${CLIENT_ADMIN_ENDPOINT}/1`);
+
+      if (response.status() === 200 || response.status() === 204) {
+        console.log(
+          'SECURITY WARNING: Super Admin was able to delete client admin - role check may be missing'
+        );
+      }
+      expect([401, 403, 404]).toContain(response.status());
+    });
+
+    test('@api @rbac @negative should deny Super Admin access to list client admins', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'RBAC' },
+          { type: 'story', description: '206272' }
+        );
+
+      const response = await superAdminRequest.get(CLIENT_ADMIN_ENDPOINT);
+
+      if (response.status() === 200) {
+        const data = await response.json();
+        console.log(
+          `SECURITY WARNING: Super Admin was able to list ${data.length} client admins - role check may be missing`
+        );
+      }
+      expect([401, 403]).toContain(response.status());
+    });
+
+    test('@api @rbac @negative should deny Super Admin access to get client admin by ID', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'RBAC' },
+          { type: 'story', description: '206272' }
+        );
+
+      const response = await superAdminRequest.get(`${CLIENT_ADMIN_ENDPOINT}/1`);
+
+      if (response.status() === 200) {
+        console.log(
+          'SECURITY WARNING: Super Admin was able to get client admin details - role check may be missing'
+        );
+      }
+      expect([401, 403, 404]).toContain(response.status());
+    });
+
+    test('@api @rbac @negative should deny Super Admin access to assign countries', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'critical' },
+          { type: 'feature', description: 'RBAC' },
+          { type: 'story', description: '206272' }
+        );
+
+      const detailedEndpoint = `${CLIENT_COUNTRY_ENDPOINT}/detailed`;
+      const requestData = [
+        { countryId: 1, stateIds: [] },
+        { countryId: 2, stateIds: [] },
+      ];
+
+      const response = await superAdminRequest.post(detailedEndpoint, { data: requestData });
+
+      if ([200, 201].includes(response.status())) {
+        console.log(
+          'SECURITY WARNING: Super Admin was able to assign countries - role check may be missing'
+        );
+      }
+      expect([400, 401, 403]).toContain(response.status());
+    });
+
+    test('@api @rbac @negative should deny Super Admin access to fetch assigned countries', async ({
+      superAdminRequest,
+    }) => {
+      test
+        .info()
+        .annotations.push(
+          { type: 'severity', description: 'high' },
+          { type: 'feature', description: 'RBAC' },
+          { type: 'story', description: '206272' }
+        );
+
+      const response = await superAdminRequest.get(`${CLIENT_COUNTRY_ENDPOINT}/3937`);
+
+      if (response.status() === 200) {
+        const data = await response.json();
+        console.log(
+          `SECURITY WARNING: Super Admin was able to fetch ${data.length} assigned countries - role check may be missing`
+        );
+      }
+      expect([401, 403]).toContain(response.status());
+    });
+  });
+
   test.describe('Cleanup', () => {
     test('@api @cleanup should delete all test client admins', async ({ eyAdminRequest }) => {
       test
