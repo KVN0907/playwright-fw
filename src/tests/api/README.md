@@ -124,3 +124,26 @@ Tests use role-based fixtures from `../fixtures/apiRoleFixtures.ts`:
 - `superAdminRequest` - Super Admin authenticated
 - `eyAdminRequest` - EY Admin authenticated
 - `clientAdminRequest` - Client Admin authenticated
+
+## CI/CD Integration
+
+The GitHub Actions workflow (`qa-automation.yml`) supports running specific test suites:
+
+### Manual Trigger Options
+
+- `api` - All API tests
+- `api-sprint1` - Sprint 1 tests only
+- `api-sprint2` - Sprint 2 tests only
+- `api-e2e` - E2E workflow tests only
+- `api-domains` - Domain-specific tests only
+
+### npm Scripts
+
+```bash
+npm run test:api           # All API tests
+npm run test:api:sprint1   # Sprint 1 only
+npm run test:api:sprint2   # Sprint 2 only
+npm run test:api:e2e       # E2E workflows
+npm run test:api:domains   # Domain tests
+npm run test:e2e           # Tests tagged @e2e
+```
