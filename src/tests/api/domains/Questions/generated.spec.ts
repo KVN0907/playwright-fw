@@ -1,4 +1,4 @@
-import { test, expect } from '../../fixtures/apiRoleFixtures';
+import { test, expect } from '../../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 /**

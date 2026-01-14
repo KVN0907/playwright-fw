@@ -14,7 +14,7 @@
  * or use the multi-user auth state files when configured.
  */
 
-import { test, expect } from '../../fixtures/apiRoleFixtures';
+import { test, expect } from '../../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
 
 const API_BASE = process.env.DEV_API_URL || 'https://eycompliancemanager-dev.ey.com/api';

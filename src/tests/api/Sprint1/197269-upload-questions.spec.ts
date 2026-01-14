@@ -25,7 +25,7 @@ import FormData from 'form-data';
 
 const API_BASE = '/api/compliancemanager';
 const UPLOAD_ENDPOINT = `${API_BASE}/questions/upload-questions`;
-const TEST_FILES_DIR = path.join(__dirname, '../testFiles');
+const TEST_FILES_DIR = path.join(__dirname, '../shared/testFiles');
 
 // Base URL from environment (APP_URL is used in qa.env, QA_APP_URL as fallback)
 const BASE_URL = (
