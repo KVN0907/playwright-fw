@@ -13,14 +13,15 @@
  */
 
 import { test as base, APIRequestContext } from '@playwright/test';
-import * as path from 'path';
 import * as fs from 'fs';
+import { getAuthFilePaths } from '../../config/global-setup';
 
-// Auth file paths
-const AUTH_DIR = path.join(__dirname, '../../../');
-const SUPER_ADMIN_AUTH = path.join(AUTH_DIR, 'auth.json');
-const EY_ADMIN_AUTH = path.join(AUTH_DIR, 'auth-ey-admin.json');
-const CLIENT_ADMIN_AUTH = path.join(AUTH_DIR, 'auth-client-admin.json');
+// Get environment-specific auth file paths
+const env = process.env.NODE_ENV || 'qa';
+const AUTH_FILES = getAuthFilePaths(env);
+const SUPER_ADMIN_AUTH = AUTH_FILES.superAdmin;
+const EY_ADMIN_AUTH = AUTH_FILES.eyAdmin;
+const CLIENT_ADMIN_AUTH = AUTH_FILES.clientAdmin;
 
 /**
  * Role-based fixture types

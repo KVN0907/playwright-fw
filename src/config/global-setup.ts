@@ -2,10 +2,12 @@
  * Global Setup - Multi-Role Browser Session Authentication
  * Logs in multiple user roles via browser and saves auth states for API tests
  *
- * Auth files created:
- * - auth.json (Super Admin - default)
- * - auth-ey-admin.json (EY Admin)
- * - auth-client-admin.json (Client Admin)
+ * Auth files are stored per environment in .auth/{env}/ directory:
+ * - .auth/qa/auth.json (Super Admin)
+ * - .auth/qa/auth-ey-admin.json (EY Admin)
+ * - .auth/qa/auth-client-admin.json (Client Admin)
+ * - .auth/dev/auth.json (Super Admin)
+ * - etc.
  */
 
 import { chromium, FullConfig, BrowserContext, Page } from '@playwright/test';
@@ -21,13 +23,24 @@ dotenv.config({
   override: true,
 });
 
-// Auth file paths
-const AUTH_DIR = path.join(__dirname, '../../');
-const AUTH_FILES = {
-  superAdmin: path.join(AUTH_DIR, 'auth.json'),
-  eyAdmin: path.join(AUTH_DIR, 'auth-ey-admin.json'),
-  clientAdmin: path.join(AUTH_DIR, 'auth-client-admin.json'),
-};
+// Auth directory per environment
+const AUTH_BASE_DIR = path.join(__dirname, '../../.auth');
+
+/**
+ * Get auth file paths for a specific environment
+ */
+export function getAuthFilePaths(env: string = envFile) {
+  const authDir = path.join(AUTH_BASE_DIR, env);
+  return {
+    dir: authDir,
+    superAdmin: path.join(authDir, 'auth.json'),
+    eyAdmin: path.join(authDir, 'auth-ey-admin.json'),
+    clientAdmin: path.join(authDir, 'auth-client-admin.json'),
+  };
+}
+
+// Current environment auth files
+const AUTH_FILES = getAuthFilePaths(envFile);
 
 interface UserCredentials {
   username: string;
@@ -131,10 +144,17 @@ async function globalSetup(_config: FullConfig) {
   console.log(`   Environment: ${env}`);
   console.log(`   Base URL: ${baseURL}`);
   console.log(`   Login type: ${loginType}`);
+  console.log(`   Auth directory: .auth/${env}/`);
 
   if (!baseURL) {
     console.log('⚠️  Missing base URL, skipping auth setup');
     return;
+  }
+
+  // Ensure auth directory exists for this environment
+  if (!fs.existsSync(AUTH_FILES.dir)) {
+    fs.mkdirSync(AUTH_FILES.dir, { recursive: true });
+    console.log(`   Created auth directory: ${AUTH_FILES.dir}`);
   }
 
   // Define users to authenticate

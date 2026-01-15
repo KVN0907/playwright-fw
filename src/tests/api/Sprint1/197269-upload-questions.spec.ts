@@ -1,4 +1,5 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
+import { getAuthFilePaths } from '../../../config/global-setup';
 import * as path from 'path';
 import * as fs from 'fs';
 import axios, { AxiosResponse } from 'axios';
@@ -52,10 +53,12 @@ function readTestFile(filePath: string): Buffer {
   return fs.readFileSync(filePath);
 }
 
-// Helper to get auth cookies from stored state
+// Helper to get auth cookies from stored state (environment-specific)
 function getAuthCookies(): string {
   try {
-    const storageState = JSON.parse(fs.readFileSync('auth.json', 'utf-8'));
+    const env = process.env.NODE_ENV || 'qa';
+    const authFiles = getAuthFilePaths(env);
+    const storageState = JSON.parse(fs.readFileSync(authFiles.superAdmin, 'utf-8'));
     return storageState.cookies
       .filter((c: any) => c.domain.includes('eycompliancemanager'))
       .map((c: any) => `${c.name}=${c.value}`)

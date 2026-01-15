@@ -25,8 +25,13 @@ import { faker } from '@faker-js/faker';
 
 const API_BASE = '/api/admin/api/ey-admins';
 
+let testCounter = 0;
+const getUniqueId = () => (++testCounter).toString(36);
+
 const generateEyEmail = (): string => {
-  return `test.${faker.person.firstName().toLowerCase()}.${Date.now()}@ey.com`;
+  const firstName = faker.person.firstName().toLowerCase();
+  const lastName = faker.person.lastName().toLowerCase();
+  return `${firstName}.${lastName}.${getUniqueId()}@ey.com`;
 };
 
 test.describe('Story #197592: Create EY Admin - API Tests', () => {
@@ -387,17 +392,18 @@ test.describe('Story #197592: Create EY Admin - API Tests', () => {
           { type: 'testcase', description: '201697' }
         );
 
-      // Create admin first
+      // Create admin first with a searchable name
+      const searchableName = `SearchTest${getUniqueId()}`;
       const adminData = {
-        firstName: `TestSearch${Date.now()}`,
+        firstName: searchableName,
         lastName: faker.person.lastName(),
         username: generateEyEmail(),
       };
       const createResponse = await superAdminRequest.post(API_BASE, { data: adminData });
       const createdAdmin = await createResponse.json();
 
-      // Search by name
-      const searchData = { name: 'TestSearch' };
+      // Search by the unique name prefix
+      const searchData = { name: searchableName };
       const response = await superAdminRequest.post(`${API_BASE}/search-active-by-name`, {
         data: searchData,
       });

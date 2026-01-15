@@ -17,8 +17,13 @@ import { faker } from '@faker-js/faker';
 
 const API_BASE = '/api/admin/api/ey-admins';
 
+let testCounter = 0;
+const getUniqueId = () => (++testCounter).toString(36);
+
 const generateEyEmail = (): string => {
-  return `test.${faker.person.firstName().toLowerCase()}.${Date.now()}@ey.com`;
+  const firstName = faker.person.firstName().toLowerCase();
+  const lastName = faker.person.lastName().toLowerCase();
+  return `${firstName}.${lastName}.${getUniqueId()}@ey.com`;
 };
 
 test.describe('Story #197601: Deactivate EY Admin - API Tests', () => {

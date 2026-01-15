@@ -5,14 +5,16 @@
 
 import { PlaywrightTestConfig, devices } from '@playwright/test';
 import { config } from '../lib/config/ConfigManager';
+import { getAuthFilePaths } from './global-setup';
 import * as path from 'path';
 
 // Get configuration from unified manager
 const environment = config.getEnvironment();
 const envConfig = config.getConfig();
 
-// Auth state file path
-const AUTH_FILE = path.join(__dirname, '../../auth.json');
+// Auth state file path - now environment-specific
+const AUTH_FILES = getAuthFilePaths(environment);
+const AUTH_FILE = AUTH_FILES.superAdmin;
 
 /**
  * Playwright configuration with sensible defaults

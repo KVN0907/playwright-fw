@@ -21,12 +21,14 @@ import { faker } from '@faker-js/faker';
 
 const API_BASE = '/api/admin/api/clients';
 
+let testCounter = 0;
+const getUniqueId = () => (++testCounter).toString(36);
+
 const generateClientName = (): string => {
-  const uniqueId = `${Date.now()}`.slice(-6);
   return faker.helpers.arrayElement([
-    `${faker.company.name()} ${uniqueId}`,
-    `${faker.person.lastName()} & ${faker.person.lastName()} Corp ${uniqueId}`,
-    `${faker.location.city()} ${faker.company.buzzNoun()} Ltd ${uniqueId}`,
+    `${faker.company.name()} ${getUniqueId()}`,
+    `${faker.person.lastName()} & ${faker.person.lastName()} Corp ${getUniqueId()}`,
+    `${faker.location.city()} ${faker.company.buzzNoun()} Ltd ${getUniqueId()}`,
   ]);
 };
 
@@ -194,7 +196,7 @@ test.describe('Stories #197607, #197609: Client Management - API Tests', () => {
         );
 
       const clientData = {
-        name: `Test & Co. (${Date.now()})`,
+        name: `Test & Co. (${getUniqueId()})`,
         description: 'Client with special chars',
         active: true,
       };

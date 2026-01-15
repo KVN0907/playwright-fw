@@ -27,9 +27,11 @@ import { faker } from '@faker-js/faker';
 
 const API_BASE = '/api/admin/api/clients';
 
+let testCounter = 0;
+const getUniqueId = () => (++testCounter).toString(36);
+
 const generateClientName = (): string => {
-  const uniqueId = `${Date.now()}`.slice(-6);
-  return `${faker.company.name()} ${uniqueId}`;
+  return `${faker.company.name()} ${getUniqueId()}`;
 };
 
 const generateClientData = (
@@ -395,7 +397,7 @@ test.describe('Story #198251: Deactivate Client - API Tests', () => {
       // Try to edit - API may allow or restrict based on business rules
       const updateData = {
         id: created.id,
-        name: `Edited_${Date.now()}`,
+        name: `Edited_${faker.company.name()}_${getUniqueId()}`,
         cityId: cityId,
         assignedEyAdminId: [],
         active: false,

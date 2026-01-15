@@ -30,9 +30,11 @@ const API_BASE = '/api/admin/api/clients';
 const CITIES_API = '/api/admin/api/cities';
 const EY_ADMINS_API = '/api/admin/api/ey-admins/paginated?page=0&size=10';
 
+let testCounter = 0;
+const getUniqueId = () => (++testCounter).toString(36);
+
 const generateClientName = (): string => {
-  const uniqueId = `${Date.now()}`.slice(-6);
-  return `${faker.company.name()} ${uniqueId}`;
+  return `${faker.company.name()} ${getUniqueId()}`;
 };
 
 const generateClientData = (
@@ -397,7 +399,7 @@ test.describe('Story #198248: Edit Client Details - API Tests @api', () => {
       const created = await createResponse.json();
 
       // Update with special characters
-      const specialName = `Test & Co. (${Date.now()}) "Special"`;
+      const specialName = `Test & Co. (${getUniqueId()}) "Special"`;
       const updateData = {
         id: created.id,
         name: specialName,
@@ -435,7 +437,7 @@ test.describe('Story #198248: Edit Client Details - API Tests @api', () => {
       const created = await createResponse.json();
 
       // Update client
-      const updatedName = `Verified_${Date.now()}`;
+      const updatedName = `Verified_${faker.company.name()}_${getUniqueId()}`;
       const updateData = {
         id: created.id,
         name: updatedName,

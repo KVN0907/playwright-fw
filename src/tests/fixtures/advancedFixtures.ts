@@ -22,9 +22,9 @@ import {
 import { pluginManager } from '../../lib/plugins';
 import { RuntimeDataResolver } from '../../lib/testData/RuntimeDataResolver';
 import { runtimeConfig } from '../../lib/testData/RuntimeDataConfig';
+import { getAuthFilePaths } from '../../config/global-setup';
 import Log from '../../lib/utils/Log';
 import * as fs from 'fs-extra';
-import * as path from 'path';
 
 /* ===== FIXTURE TYPES ===== */
 
@@ -197,12 +197,14 @@ export const test = base.extend<AdvancedFixtures>({
     use: (r: APITestHelper) => Promise<void>,
     _testInfo: TestInfo
   ) => {
-    const authPath = path.resolve(process.cwd(), 'auth.json');
+    const env = process.env.NODE_ENV || 'qa';
+    const authFiles = getAuthFilePaths(env);
+    const authPath = authFiles.superAdmin;
 
     let storageState = {};
     if (fs.existsSync(authPath)) {
       storageState = { storageState: authPath };
-      Log.info('🔐 Using stored authentication for API');
+      Log.info(`🔐 Using stored authentication for API (${env})`);
     }
 
     const apiContext = await playwright.request.newContext({
