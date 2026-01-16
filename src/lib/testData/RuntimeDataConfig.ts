@@ -378,9 +378,9 @@ export class RuntimeConfigManager {
   hasRuntimeData(): boolean {
     return Boolean(
       (this.config.users && this.config.users.length > 0) ||
-        (this.config.organizations && this.config.organizations.length > 0) ||
-        (this.config.locations && this.config.locations.length > 0) ||
-        (this.config.custom && Object.keys(this.config.custom).length > 0)
+      (this.config.organizations && this.config.organizations.length > 0) ||
+      (this.config.locations && this.config.locations.length > 0) ||
+      (this.config.custom && Object.keys(this.config.custom).length > 0)
     );
   }
 }
