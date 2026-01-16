@@ -1,6 +1,8 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
 import { faker } from '@faker-js/faker';
 import Log from '../../../lib/utils/Log';
+import { generateClientName, getUniqueId } from '../shared/testUtils';
+import { ADMIN_API, API } from '../shared/apiEndpoints';
 
 /**
  * API Tests for Story 198248 - Edit Client Details
@@ -26,16 +28,9 @@ import Log from '../../../lib/utils/Log';
  * - #202485: API - Handle special characters in client name
  */
 
-const API_BASE = '/api/admin/api/clients';
-const CITIES_API = '/api/admin/api/cities';
-const EY_ADMINS_API = '/api/admin/api/ey-admins/paginated?page=0&size=10';
-
-let testCounter = 0;
-const getUniqueId = () => (++testCounter).toString(36);
-
-const generateClientName = (): string => {
-  return `${faker.company.name()} ${getUniqueId()}`;
-};
+const API_BASE = `${ADMIN_API}${API.admin.clients.base}`;
+const CITIES_API = `${ADMIN_API}/cities`;
+const EY_ADMINS_API = `${ADMIN_API}${API.admin.eyAdmins.base}/paginated?page=0&size=10`;
 
 const generateClientData = (
   overrides?: Partial<{

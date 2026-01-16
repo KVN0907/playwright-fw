@@ -1,5 +1,7 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
+import { generateRegAreaName, getUniqueId } from '../shared/testUtils';
+import { COMPLIANCE_API, API, buildUrl } from '../shared/apiEndpoints';
 
 /**
  * E2E Test: Master Questionnaire Workflow
@@ -18,8 +20,6 @@ import { faker } from '@faker-js/faker';
  * - Master Questionnaire API
  */
 
-const API_BASE = '/api/compliancemanager';
-
 // Cleanup tracker
 const cleanup: {
   regAreaIds: number[];
@@ -37,14 +37,18 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
     // Cleanup in reverse order
     for (const questionId of cleanup.questionIds) {
       try {
-        await superAdminRequest.delete(`${API_BASE}/questions/${questionId}`);
+        await superAdminRequest.delete(
+          `${COMPLIANCE_API}${buildUrl(API.compliance.questions.delete, { id: questionId })}`
+        );
       } catch {
         // Ignore cleanup errors
       }
     }
     for (const regAreaId of cleanup.regAreaIds) {
       try {
-        await superAdminRequest.delete(`${API_BASE}/reg-area/${regAreaId}`);
+        await superAdminRequest.delete(
+          `${COMPLIANCE_API}${buildUrl(API.compliance.regArea.delete, { id: regAreaId })}`
+        );
       } catch {
         // Ignore cleanup errors
       }
@@ -52,17 +56,20 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
   });
 
   test('@e2e @smoke Step 1: Create Regulatory Area', async ({ superAdminRequest }) => {
-    const regAreaName = `E2E Reg Area ${faker.commerce.department()} ${Date.now()}`;
+    const regAreaName = generateRegAreaName();
 
-    const response = await superAdminRequest.post(`${API_BASE}/reg-area`, {
-      data: {
-        name: regAreaName,
-        description: 'E2E test regulatory area for questionnaire workflow',
-        isActive: true,
-        isApproved: true,
-        isDelete: false,
-      },
-    });
+    const response = await superAdminRequest.post(
+      `${COMPLIANCE_API}${API.compliance.regArea.create}`,
+      {
+        data: {
+          name: regAreaName,
+          description: 'E2E test regulatory area for questionnaire workflow',
+          isActive: true,
+          isApproved: true,
+          isDelete: false,
+        },
+      }
+    );
 
     expect(response.status()).toBe(201);
     const data = await response.json();
@@ -102,9 +109,10 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
     ];
 
     for (const question of questions) {
-      const response = await superAdminRequest.post(`${API_BASE}/questions`, {
-        data: question,
-      });
+      const response = await superAdminRequest.post(
+        `${COMPLIANCE_API}${API.compliance.questions.create}`,
+        { data: question }
+      );
 
       expect([200, 201]).toContain(response.status());
 
@@ -125,7 +133,9 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
   }) => {
     test.skip(!createdRegAreaId, 'Regulatory Area not created');
 
-    const response = await superAdminRequest.get(`${API_BASE}/reg-area`);
+    const response = await superAdminRequest.get(
+      `${COMPLIANCE_API}${API.compliance.regArea.getAll}`
+    );
     expect(response.status()).toBe(200);
 
     const regAreas = await response.json();
@@ -138,7 +148,9 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
   test('@e2e @smoke Step 4: Verify Questions are retrievable', async ({ superAdminRequest }) => {
     test.skip(createdQuestionIds.length === 0, 'No questions created');
 
-    const response = await superAdminRequest.get(`${API_BASE}/questions`);
+    const response = await superAdminRequest.get(
+      `${COMPLIANCE_API}${API.compliance.questions.getAll}`
+    );
     expect(response.status()).toBe(200);
 
     const questions = await response.json();
@@ -152,18 +164,21 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
   test('@e2e @smoke Step 5: Update Regulatory Area name', async ({ superAdminRequest }) => {
     test.skip(!createdRegAreaId, 'Regulatory Area not created');
 
-    const updatedName = `E2E Updated Reg Area ${Date.now()}`;
+    const updatedName = generateRegAreaName();
 
-    const response = await superAdminRequest.put(`${API_BASE}/reg-area`, {
-      data: {
-        id: createdRegAreaId,
-        name: updatedName,
-        description: 'Updated E2E test regulatory area',
-        isActive: true,
-        isApproved: true,
-        isDelete: false,
-      },
-    });
+    const response = await superAdminRequest.put(
+      `${COMPLIANCE_API}${API.compliance.regArea.update}`,
+      {
+        data: {
+          id: createdRegAreaId,
+          name: updatedName,
+          description: 'Updated E2E test regulatory area',
+          isActive: true,
+          isApproved: true,
+          isDelete: false,
+        },
+      }
+    );
 
     expect(response.status()).toBe(200);
     const data = await response.json();
@@ -174,7 +189,9 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
     test.skip(createdQuestionIds.length === 0, 'No questions created');
 
     // Get available countries
-    const countriesResponse = await superAdminRequest.get(`${API_BASE}/countries`);
+    const countriesResponse = await superAdminRequest.get(
+      `${COMPLIANCE_API}${API.compliance.countries.getAll}`
+    );
 
     if (countriesResponse.ok()) {
       const countries = await countriesResponse.json();
@@ -183,7 +200,7 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
 
         // Map first question to first country
         const mappingResponse = await superAdminRequest.post(
-          `${API_BASE}/country-questions-mapping`,
+          `${COMPLIANCE_API}${API.compliance.countryQuestionsMapping.create}`,
           {
             data: {
               questionId: createdQuestionIds[0],
@@ -205,7 +222,9 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
     test.skip(createdQuestionIds.length === 0, 'No questions to delete');
 
     for (const questionId of createdQuestionIds) {
-      const response = await superAdminRequest.delete(`${API_BASE}/questions/${questionId}`);
+      const response = await superAdminRequest.delete(
+        `${COMPLIANCE_API}${buildUrl(API.compliance.questions.delete, { id: questionId })}`
+      );
       // Delete might return 200 or 204
       expect([200, 204]).toContain(response.status());
     }
@@ -216,11 +235,15 @@ test.describe('E2E: Master Questionnaire Workflow', () => {
   }) => {
     test.skip(!createdRegAreaId, 'Regulatory Area not created');
 
-    const response = await superAdminRequest.delete(`${API_BASE}/reg-area/${createdRegAreaId}`);
+    const response = await superAdminRequest.delete(
+      `${COMPLIANCE_API}${buildUrl(API.compliance.regArea.delete, { id: createdRegAreaId })}`
+    );
     expect([200, 204]).toContain(response.status());
 
     // Verify it's deleted (soft delete - should not appear in list)
-    const verifyResponse = await superAdminRequest.get(`${API_BASE}/reg-area`);
+    const verifyResponse = await superAdminRequest.get(
+      `${COMPLIANCE_API}${API.compliance.regArea.getAll}`
+    );
     const regAreas = await verifyResponse.json();
     const deletedRegArea = regAreas.find((ra: { id: number }) => ra.id === createdRegAreaId);
 

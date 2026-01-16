@@ -1,5 +1,6 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
-import { faker } from '@faker-js/faker';
+import { generateEmail, generatePersonName } from '../shared/testUtils';
+import { ADMIN_API, API, buildUrl } from '../shared/apiEndpoints';
 
 /**
  * E2E Test: User Management Full Flow
@@ -18,8 +19,6 @@ import { faker } from '@faker-js/faker';
  * - #197601: Deactivate Users
  */
 
-const API_BASE = '/api/admin/api';
-
 // Cleanup tracker
 const cleanup: {
   userIds: number[];
@@ -35,7 +34,9 @@ test.describe('E2E: User Management Full Flow', () => {
   test.beforeAll(async ({ superAdminRequest }) => {
     // Get a valid client ID for client admin creation
     try {
-      const clientsResponse = await superAdminRequest.get(`${API_BASE}/clients`);
+      const clientsResponse = await superAdminRequest.get(
+        `${ADMIN_API}${API.admin.clients.getAll}`
+      );
       if (clientsResponse.ok()) {
         const clients = await clientsResponse.json();
         if (clients?.length > 0) {
@@ -51,7 +52,9 @@ test.describe('E2E: User Management Full Flow', () => {
     // Cleanup created users
     for (const userId of cleanup.userIds) {
       try {
-        await superAdminRequest.delete(`${API_BASE}/users/${userId}`);
+        await superAdminRequest.delete(
+          `${ADMIN_API}${buildUrl(API.admin.users.delete, { id: userId })}`
+        );
       } catch {
         // Ignore cleanup errors
       }
@@ -59,10 +62,10 @@ test.describe('E2E: User Management Full Flow', () => {
   });
 
   test('@e2e @smoke Step 1: Create EY Admin user', async ({ superAdminRequest }) => {
-    const userEmail = `e2e.eyadmin.${Date.now()}@ey.com`;
-    const userName = faker.person.fullName();
+    const userEmail = generateEmail('ey.com');
+    const userName = generatePersonName();
 
-    const response = await superAdminRequest.post(`${API_BASE}/ey-admins`, {
+    const response = await superAdminRequest.post(`${ADMIN_API}${API.admin.eyAdmins.create}`, {
       data: {
         email: userEmail,
         name: userName,
@@ -85,7 +88,7 @@ test.describe('E2E: User Management Full Flow', () => {
   test('@e2e @smoke Step 2: Verify EY Admin appears in list', async ({ superAdminRequest }) => {
     test.skip(!createdEyAdminId, 'EY Admin not created');
 
-    const response = await superAdminRequest.get(`${API_BASE}/ey-admins`);
+    const response = await superAdminRequest.get(`${ADMIN_API}${API.admin.eyAdmins.getAll}`);
     expect(response.status()).toBe(200);
 
     const admins = await response.json();
@@ -97,10 +100,10 @@ test.describe('E2E: User Management Full Flow', () => {
   test('@e2e @smoke Step 3: Create Client Admin user', async ({ superAdminRequest }) => {
     test.skip(!validClientId, 'No valid client ID available');
 
-    const userEmail = `e2e.clientadmin.${Date.now()}@test.com`;
-    const userName = faker.person.fullName();
+    const userEmail = generateEmail('test.com');
+    const userName = generatePersonName();
 
-    const response = await superAdminRequest.post(`${API_BASE}/users`, {
+    const response = await superAdminRequest.post(`${ADMIN_API}${API.admin.users.create}`, {
       data: {
         email: userEmail,
         name: userName,
@@ -124,15 +127,18 @@ test.describe('E2E: User Management Full Flow', () => {
   test('@e2e @smoke Step 4: Edit EY Admin user details', async ({ superAdminRequest }) => {
     test.skip(!createdEyAdminId, 'EY Admin not created');
 
-    const updatedName = `Updated E2E Admin ${Date.now()}`;
+    const updatedName = generatePersonName();
 
-    const response = await superAdminRequest.put(`${API_BASE}/ey-admins/${createdEyAdminId}`, {
-      data: {
-        id: createdEyAdminId,
-        name: updatedName,
-        isActive: true,
-      },
-    });
+    const response = await superAdminRequest.put(
+      `${ADMIN_API}${buildUrl(API.admin.eyAdmins.update, { id: createdEyAdminId })}`,
+      {
+        data: {
+          id: createdEyAdminId,
+          name: updatedName,
+          isActive: true,
+        },
+      }
+    );
 
     expect([200, 204]).toContain(response.status());
   });
@@ -141,12 +147,8 @@ test.describe('E2E: User Management Full Flow', () => {
     test.skip(!createdEyAdminId, 'EY Admin not created');
 
     const response = await superAdminRequest.put(
-      `${API_BASE}/ey-admins/${createdEyAdminId}/status`,
-      {
-        data: {
-          isActive: false,
-        },
-      }
+      `${ADMIN_API}${buildUrl(API.admin.eyAdmins.updateStatus, { id: createdEyAdminId })}`,
+      { data: { isActive: false } }
     );
 
     expect([200, 204]).toContain(response.status());
@@ -156,12 +158,8 @@ test.describe('E2E: User Management Full Flow', () => {
     test.skip(!createdEyAdminId, 'EY Admin not created');
 
     const response = await superAdminRequest.put(
-      `${API_BASE}/ey-admins/${createdEyAdminId}/status`,
-      {
-        data: {
-          isActive: true,
-        },
-      }
+      `${ADMIN_API}${buildUrl(API.admin.eyAdmins.updateStatus, { id: createdEyAdminId })}`,
+      { data: { isActive: true } }
     );
 
     expect([200, 204]).toContain(response.status());
@@ -171,12 +169,8 @@ test.describe('E2E: User Management Full Flow', () => {
     test.skip(!createdClientAdminId, 'Client Admin not created');
 
     const response = await superAdminRequest.put(
-      `${API_BASE}/users/${createdClientAdminId}/status`,
-      {
-        data: {
-          isActive: false,
-        },
-      }
+      `${ADMIN_API}${buildUrl(API.admin.users.updateStatus, { id: createdClientAdminId })}`,
+      { data: { isActive: false } }
     );
 
     expect([200, 204]).toContain(response.status());

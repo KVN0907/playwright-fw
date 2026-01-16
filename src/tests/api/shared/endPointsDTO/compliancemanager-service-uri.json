@@ -1,29 +1,53 @@
 {
-  "getAllQuestions": "/questions",
-  "saveQuestion": "/questions",
-  "updateQuestion": "/questions",
-  "deleteQuestionsByIds": "/questions",
-  "getAllQuestionsByRegAreaId": "/questions/{regAreaId}",
-  "getAllQuestionsByRegAreaIdAndClientTenantId": "/questions/{regAreaId}/{clientTenantId}",
-  "deleteQuestion": "/questions/{id}",
-  "uploadQuestions": "/questions/upload-questions",
+  "basePath": "/api/compliancemanager",
 
-  "createCountryQuestionsMapping": "/country-questions-mapping",
-  "saveAllCountryQuestionsMappings": "/country-questions-mapping/save-all",
-  "getAllQuestionsByClientCountryId": "/country-questions-mapping/{clientCountryId}",
-  "triggerQuestions": "/country-questions-mapping/trigger-questions",
-  "assignQuestions": "/country-questions-mapping/assign-questions",
-  "getAssignedCountries": "/country-questions-mapping/assigned-countries",
-  "getAssignedQuestions": "/country-questions-mapping/assigned-questions/{clientCountryId}",
-  "submitQuestionnaire": "/country-questions-mapping/submit-questionnaire",
-  "approveQuestionnaire": "/country-questions-mapping/approve-questionnaire",
+  "regArea": {
+    "base": "/reg-area",
+    "getAll": "/reg-area",
+    "create": "/reg-area",
+    "update": "/reg-area",
+    "delete": "/reg-area/{id}",
+    "getById": "/reg-area/{id}"
+  },
 
-  "saveQuestionnaireResponses": "/questionnaire-responses",
-  "saveRequestInfo": "/questionnaire-responses/request-info",
-  "saveRequestInfoRegArea": "/questionnaire-responses/request-info-reg-area",
-  "getRequestInfoList": "/questionnaire-responses/request-info-list/{countryQuestionsMappingId}",
+  "questions": {
+    "base": "/questions",
+    "getAll": "/questions",
+    "create": "/questions",
+    "update": "/questions",
+    "delete": "/questions/{id}",
+    "deleteByIds": "/questions",
+    "getByRegAreaId": "/questions/{regAreaId}",
+    "getByRegAreaAndTenant": "/questions/{regAreaId}/{clientTenantId}",
+    "upload": "/questions/upload-questions"
+  },
 
-  "exportAllQuestionnaires": "/questionnaire-responses/export/all",
-  "exportByCountries": "/questionnaire-responses/export/by-countries",
-  "exportByRegArea": "/questionnaire-responses/export/by-reg-area"
+  "countryQuestionsMapping": {
+    "base": "/country-questions-mapping",
+    "create": "/country-questions-mapping",
+    "saveAll": "/country-questions-mapping/save-all",
+    "getByClientCountryId": "/country-questions-mapping/{clientCountryId}",
+    "triggerQuestions": "/country-questions-mapping/trigger-questions",
+    "assignQuestions": "/country-questions-mapping/assign-questions",
+    "assignedCountries": "/country-questions-mapping/assigned-countries",
+    "assignedQuestions": "/country-questions-mapping/assigned-questions/{clientCountryId}",
+    "submitQuestionnaire": "/country-questions-mapping/submit-questionnaire",
+    "approveQuestionnaire": "/country-questions-mapping/approve-questionnaire"
+  },
+
+  "questionnaireResponses": {
+    "base": "/questionnaire-responses",
+    "save": "/questionnaire-responses",
+    "requestInfo": "/questionnaire-responses/request-info",
+    "requestInfoRegArea": "/questionnaire-responses/request-info-reg-area",
+    "requestInfoList": "/questionnaire-responses/request-info-list/{countryQuestionsMappingId}",
+    "exportAll": "/questionnaire-responses/export/all",
+    "exportByCountries": "/questionnaire-responses/export/by-countries",
+    "exportByRegArea": "/questionnaire-responses/export/by-reg-area"
+  },
+
+  "countries": {
+    "base": "/countries",
+    "getAll": "/countries"
+  }
 }

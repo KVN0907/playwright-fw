@@ -1,5 +1,7 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
+import { generateEmail } from '../shared/testUtils';
+import { ADMIN_API, API } from '../shared/apiEndpoints';
 
 /**
  * API Tests for Story 197598 - Edit users: EY Super Admin (Backend)
@@ -19,16 +21,9 @@ import { faker } from '@faker-js/faker';
  * - #202523: API - Reject missing id on update
  */
 
-const API_BASE = '/api/admin/api/ey-admins';
+const API_BASE = `${ADMIN_API}${API.admin.eyAdmins.base}`;
 
-let testCounter = 0;
-const getUniqueId = () => (++testCounter).toString(36);
-
-const generateEyEmail = (): string => {
-  const firstName = faker.person.firstName().toLowerCase();
-  const lastName = faker.person.lastName().toLowerCase();
-  return `${firstName}.${lastName}.${getUniqueId()}@ey.com`;
-};
+const generateEyEmail = (): string => generateEmail('ey.com');
 
 test.describe('Story #197598: Edit EY Admin - API Tests', () => {
   test.describe('PUT /ey-admins - Edit EY Admin', () => {

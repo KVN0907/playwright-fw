@@ -1178,7 +1178,7 @@ test.describe('Story #206272: Assign Client Admin & Countries API Tests', () => 
           { type: 'security', description: 'Prototype Pollution' }
         );
 
-      const pollutionPayloads = [
+      const pollutionPayloads: Record<string, unknown>[] = [
         { __proto__: { isAdmin: true } },
         { constructor: { prototype: { isAdmin: true } } },
         { ['__proto__']: { admin: true } },

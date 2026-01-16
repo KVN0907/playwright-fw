@@ -1,5 +1,6 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
-import { faker } from '@faker-js/faker';
+import { generateClientName, generateEmail, CleanupTracker } from '../shared/testUtils';
+import { ADMIN_API, COMPLIANCE_API, API, buildUrl } from '../shared/apiEndpoints';
 
 /**
  * E2E Test: Client Onboarding Full Flow
@@ -20,9 +21,6 @@ import { faker } from '@faker-js/faker';
  * - #206272: Assign Client Admin Countries
  */
 
-const API_BASE = '/api/admin/api';
-const COMPLIANCE_API = '/api/compliancemanager';
-
 // Test data cleanup tracker
 const cleanup: {
   clientIds: number[];
@@ -41,9 +39,10 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
   test.beforeAll(async ({ superAdminRequest }) => {
     // Fetch valid city ID
     try {
-      const cityResponse = await superAdminRequest.post(`${API_BASE}/cities/search-by-name`, {
-        data: { name: 'a' },
-      });
+      const cityResponse = await superAdminRequest.post(
+        `${ADMIN_API}${API.admin.clients.searchByName}`,
+        { data: { name: 'a' } }
+      );
       if (cityResponse.ok()) {
         const cities = await cityResponse.json();
         if (cities?.length > 0) {
@@ -56,7 +55,9 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
 
     // Fetch available EY Admin IDs
     try {
-      const adminsResponse = await superAdminRequest.get(`${API_BASE}/ey-admins`);
+      const adminsResponse = await superAdminRequest.get(
+        `${ADMIN_API}${API.admin.eyAdmins.getAll}`
+      );
       if (adminsResponse.ok()) {
         const admins = await adminsResponse.json();
         if (admins?.length > 0) {
@@ -77,14 +78,18 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
     // Cleanup created test data in reverse order
     for (const userId of cleanup.userIds) {
       try {
-        await superAdminRequest.delete(`${API_BASE}/users/${userId}`);
+        await superAdminRequest.delete(
+          `${ADMIN_API}${buildUrl(API.admin.users.delete, { id: userId })}`
+        );
       } catch {
         // Ignore cleanup errors
       }
     }
     for (const clientId of cleanup.clientIds) {
       try {
-        await superAdminRequest.delete(`${API_BASE}/clients/${clientId}`);
+        await superAdminRequest.delete(
+          `${ADMIN_API}${buildUrl(API.admin.clients.getById, { id: clientId })}`
+        );
       } catch {
         // Ignore cleanup errors
       }
@@ -92,9 +97,9 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
   });
 
   test('@e2e @smoke Step 1: Create new client with EY Admin', async ({ superAdminRequest }) => {
-    const clientName = `E2E Test Client ${faker.company.name()} ${Date.now()}`;
+    const clientName = generateClientName();
 
-    const response = await superAdminRequest.post(`${API_BASE}/clients`, {
+    const response = await superAdminRequest.post(`${ADMIN_API}${API.admin.clients.create}`, {
       data: {
         name: clientName,
         cityId: validCityId,
@@ -119,10 +124,10 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
   }) => {
     test.skip(!createdClientId, 'Client not created in previous step');
 
-    const userEmail = `e2e.clientadmin.${Date.now()}@test.ey.com`;
-    const userName = faker.person.fullName();
+    const userEmail = generateEmail('test.ey.com');
+    const userName = generateClientName();
 
-    const response = await superAdminRequest.post(`${API_BASE}/users`, {
+    const response = await superAdminRequest.post(`${ADMIN_API}${API.admin.users.create}`, {
       data: {
         email: userEmail,
         name: userName,
@@ -149,7 +154,7 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
   }) => {
     test.skip(!createdClientId, 'Client not created');
 
-    const response = await superAdminRequest.get(`${API_BASE}/clients`);
+    const response = await superAdminRequest.get(`${ADMIN_API}${API.admin.clients.getAll}`);
 
     expect(response.status()).toBe(200);
     const clients = await response.json();
@@ -163,7 +168,9 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
     test.skip(!createdClientId || !createdClientAdminId, 'Client or Client Admin not created');
 
     // Get available countries first
-    const countriesResponse = await superAdminRequest.get(`${COMPLIANCE_API}/countries`);
+    const countriesResponse = await superAdminRequest.get(
+      `${COMPLIANCE_API}${API.compliance.countries.getAll}`
+    );
 
     if (countriesResponse.ok()) {
       const countries = await countriesResponse.json();
@@ -171,12 +178,8 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
         const countryIds = countries.slice(0, 2).map((c: { id: number }) => c.id);
 
         const assignResponse = await superAdminRequest.post(
-          `${API_BASE}/client-admins/${createdClientAdminId}/countries`,
-          {
-            data: {
-              countryIds: countryIds,
-            },
-          }
+          `${ADMIN_API}${buildUrl(API.admin.clientAdmins.assignCountries, { id: createdClientAdminId })}`,
+          { data: { countryIds: countryIds } }
         );
 
         // Country assignment might return 200 or 201
@@ -190,16 +193,17 @@ test.describe('E2E: Client Onboarding Full Flow', () => {
   }) => {
     test.skip(!createdClientId, 'Client not created');
 
-    const response = await superAdminRequest.put(`${API_BASE}/clients/${createdClientId}/status`, {
-      data: {
-        activeStatus: false,
-      },
-    });
+    const response = await superAdminRequest.put(
+      `${ADMIN_API}${buildUrl(API.admin.clients.updateStatus, { id: createdClientId })}`,
+      { data: { activeStatus: false } }
+    );
 
     expect([200, 204]).toContain(response.status());
 
     // Verify deactivation
-    const verifyResponse = await superAdminRequest.get(`${API_BASE}/clients/${createdClientId}`);
+    const verifyResponse = await superAdminRequest.get(
+      `${ADMIN_API}${buildUrl(API.admin.clients.getById, { id: createdClientId })}`
+    );
     if (verifyResponse.ok()) {
       const client = await verifyResponse.json();
       expect(client.activeStatus).toBe(false);

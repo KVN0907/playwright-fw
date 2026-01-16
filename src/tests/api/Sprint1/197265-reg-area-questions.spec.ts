@@ -13,14 +13,12 @@
 import { test, expect } from '../../fixtures/advancedFixtures';
 import { faker } from '@faker-js/faker';
 import Log from '../../../lib/utils/Log';
+import { generateRegAreaName } from '../shared/testUtils';
+import { COMPLIANCE_API, API } from '../shared/apiEndpoints';
 
-const BASE_PATH = '/api/compliancemanager';
+const BASE_PATH = COMPLIANCE_API;
 
 // Test data helpers
-const generateRegAreaName = (): string => {
-  return `RegArea_${faker.company.buzzNoun()}_${Date.now()}`;
-};
-
 const generateQuestionText = (length: number = 50): string => {
   if (length <= 10) {
     return faker.lorem.word().substring(0, length);

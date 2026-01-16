@@ -1,5 +1,7 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
+import { generateClientName, getUniqueId } from '../shared/testUtils';
+import { ADMIN_API, API } from '../shared/apiEndpoints';
 
 /**
  * API Tests for Stories 197607, 197609 - Client Management
@@ -19,18 +21,7 @@ import { faker } from '@faker-js/faker';
  * - #210019: API - Reject update for non-existent client
  */
 
-const API_BASE = '/api/admin/api/clients';
-
-let testCounter = 0;
-const getUniqueId = () => (++testCounter).toString(36);
-
-const generateClientName = (): string => {
-  return faker.helpers.arrayElement([
-    `${faker.company.name()} ${getUniqueId()}`,
-    `${faker.person.lastName()} & ${faker.person.lastName()} Corp ${getUniqueId()}`,
-    `${faker.location.city()} ${faker.company.buzzNoun()} Ltd ${getUniqueId()}`,
-  ]);
-};
+const API_BASE = `${ADMIN_API}${API.admin.clients.base}`;
 
 test.describe('Stories #197607, #197609: Client Management - API Tests', () => {
   test.describe('Story 197609 - GET /clients - View Client List', () => {

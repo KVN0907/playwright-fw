@@ -165,7 +165,7 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
 
   // Fetch the Corporate Secretarial reg area for valid upload tests
   test.beforeAll(async ({ superAdminRequest }) => {
-    const response = await request.get(`${API_BASE}/reg-area`, {
+    const response = await superAdminRequest.get(`${API_BASE}/reg-area`, {
       headers: { 'x-tenant-id': '1', 'x-user-id': '1' },
     });
     if (response.status() === 200) {
@@ -183,13 +183,13 @@ test.describe('Story #197269: Upload Excel to Auto Populate Questions', () => {
   });
 
   test.beforeEach(async ({ superAdminRequest }) => {
-    const regArea = await createTestRegArea(request);
+    const regArea = await createTestRegArea(superAdminRequest);
     testRegAreaId = regArea.id;
   });
 
   test.afterEach(async ({ superAdminRequest }) => {
     if (testRegAreaId) {
-      await deleteTestRegArea(request, testRegAreaId);
+      await deleteTestRegArea(superAdminRequest, testRegAreaId);
     }
   });
 

@@ -1,5 +1,7 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
+import { generateEmail, getUniqueId } from '../shared/testUtils';
+import { ADMIN_API, API, buildUrl } from '../shared/apiEndpoints';
 
 /**
  * API Tests for Story 197592 - Create users: EY Super Admin (Backend)
@@ -23,16 +25,9 @@ import { faker } from '@faker-js/faker';
  * - #201694-201698: Fetch and search tests
  */
 
-const API_BASE = '/api/admin/api/ey-admins';
+const API_BASE = `${ADMIN_API}${API.admin.eyAdmins.base}`;
 
-let testCounter = 0;
-const getUniqueId = () => (++testCounter).toString(36);
-
-const generateEyEmail = (): string => {
-  const firstName = faker.person.firstName().toLowerCase();
-  const lastName = faker.person.lastName().toLowerCase();
-  return `${firstName}.${lastName}.${getUniqueId()}@ey.com`;
-};
+const generateEyEmail = (): string => generateEmail('ey.com');
 
 test.describe('Story #197592: Create EY Admin - API Tests', () => {
   test.describe('POST /ey-admins - Create EY Admin', () => {

@@ -1,5 +1,7 @@
 import { test, expect } from '../../fixtures/apiRoleFixtures';
 import { faker } from '@faker-js/faker';
+import { generateRegAreaName, getUniqueId } from '../shared/testUtils';
+import { COMPLIANCE_API } from '../shared/apiEndpoints';
 
 /**
  * API Tests for Story 197275 - Delete reg area and questions
@@ -25,15 +27,10 @@ import { faker } from '@faker-js/faker';
  * - #202731: API - Handle double deletion of same reg area
  */
 
-const API_BASE = '/api/compliancemanager';
-
-const generateRegAreaName = (): string => {
-  const uniqueId = `${Date.now()}`.slice(-6);
-  return `RegArea_Delete_${faker.company.buzzNoun()}_${uniqueId}`;
-};
+const API_BASE = COMPLIANCE_API;
 
 const generateQuestionText = (): string => {
-  return `Question_${faker.lorem.sentence().substring(0, 50)}_${Date.now()}`;
+  return `Question_${faker.lorem.sentence().substring(0, 50)}_${getUniqueId()}`;
 };
 
 test.describe('Story #197275: Delete RegArea and Questions - API Tests', () => {
