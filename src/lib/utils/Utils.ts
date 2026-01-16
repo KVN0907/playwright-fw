@@ -30,12 +30,11 @@ type Config<T extends Record<string, unknown>> = {
 };
 
 /** Environment configuration type */
-interface EnvConfig
-  extends Config<{
-    testEnv?: string;
-    override?: boolean;
-    path?: string;
-  }> {}
+interface EnvConfig extends Config<{
+  testEnv?: string;
+  override?: boolean;
+  path?: string;
+}> {}
 
 /* ===== ADVANCED UTILITY CLASSES ===== */
 
