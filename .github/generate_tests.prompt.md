@@ -138,57 +138,130 @@ The framework provides advanced fixtures via dependency injection:
 - `testContext` - Test metadata and context information
 - `cleanupStack` - Automatic resource cleanup management
 
+## Test Data Generation with Faker
+
+The framework uses `@faker-js/faker` to generate realistic test data at runtime. **Always use faker** instead of hardcoded values or timestamps.
+
+### Faker Import and Basic Usage
+
+```typescript
+import { faker } from '@faker-js/faker';
+
+// Generate realistic user data
+const userData = {
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  email: faker.internet.email(),
+  username: faker.internet.username(),
+  phone: faker.phone.number(),
+};
+
+// Generate company/client data
+const clientData = {
+  name: faker.company.name(),
+  industry: faker.company.buzzPhrase(),
+  contactPerson: faker.person.fullName(),
+};
+
+// Generate location data
+const locationData = {
+  city: faker.location.city(),
+  country: faker.location.country(),
+  state: faker.location.state(),
+  address: faker.location.streetAddress(),
+  zipCode: faker.location.zipCode(),
+};
+```
+
+### Common Faker Methods Reference
+
+```typescript
+// Person/User Data
+faker.person.firstName(); // "John"
+faker.person.lastName(); // "Smith"
+faker.person.fullName(); // "John Smith"
+faker.person.jobTitle(); // "Software Engineer"
+
+// Internet/Contact Data
+faker.internet.email(); // "john.smith@example.com"
+faker.internet.email({ provider: 'ey.com' }); // "john.smith@ey.com"
+faker.internet.username(); // "john_smith_42"
+faker.phone.number(); // "+1-555-123-4567"
+
+// Company/Organization Data
+faker.company.name(); // "Acme Corporation"
+faker.company.buzzNoun(); // "synergies"
+faker.company.catchPhrase(); // "Innovative solutions"
+
+// Location/Address Data
+faker.location.city(); // "San Francisco"
+faker.location.country(); // "United States"
+faker.location.state(); // "California"
+faker.location.streetAddress(); // "123 Main Street"
+faker.location.zipCode(); // "94102"
+
+// Random Selection
+faker.helpers.arrayElement(['admin', 'user', 'manager']); // Random role
+faker.helpers.multiple(() => faker.person.firstName(), { count: 5 }); // Array of 5
+
+// Numbers and Text
+faker.number.int({ min: 1, max: 100 }); // Random integer
+faker.lorem.sentence(); // Random sentence
+faker.word.adjective(); // Random adjective
+```
+
 ## Test Data Builder Examples
 
-### Creating Users
+### Creating Users with Faker
 
 ```typescript
 import { test } from './tests/fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
-test('Create user with builder', async ({ userBuilder }) => {
-  // Simple user with defaults
-  const user = userBuilder.create().build();
-
-  // Custom user
-  const admin = userBuilder
+test('Create user with realistic faker data', async ({ userBuilder }) => {
+  // User with faker-generated data
+  const user = userBuilder
     .create()
-    .withName('John', 'Doe')
-    .withEmail('john.doe@test.com')
-    .withRole('admin')
-    .withOrganization('Test Corp')
+    .withName(faker.person.firstName(), faker.person.lastName())
+    .withEmail(faker.internet.email())
+    .withRole(faker.helpers.arrayElement(['admin', 'user', 'manager']))
+    .withOrganization(faker.company.name())
     .build();
 
-  // Multiple users
-  const users = userBuilder.create().buildMultiple(5);
+  // Multiple users with faker
+  const users = Array.from({ length: 5 }, () => ({
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    email: faker.internet.email(),
+    role: faker.helpers.arrayElement(['admin', 'user']),
+  }));
 });
 ```
 
-### Creating Organizations
+### Creating Organizations with Faker
 
 ```typescript
-test('Create organization', async ({ organizationBuilder }) => {
+test('Create organization with faker', async ({ organizationBuilder }) => {
   const org = organizationBuilder
     .create()
-    .withName('Acme Corporation')
-    .withType('enterprise')
+    .withName(faker.company.name())
+    .withType(faker.helpers.arrayElement(['enterprise', 'startup', 'agency']))
     .build();
 });
 ```
 
-### Creating Complete Scenarios
+### Creating Complete Scenarios with Faker
 
 ```typescript
-test('Create scenario', async ({ scenarioBuilder }) => {
+test('Create scenario with faker data', async ({ scenarioBuilder }) => {
   const scenario = scenarioBuilder
-    .create('User Management Scenario')
+    .create(`${faker.word.adjective()} Test Scenario`)
     .withCompleteOrganization(3, 5) // 3 orgs, 5 users each
-    .withLocation({ name: 'Office 1', type: 'Office' })
+    .withLocation({
+      name: `${faker.location.city()} Office`,
+      type: faker.helpers.arrayElement(['Office', 'Branch', 'HQ']),
+    })
     .build();
-
-  // Access data
-  console.log(scenario.organizations.length); // 3
-  console.log(scenario.users.length); // 15
-  console.log(scenario.locations.length); // 1
 });
 ```
 

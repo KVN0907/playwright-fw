@@ -1,0 +1,4 @@
+Question,AnswerType,IsRequired
+What is your company name?,Text,true
+Do you have a compliance policy?,Yes/No,true
+How many employees do you have?,Number,false

@@ -2,138 +2,55 @@
 /**
  * MCP-Assisted Test Generation
  *
- * Use this after discovering work items via Droid MCP
+ * DEPRECATED: This script is no longer needed as MCP provides direct ADO integration.
  *
- * Workflow:
- * 1. Use Droid: "Find work items in eycompliancemanager with acceptance criteria"
- * 2. Copy work item IDs from the results
- * 3. Run this script: npm run generate:from-mcp -- 12345 67890 11223
+ * Instead, use Droid MCP directly:
  *
- * Example:
- *   npm run generate:from-mcp -- 252423 240490 240426
+ * 1. Get work item details:
+ *    "Get work item #12345 from eycompliancemanager"
+ *
+ * 2. Generate tests from acceptance criteria:
+ *    "Generate Playwright tests for work item #12345"
+ *
+ * 3. Batch operations:
+ *    "Find all user stories in Sprint 5 and generate test specs"
+ *
+ * MCP Tools Available:
+ * - ado___wit_get_work_item: Get single work item
+ * - ado___wit_get_work_items_batch_by_ids: Get multiple work items
+ * - ado___wit_my_work_items: Get items assigned to you
+ * - ado___search_workitem: Search work items
+ * - ado___wit_get_query_results_by_id: Run saved queries
+ *
+ * Example MCP Commands:
+ *   "Get work items 252423, 240490, 240426 from eycompliancemanager"
+ *   "Show acceptance criteria for work item #252423"
+ *   "Generate API tests for story #252423 based on its acceptance criteria"
  */
 
-import { ADOHelper, createADOHelperFromEnv } from '../src/lib/ADOHelper';
-import * as path from 'path';
-
-const workItemIds = process.argv.slice(2).map(id => parseInt(id, 10));
-
-if (workItemIds.length === 0 || workItemIds.some(isNaN)) {
-  console.log('❌ Please provide valid work item IDs\n');
-  console.log('Usage: npm run generate:from-mcp -- <workItemId1> <workItemId2> ...\n');
-  console.log('📋 MCP Discovery Workflow:');
-  console.log('  1. Open Droid CLI');
-  console.log('  2. Ask: "Find work items with acceptance criteria in eycompliancemanager"');
-  console.log('  3. Copy work item IDs from the results');
-  console.log('  4. Run: npm run generate:from-mcp -- <IDs>\n');
-  console.log('Example:');
-  console.log('  npm run generate:from-mcp -- 252423 240490 240426\n');
-  process.exit(1);
-}
-
-async function main() {
-  console.log('🚀 MCP-Assisted Test Generation\n');
-  console.log('═'.repeat(60));
-  console.log(`📋 Work Item IDs: ${workItemIds.join(', ')}`);
-  console.log(`📁 Organization: ${process.env.ADO_ORGANIZATION || 'Not set'}`);
-  console.log(`📂 Project: ${process.env.ADO_PROJECT || 'Not set'}`);
-  console.log('═'.repeat(60));
-  console.log();
-
-  // Validate environment variables
-  if (!process.env.ADO_ORGANIZATION || !process.env.ADO_PROJECT || !process.env.ADO_PAT) {
-    console.error('❌ Missing ADO environment variables!');
-    console.error('   Required: ADO_ORGANIZATION, ADO_PROJECT, ADO_PAT');
-    console.error('   Check your .env file or config/environments/ado.env');
-    process.exit(1);
-  }
-
-  try {
-    // Create ADO helper from environment
-    const helper = createADOHelperFromEnv();
-
-    // Test connection
-    console.log('🔌 Testing Azure DevOps connection...');
-    const connected = await helper.testConnection();
-    if (!connected) {
-      console.error('❌ Failed to connect to Azure DevOps');
-      process.exit(1);
-    }
-
-    // Initialize test generator
-    console.log('⚙️  Initializing test generator...');
-    helper.initializeGenerator({
-      outputDirectory: path.resolve(__dirname, '../src/tests/generated'),
-      testFramework: 'playwright',
-      promptFilePath: path.resolve(__dirname, '../.github/generate_tests.prompt.md'),
-      includePageObjects: true,
-      basePageObjectsPath: './src/pages',
-      testSpecsPath: './src/tests',
-    });
-
-    // Generate tests
-    console.log(`\n📝 Generating tests for ${workItemIds.length} work items...\n`);
-    const results = await helper.generateTestsFromWorkItems(workItemIds);
-
-    // Display results
-    console.log('\n' + '═'.repeat(60));
-    console.log('📊 Generation Results:');
-    console.log('═'.repeat(60) + '\n');
-
-    let successCount = 0;
-    let failCount = 0;
-
-    results.forEach(result => {
-      const status = result.success ? '✅' : '❌';
-      const state = result.workItem.state;
-      const type = result.workItem.workItemType;
-
-      console.log(`${status} Work Item #${result.workItem.id}`);
-      console.log(`   Title: ${result.workItem.title}`);
-      console.log(`   Type: ${type} | State: ${state}`);
-
-      if (result.success) {
-        console.log(`   Output: ${result.generatedScript.filePath}`);
-        successCount++;
-      } else {
-        console.log(`   Error: ${result.error}`);
-        failCount++;
-      }
-      console.log();
-    });
-
-    console.log('═'.repeat(60));
-    console.log('📈 Summary:');
-    console.log(`   Total: ${results.length}`);
-    console.log(`   ✅ Success: ${successCount}`);
-    console.log(`   ❌ Failed: ${failCount}`);
-    console.log('═'.repeat(60));
-
-    if (successCount > 0) {
-      console.log('\n✨ Next Steps:');
-      console.log('  1. Review generated tests in src/tests/generated/');
-      console.log('  2. Update page objects if needed in src/pages/');
-      console.log('  3. Run tests: npm test');
-      console.log('  4. Commit changes to version control');
-    }
-
-    if (failCount > 0) {
-      console.log('\n⚠️  Some work items failed:');
-      console.log('   - Check if they have acceptance criteria defined');
-      console.log('   - Verify work item IDs are correct');
-      console.log('   - Ensure you have read permissions');
-    }
-  } catch (error) {
-    console.error('\n❌ Error:', (error as Error).message);
-    console.error('\nTroubleshooting:');
-    console.error('  - Verify your PAT token has correct permissions');
-    console.error('  - Check work item IDs exist in the project');
-    console.error('  - Ensure network connectivity to Azure DevOps');
-    process.exit(1);
-  }
-}
-
-main().catch(error => {
-  console.error('❌ Unexpected error:', error);
-  process.exit(1);
-});
+console.log('═'.repeat(60));
+console.log('📋 MCP-Assisted Test Generation');
+console.log('═'.repeat(60));
+console.log();
+console.log('This script has been deprecated in favor of direct MCP usage.');
+console.log();
+console.log('🚀 Use Droid MCP directly instead:');
+console.log();
+console.log('  1. Get work item details:');
+console.log('     "Get work item #12345 from eycompliancemanager"');
+console.log();
+console.log('  2. Generate tests from acceptance criteria:');
+console.log('     "Generate Playwright tests for work item #12345"');
+console.log();
+console.log('  3. Batch operations:');
+console.log('     "Find all user stories in Sprint 5 and generate test specs"');
+console.log();
+console.log('═'.repeat(60));
+console.log('📖 Available MCP Tools:');
+console.log('═'.repeat(60));
+console.log('  • ado___wit_get_work_item        - Get single work item');
+console.log('  • ado___wit_get_work_items_batch - Get multiple work items');
+console.log('  • ado___wit_my_work_items        - Get your assigned items');
+console.log('  • ado___search_workitem          - Search work items');
+console.log('  • ado___wit_get_query_results    - Run saved queries');
+console.log('═'.repeat(60));

@@ -15,10 +15,6 @@ export { default as Log } from './lib/utils/Log';
 // Note: SimpleTestSetup was removed, use testSetup from setup folder if needed
 export { APITestHelper } from './lib/api/APITestHelper';
 
-// ADO Integration
-export { ADOHelper, createADOHelperFromEnv, testADOConnection } from './lib/ado/ADOHelper';
-export type { ADOConfig, ADOWorkItem, ADOGenerationResult } from './lib/ado/ADOHelper';
-
 // Test Data
 export { RuntimeDataResolver } from './lib/testData/RuntimeDataResolver';
 export { runtimeConfig } from './lib/testData/RuntimeDataConfig';

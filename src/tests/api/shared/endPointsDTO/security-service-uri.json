@@ -1,0 +1,43 @@
+{
+  "basePath": "/api/admin/api",
+
+  "eyAdmins": {
+    "base": "/ey-admins",
+    "getAll": "/ey-admins",
+    "create": "/ey-admins",
+    "update": "/ey-admins",
+    "getById": "/ey-admins/{id}",
+    "updateStatus": "/ey-admins/{id}/status"
+  },
+
+  "clients": {
+    "base": "/clients",
+    "getAll": "/clients",
+    "create": "/clients",
+    "getById": "/clients/{id}",
+    "update": "/clients/{id}",
+    "updateStatus": "/clients/{id}/status",
+    "searchByName": "/cities/search-by-name"
+  },
+
+  "users": {
+    "base": "/users",
+    "getAll": "/users",
+    "create": "/users",
+    "getById": "/users/{id}",
+    "update": "/users/{id}",
+    "updateStatus": "/users/{id}/status",
+    "delete": "/users/{id}"
+  },
+
+  "clientAdmins": {
+    "base": "/client-admins",
+    "assignCountries": "/client-admins/{id}/countries"
+  },
+
+  "roles": {
+    "base": "/roles",
+    "getAll": "/roles",
+    "create": "/roles"
+  }
+}

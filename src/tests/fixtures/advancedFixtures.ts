@@ -12,6 +12,7 @@ import { LocationLibraryPage } from '../../pages/common/LocationLibraryPage';
 import { EYAdminClientListingPage } from '../../pages/eyadmin/EYAdminClientListingPage';
 import { RegulationConfigPanelPage } from '../../pages/eyadmin/RegulationConfigPanelPage';
 import { MasterQuestionnairePage } from '../../pages/eyadmin/MasterQuestionnairePage';
+import { EYAdminUserManagementPage } from '../../pages/eyadmin/EYAdminUserManagementPage';
 import {
   UserBuilder,
   OrganizationBuilder,
@@ -21,9 +22,9 @@ import {
 import { pluginManager } from '../../lib/plugins';
 import { RuntimeDataResolver } from '../../lib/testData/RuntimeDataResolver';
 import { runtimeConfig } from '../../lib/testData/RuntimeDataConfig';
+import { getAuthFilePaths } from '../../config/global-setup';
 import Log from '../../lib/utils/Log';
 import * as fs from 'fs-extra';
-import * as path from 'path';
 
 /* ===== FIXTURE TYPES ===== */
 
@@ -38,6 +39,7 @@ export type AdvancedFixtures = {
   eyAdminClientListingPage: EYAdminClientListingPage;
   regulationConfigPanelPage: RegulationConfigPanelPage;
   masterQuestionnairePage: MasterQuestionnairePage;
+  eyAdminUserManagementPage: EYAdminUserManagementPage;
 
   // API Helpers
   apiHelper: APITestHelper;
@@ -160,6 +162,16 @@ export const test = base.extend<AdvancedFixtures>({
     Log.info('📋 MasterQuestionnairePage fixture cleanup');
   },
 
+  eyAdminUserManagementPage: async (
+    { page }: { page: Page },
+    use: (r: EYAdminUserManagementPage) => Promise<void>
+  ) => {
+    const eyAdminUserManagementPage = new EYAdminUserManagementPage(page);
+    Log.info('👥 EYAdminUserManagementPage fixture initialized');
+    await use(eyAdminUserManagementPage);
+    Log.info('👥 EYAdminUserManagementPage fixture cleanup');
+  },
+
   // API Helper with authentication
   apiHelper: async (
     { playwright }: PlaywrightWorkerArgs,
@@ -185,12 +197,14 @@ export const test = base.extend<AdvancedFixtures>({
     use: (r: APITestHelper) => Promise<void>,
     _testInfo: TestInfo
   ) => {
-    const authPath = path.resolve(process.cwd(), 'auth.json');
+    const env = process.env.NODE_ENV || 'qa';
+    const authFiles = getAuthFilePaths(env);
+    const authPath = authFiles.superAdmin;
 
     let storageState = {};
     if (fs.existsSync(authPath)) {
       storageState = { storageState: authPath };
-      Log.info('🔐 Using stored authentication for API');
+      Log.info(`🔐 Using stored authentication for API (${env})`);
     }
 
     const apiContext = await playwright.request.newContext({

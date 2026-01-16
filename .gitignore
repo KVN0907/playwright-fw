@@ -138,4 +138,8 @@ node_modules/
 .vscode/
 /allure-results/
 .playwright-mcp
+
+# Auth state files (environment-specific)
+.auth/
 auth.json
+auth-*.json

@@ -460,7 +460,156 @@ expect(error).toHaveProperty('statusCode');
 
 ## Test Data Generation
 
-### Using Test Data Builders
+### Using Faker for Realistic Test Data
+
+The framework uses `@faker-js/faker` to generate realistic test data at runtime. **Always import and use faker** for generating names, emails, addresses, and other data instead of timestamps or hardcoded values.
+
+```typescript
+import { faker } from '@faker-js/faker';
+
+// Generate realistic company/client names
+const generateClientName = (): string => {
+  return faker.helpers.arrayElement([
+    faker.company.name(),
+    `${faker.person.lastName()} & ${faker.person.lastName()} ${faker.company.buzzNoun()}`,
+    `${faker.location.city()} ${faker.company.buzzNoun()} Corp`,
+    `${faker.word.adjective({ capitalize: true })} ${faker.company.buzzNoun()} Ltd`,
+    `${faker.person.lastName()} ${faker.company.buzzNoun()} Group`,
+  ]);
+};
+
+// Generate realistic user data
+const generateUserData = () => ({
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  email: faker.internet.email(),
+  username: faker.internet.username(),
+  phone: faker.phone.number(),
+  jobTitle: faker.person.jobTitle(),
+});
+
+// Generate location/address data
+const generateLocationData = () => ({
+  city: faker.location.city(),
+  country: faker.location.country(),
+  countryCode: faker.location.countryCode(),
+  state: faker.location.state(),
+  street: faker.location.streetAddress(),
+  zipCode: faker.location.zipCode(),
+  latitude: faker.location.latitude(),
+  longitude: faker.location.longitude(),
+});
+
+// Generate organization data
+const generateOrganizationData = () => ({
+  name: faker.company.name(),
+  industry: faker.company.buzzPhrase(),
+  catchPhrase: faker.company.catchPhrase(),
+  department: faker.commerce.department(),
+});
+```
+
+### Faker Usage Examples
+
+```typescript
+import { test, expect } from '../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
+
+test.describe('Client API Tests with Faker', () => {
+  test('@smoke POST - Create client with realistic data', async ({ authenticatedApi }) => {
+    // Generate realistic client data using faker
+    const clientData = {
+      name: faker.company.name(),
+      contactEmail: faker.internet.email(),
+      contactName: faker.person.fullName(),
+      phone: faker.phone.number(),
+      address: {
+        street: faker.location.streetAddress(),
+        city: faker.location.city(),
+        state: faker.location.state(),
+        country: faker.location.country(),
+        zipCode: faker.location.zipCode(),
+      },
+    };
+
+    const response = await authenticatedApi.post('/api/clients', clientData);
+    expect(response.status()).toBe(201);
+  });
+
+  test('@smoke POST - Create user with realistic data', async ({ authenticatedApi }) => {
+    // Generate realistic user data
+    const userData = {
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      email: faker.internet.email({ provider: 'testcompany.com' }),
+      username: faker.internet.username(),
+      role: faker.helpers.arrayElement(['admin', 'user', 'manager']),
+      department: faker.commerce.department(),
+    };
+
+    const response = await authenticatedApi.post('/api/users', userData);
+    expect(response.status()).toBe(201);
+  });
+});
+```
+
+### Common Faker Methods Reference
+
+```typescript
+import { faker } from '@faker-js/faker';
+
+// Person/User Data
+faker.person.firstName(); // "John"
+faker.person.lastName(); // "Smith"
+faker.person.fullName(); // "John Smith"
+faker.person.jobTitle(); // "Software Engineer"
+faker.person.jobArea(); // "Engineering"
+
+// Internet/Contact Data
+faker.internet.email(); // "john.smith@example.com"
+faker.internet.email({ provider: 'company.com' }); // "john.smith@company.com"
+faker.internet.username(); // "john_smith_42"
+faker.internet.password(); // "xK9#mP2$vL"
+faker.phone.number(); // "+1-555-123-4567"
+
+// Company/Organization Data
+faker.company.name(); // "Acme Corporation"
+faker.company.buzzNoun(); // "synergies"
+faker.company.buzzPhrase(); // "leverage real-time partnerships"
+faker.company.catchPhrase(); // "Innovative solutions for tomorrow"
+
+// Location/Address Data
+faker.location.city(); // "San Francisco"
+faker.location.country(); // "United States"
+faker.location.countryCode(); // "US"
+faker.location.state(); // "California"
+faker.location.stateAbbr(); // "CA"
+faker.location.streetAddress(); // "123 Main Street"
+faker.location.zipCode(); // "94102"
+faker.location.latitude(); // 37.7749
+faker.location.longitude(); // -122.4194
+
+// Random Selection
+faker.helpers.arrayElement(['a', 'b', 'c']); // Random from array
+faker.helpers.multiple(() => faker.person.firstName(), { count: 5 }); // Array of 5 names
+
+// Numbers
+faker.number.int({ min: 1, max: 100 }); // Random integer
+faker.number.float({ min: 0, max: 1 }); // Random float
+
+// Date/Time
+faker.date.past(); // Random past date
+faker.date.future(); // Random future date
+faker.date.recent(); // Recent date
+
+// Text
+faker.lorem.sentence(); // Random sentence
+faker.lorem.paragraph(); // Random paragraph
+faker.word.adjective(); // Random adjective
+faker.word.noun(); // Random noun
+```
+
+### Using Test Data Builders with Faker
 
 ```typescript
 test('Create resource with generated data', async ({ authenticatedApi, userBuilder }) => {
@@ -478,15 +627,16 @@ test('Create resource with generated data', async ({ authenticatedApi, userBuild
 });
 ```
 
-### Dynamic Test Data
+### Dynamic Test Data with Faker (Preferred)
 
 ```typescript
-test('Create with timestamp-based unique data', async ({ authenticatedApi }) => {
-  const timestamp = Date.now();
+test('Create with faker-generated unique data', async ({ authenticatedApi }) => {
+  // Use faker instead of timestamps for realistic data
   const requestData = {
-    name: `Test Resource ${timestamp}`,
-    email: `test_${timestamp}@example.com`,
-    code: `CODE_${timestamp}`,
+    name: faker.company.name(),
+    email: faker.internet.email(),
+    code: faker.string.alphanumeric(10).toUpperCase(),
+    description: faker.lorem.sentence(),
   };
 
   const response = await authenticatedApi.post('/api/resources', requestData);

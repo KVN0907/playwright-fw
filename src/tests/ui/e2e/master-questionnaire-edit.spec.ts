@@ -5,26 +5,28 @@
  */
 
 import { test } from '../../fixtures/advancedFixtures';
+import { faker } from '@faker-js/faker';
 
 /**
- * Test Data Configuration
+ * Test Data Configuration using faker
  */
+const uniqueId = `${Date.now()}`.slice(-6);
 const testConfig = {
   regArea: {
     originalName: 'Section 1',
-    updatedName: `Section 1 Updated ${Date.now()}`,
-    description: 'Updated test description',
+    updatedName: `${faker.commerce.department()} Section ${uniqueId}`,
+    description: faker.lorem.sentence(),
   },
   question: {
     originalTitle: 'Question 1',
-    updatedTitle: `Question 1 Updated ${Date.now()}`,
+    updatedTitle: `${faker.lorem.words(3)} ${uniqueId}`,
     types: {
       TEXT: 'Text',
       DROPDOWN: 'Dropdown',
       CHECKBOX: 'Checkbox',
       RADIO: 'Radio',
     },
-    dropdownOptions: ['Option A', 'Option B', 'Option C'],
+    dropdownOptions: [faker.word.noun(), faker.word.noun(), faker.word.noun()],
   },
 };
 
